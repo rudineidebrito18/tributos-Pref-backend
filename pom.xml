@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>4.1.1</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>br.com.tributos</groupId>
+  <artifactId>tributos-backend</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>tributos-backend</name>
+  <description>Sistema de Gestão Tributária Municipal — backend multi-tenant (Java 21 + Spring Boot)</description>
+
+  <properties>
+    <java.version>21</java.version>
+    <maven.compiler.release>21</maven.compiler.release>
+    <mapstruct.version>1.6.3</mapstruct.version>
+    <testcontainers.version>1.20.4</testcontainers.version>
+  </properties>
+
+  <!-- Ordem reflete a dependência entre camadas (ver PLANEJAMENTO_PROJETO.md §7): cada
+       módulo tributário depende só de shared-kernel, nunca de outro módulo de domínio
+       diretamente — comunicação entre eles é por evento/porta, não por import cruzado. -->
+  <modules>
+    <module>shared-kernel</module>
+    <module>platform-identity</module>
+    <module>app-bootstrap</module>
+  </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>br.com.tributos</groupId>
+        <artifactId>shared-kernel</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>br.com.tributos</groupId>
+        <artifactId>platform-identity</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>${testcontainers.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>
