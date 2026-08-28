@@ -6,12 +6,12 @@ import org.springframework.stereotype.Component;
 
 import br.com.tributos.iptu.domain.EnderecoReferenciaRepository;
 
-@Component
+@Component("iptuEnderecoReferenciaRepositoryAdapter")
 public class EnderecoReferenciaRepositoryAdapter implements EnderecoReferenciaRepository {
 
-    private final EnderecoReferenciaJpaRepository jpaRepository;
+    private final IptuEnderecoReferenciaJpaRepository jpaRepository;
 
-    public EnderecoReferenciaRepositoryAdapter(EnderecoReferenciaJpaRepository jpaRepository) {
+    public EnderecoReferenciaRepositoryAdapter(IptuEnderecoReferenciaJpaRepository jpaRepository) {
         this.jpaRepository = jpaRepository;
     }
 

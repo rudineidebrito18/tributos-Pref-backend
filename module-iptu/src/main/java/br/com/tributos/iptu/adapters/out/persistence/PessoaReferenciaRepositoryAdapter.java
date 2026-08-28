@@ -6,12 +6,12 @@ import org.springframework.stereotype.Component;
 
 import br.com.tributos.iptu.domain.PessoaReferenciaRepository;
 
-@Component
+@Component("iptuPessoaReferenciaRepositoryAdapter")
 public class PessoaReferenciaRepositoryAdapter implements PessoaReferenciaRepository {
 
-    private final PessoaReferenciaJpaRepository jpaRepository;
+    private final IptuPessoaReferenciaJpaRepository jpaRepository;
 
-    public PessoaReferenciaRepositoryAdapter(PessoaReferenciaJpaRepository jpaRepository) {
+    public PessoaReferenciaRepositoryAdapter(IptuPessoaReferenciaJpaRepository jpaRepository) {
         this.jpaRepository = jpaRepository;
     }
 

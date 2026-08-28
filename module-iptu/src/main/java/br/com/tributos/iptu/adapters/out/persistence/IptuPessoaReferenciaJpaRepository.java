@@ -4,5 +4,5 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PessoaReferenciaJpaRepository extends JpaRepository<PessoaReferenciaJpaEntity, UUID> {
+public interface IptuPessoaReferenciaJpaRepository extends JpaRepository<PessoaReferenciaJpaEntity, UUID> {
 }

@@ -4,5 +4,5 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface EnderecoReferenciaJpaRepository extends JpaRepository<EnderecoReferenciaJpaEntity, UUID> {
+public interface IptuEnderecoReferenciaJpaRepository extends JpaRepository<EnderecoReferenciaJpaEntity, UUID> {
 }
