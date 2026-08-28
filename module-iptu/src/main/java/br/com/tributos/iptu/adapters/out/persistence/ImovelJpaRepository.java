@@ -1,5 +1,6 @@
 package br.com.tributos.iptu.adapters.out.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -8,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import br.com.tributos.iptu.domain.SituacaoImovel;
 
 public interface ImovelJpaRepository extends JpaRepository<ImovelJpaEntity, UUID> {
 
@@ -24,4 +27,8 @@ public interface ImovelJpaRepository extends JpaRepository<ImovelJpaEntity, UUID
         ORDER BY i.numeroCadastro
         """)
     Page<ImovelJpaEntity> buscarComFiltro(@Param("busca") String busca, Pageable pageable);
+
+    List<ImovelJpaEntity> findBySituacaoAndZonaFiscalIdIsNotNullAndDestinacaoIdIsNotNull(SituacaoImovel situacao);
+
+    long countBySituacaoAndZonaFiscalIdIsNull(SituacaoImovel situacao);
 }

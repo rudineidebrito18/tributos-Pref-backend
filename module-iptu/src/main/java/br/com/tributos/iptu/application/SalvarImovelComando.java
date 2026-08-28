@@ -13,6 +13,7 @@ public record SalvarImovelComando(
     UUID destinacaoId,
     UUID tipoEdificacaoId,
     UUID tipoLimitacaoId,
+    UUID zonaFiscalId,
     BigDecimal valorVenalTerreno,
     BigDecimal valorVenalConstrucao,
     SituacaoImovelComando situacao

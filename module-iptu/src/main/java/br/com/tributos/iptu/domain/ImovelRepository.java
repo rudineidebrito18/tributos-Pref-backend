@@ -1,5 +1,6 @@
 package br.com.tributos.iptu.domain;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,4 +18,8 @@ public interface ImovelRepository {
     long proximoNumeroCadastro();
 
     Optional<Imovel> buscarPorCodigoLegado(String codigoLegado);
+
+    List<Imovel> listarAtivosComZonaEDestinacao();
+
+    long contarAtivosSemZona();
 }

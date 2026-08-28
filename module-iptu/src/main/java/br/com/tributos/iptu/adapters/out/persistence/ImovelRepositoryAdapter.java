@@ -1,5 +1,6 @@
 package br.com.tributos.iptu.adapters.out.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import br.com.tributos.iptu.domain.Imovel;
 import br.com.tributos.iptu.domain.ImovelRepository;
+import br.com.tributos.iptu.domain.SituacaoImovel;
 import br.com.tributos.kernel.tenancy.TenantContext;
 
 @Component
@@ -41,6 +43,7 @@ public class ImovelRepositoryAdapter implements ImovelRepository {
         entidade.setDestinacaoId(imovel.destinacaoId());
         entidade.setTipoEdificacaoId(imovel.tipoEdificacaoId());
         entidade.setTipoLimitacaoId(imovel.tipoLimitacaoId());
+        entidade.setZonaFiscalId(imovel.zonaFiscalId());
         entidade.setValorVenalTerreno(imovel.valorVenalTerreno());
         entidade.setValorVenalConstrucao(imovel.valorVenalConstrucao());
         entidade.setSituacao(imovel.situacao());
@@ -73,6 +76,19 @@ public class ImovelRepositoryAdapter implements ImovelRepository {
         return jpaRepository.findByCodigoLegado(codigoLegado.trim()).map(ImovelRepositoryAdapter::paraDominio);
     }
 
+    @Override
+    public List<Imovel> listarAtivosComZonaEDestinacao() {
+        return jpaRepository.findBySituacaoAndZonaFiscalIdIsNotNullAndDestinacaoIdIsNotNull(SituacaoImovel.ATIVO)
+            .stream()
+            .map(ImovelRepositoryAdapter::paraDominio)
+            .toList();
+    }
+
+    @Override
+    public long contarAtivosSemZona() {
+        return jpaRepository.countBySituacaoAndZonaFiscalIdIsNull(SituacaoImovel.ATIVO);
+    }
+
     private static Imovel paraDominio(ImovelJpaEntity entidade) {
         return new Imovel(
             entidade.getId(),
@@ -87,6 +103,7 @@ public class ImovelRepositoryAdapter implements ImovelRepository {
             entidade.getDestinacaoId(),
             entidade.getTipoEdificacaoId(),
             entidade.getTipoLimitacaoId(),
+            entidade.getZonaFiscalId(),
             entidade.getValorVenalTerreno(),
             entidade.getValorVenalConstrucao(),
             entidade.getSituacao()

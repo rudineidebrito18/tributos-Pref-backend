@@ -15,6 +15,7 @@ import br.com.tributos.iptu.domain.PessoaReferenciaRepository;
 import br.com.tributos.iptu.domain.SituacaoImovel;
 import br.com.tributos.iptu.domain.TipoCatalogoIptu;
 import br.com.tributos.iptu.domain.TipoImovelNomes;
+import br.com.tributos.iptu.domain.ZonaFiscalRepository;
 import br.com.tributos.kernel.exception.NotFoundException;
 import br.com.tributos.kernel.exception.ValidationException;
 import br.com.tributos.kernel.tenancy.TenantContext;
@@ -26,17 +27,20 @@ public class SalvarImovelService {
     private final PessoaReferenciaRepository pessoaReferenciaRepository;
     private final EnderecoReferenciaRepository enderecoReferenciaRepository;
     private final CatalogoIptuRepository catalogoIptuRepository;
+    private final ZonaFiscalRepository zonaFiscalRepository;
 
     public SalvarImovelService(
         ImovelRepository imovelRepository,
         PessoaReferenciaRepository pessoaReferenciaRepository,
         EnderecoReferenciaRepository enderecoReferenciaRepository,
-        CatalogoIptuRepository catalogoIptuRepository
+        CatalogoIptuRepository catalogoIptuRepository,
+        ZonaFiscalRepository zonaFiscalRepository
     ) {
         this.imovelRepository = imovelRepository;
         this.pessoaReferenciaRepository = pessoaReferenciaRepository;
         this.enderecoReferenciaRepository = enderecoReferenciaRepository;
         this.catalogoIptuRepository = catalogoIptuRepository;
+        this.zonaFiscalRepository = zonaFiscalRepository;
     }
 
     @Transactional
@@ -55,6 +59,7 @@ public class SalvarImovelService {
         validarCatalogoOpcional(TipoCatalogoIptu.DESTINACAO, comando.destinacaoId(), "destinação");
         validarCatalogoOpcional(TipoCatalogoIptu.TIPO_EDIFICACAO, comando.tipoEdificacaoId(), "tipo de edificação");
         validarCatalogoOpcional(TipoCatalogoIptu.TIPO_LIMITACAO, comando.tipoLimitacaoId(), "tipo de limitação");
+        validarZonaFiscalOpcional(comando.zonaFiscalId());
 
         validarAreasPorTipo(tipo.nome(), comando.areaTerreno(), comando.areaConstruida());
 
@@ -100,6 +105,7 @@ public class SalvarImovelService {
             comando.destinacaoId(),
             comando.tipoEdificacaoId(),
             comando.tipoLimitacaoId(),
+            comando.zonaFiscalId(),
             valorVenalTerreno,
             valorVenalConstrucao,
             situacao
@@ -111,6 +117,12 @@ public class SalvarImovelService {
     private void validarCatalogoOpcional(TipoCatalogoIptu tipo, UUID id, String rotulo) {
         if (id != null && catalogoIptuRepository.buscarPorId(tipo, id).isEmpty()) {
             throw new ValidationException("Informe um(a) " + rotulo + " válido(a).");
+        }
+    }
+
+    private void validarZonaFiscalOpcional(UUID zonaFiscalId) {
+        if (zonaFiscalId != null && !zonaFiscalRepository.existe(zonaFiscalId)) {
+            throw new ValidationException("Informe uma zona fiscal válida.");
         }
     }
 

@@ -99,6 +99,7 @@ public class ImovelController {
             request.destinacaoId(),
             request.tipoEdificacaoId(),
             request.tipoLimitacaoId(),
+            request.zonaFiscalId(),
             request.valorVenalTerreno(),
             request.valorVenalConstrucao(),
             request.situacao()

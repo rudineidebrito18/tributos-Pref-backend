@@ -53,6 +53,9 @@ public class ImovelJpaEntity {
     @Column(name = "tipo_limitacao_id")
     private UUID tipoLimitacaoId;
 
+    @Column(name = "zona_fiscal_id")
+    private UUID zonaFiscalId;
+
     @Column(name = "valor_venal_terreno", nullable = false, precision = 14, scale = 2)
     private BigDecimal valorVenalTerreno;
 
@@ -166,6 +169,14 @@ public class ImovelJpaEntity {
 
     public void setTipoLimitacaoId(UUID tipoLimitacaoId) {
         this.tipoLimitacaoId = tipoLimitacaoId;
+    }
+
+    public UUID getZonaFiscalId() {
+        return zonaFiscalId;
+    }
+
+    public void setZonaFiscalId(UUID zonaFiscalId) {
+        this.zonaFiscalId = zonaFiscalId;
     }
 
     public BigDecimal getValorVenalTerreno() {

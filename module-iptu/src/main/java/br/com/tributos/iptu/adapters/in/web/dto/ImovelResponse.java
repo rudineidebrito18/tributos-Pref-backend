@@ -18,6 +18,7 @@ public record ImovelResponse(
     UUID destinacaoId,
     UUID tipoEdificacaoId,
     UUID tipoLimitacaoId,
+    UUID zonaFiscalId,
     BigDecimal valorVenalTerreno,
     BigDecimal valorVenalConstrucao,
     SituacaoImovel situacao
@@ -36,6 +37,7 @@ public record ImovelResponse(
             imovel.destinacaoId(),
             imovel.tipoEdificacaoId(),
             imovel.tipoLimitacaoId(),
+            imovel.zonaFiscalId(),
             imovel.valorVenalTerreno(),
             imovel.valorVenalConstrucao(),
             imovel.situacao()
