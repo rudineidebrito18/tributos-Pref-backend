@@ -33,6 +33,7 @@
     <module>module-cadastro</module>
     <module>module-iss</module>
     <module>module-iptu</module>
+    <module>module-financeiro</module>
     <module>app-bootstrap</module>
   </modules>
 
@@ -61,6 +62,11 @@
       <dependency>
         <groupId>br.com.tributos</groupId>
         <artifactId>module-iptu</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>br.com.tributos</groupId>
+        <artifactId>module-financeiro</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

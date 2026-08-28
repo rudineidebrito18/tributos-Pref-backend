@@ -63,7 +63,7 @@ public class EmitirCertidaoService {
 
         UUID tenantId = TenantContext.getObrigatorio();
 
-        if (tipo == TipoCertidaoIss.NADA_CONSTA && pendenciaFinanceiraPort.possuiPendencia(tenantId, contribuinteId)) {
+        if (tipo == TipoCertidaoIss.NADA_CONSTA && pendenciaFinanceiraPort.possuiPendencia(tenantId, contribuinte.pessoaId())) {
             throw new ValidationException("Não é possível emitir certidão de nada consta para contribuinte com pendências financeiras.");
         }
 

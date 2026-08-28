@@ -8,5 +8,6 @@ import java.util.UUID;
  */
 public interface PendenciaFinanceiraPort {
 
-    boolean possuiPendencia(UUID tenantId, UUID contribuinteId);
+    /** {@code pessoaId} do cadastro único — titular da dívida na guia de arrecadação. */
+    boolean possuiPendencia(UUID tenantId, UUID pessoaId);
 }

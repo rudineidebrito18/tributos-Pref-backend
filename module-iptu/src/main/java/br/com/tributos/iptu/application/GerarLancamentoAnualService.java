@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import br.com.tributos.iptu.domain.LancamentoParcela;
 import br.com.tributos.iptu.domain.LancamentoParcelaRepository;
 import br.com.tributos.iptu.domain.StatusLancamentoIptu;
 import br.com.tributos.iptu.domain.StatusParcelaIptu;
+import br.com.tributos.kernel.events.LancamentoIptuParcelaGeradaEvent;
 import br.com.tributos.kernel.exception.ValidationException;
 import br.com.tributos.kernel.tenancy.TenantContext;
 
@@ -34,19 +36,22 @@ public class GerarLancamentoAnualService {
     private final AliquotaIptuRepository aliquotaIptuRepository;
     private final LancamentoIptuRepository lancamentoIptuRepository;
     private final LancamentoParcelaRepository lancamentoParcelaRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public GerarLancamentoAnualService(
         VerificarParametrizacaoExercicioService verificarParametrizacaoExercicioService,
         ImovelRepository imovelRepository,
         AliquotaIptuRepository aliquotaIptuRepository,
         LancamentoIptuRepository lancamentoIptuRepository,
-        LancamentoParcelaRepository lancamentoParcelaRepository
+        LancamentoParcelaRepository lancamentoParcelaRepository,
+        ApplicationEventPublisher eventPublisher
     ) {
         this.verificarParametrizacaoExercicioService = verificarParametrizacaoExercicioService;
         this.imovelRepository = imovelRepository;
         this.aliquotaIptuRepository = aliquotaIptuRepository;
         this.lancamentoIptuRepository = lancamentoIptuRepository;
         this.lancamentoParcelaRepository = lancamentoParcelaRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -56,8 +61,8 @@ public class GerarLancamentoAnualService {
             throw new ValidationException("Parametrização incompleta para o exercício. Verifique o status antes de gerar lançamentos.");
         }
 
-        int parcelas = numeroParcelas != null ? numeroParcelas : PARCELAS_PADRAO;
-        if (parcelas <= 0) {
+        int numParcelas = numeroParcelas != null ? numeroParcelas : PARCELAS_PADRAO;
+        if (numParcelas <= 0) {
             throw new ValidationException("O número de parcelas deve ser maior que zero.");
         }
 
@@ -85,12 +90,26 @@ public class GerarLancamentoAnualService {
                 valorVenal,
                 aliquota,
                 valorTotal,
-                parcelas,
+                numParcelas,
                 StatusLancamentoIptu.GERADO,
                 Instant.now()
             );
             LancamentoIptu salvo = lancamentoIptuRepository.salvar(lancamento);
-            lancamentoParcelaRepository.salvarTodos(criarParcelas(lancamentoId, tenantId, exercicio, valorTotal, parcelas));
+            List<LancamentoParcela> parcelasGeradas = criarParcelas(lancamentoId, tenantId, exercicio, valorTotal, numParcelas);
+            lancamentoParcelaRepository.salvarTodos(parcelasGeradas);
+            for (LancamentoParcela parcela : parcelasGeradas) {
+                eventPublisher.publishEvent(new LancamentoIptuParcelaGeradaEvent(
+                    parcela.id(),
+                    tenantId,
+                    imovel.proprietarioId(),
+                    lancamentoId,
+                    imovel.id(),
+                    exercicio,
+                    parcela.numeroParcela(),
+                    parcela.valor(),
+                    parcela.vencimento()
+                ));
+            }
             gerados.add(salvo);
         }
 

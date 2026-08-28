@@ -14,8 +14,8 @@ import br.com.tributos.iss.domain.CatalogoIssRepository;
 import br.com.tributos.iss.domain.Contribuinte;
 import br.com.tributos.iss.domain.ContribuinteRepository;
 import br.com.tributos.iss.domain.NotaFiscal;
-import br.com.tributos.iss.domain.NotaFiscalEmitidaEvent;
 import br.com.tributos.iss.domain.NotaFiscalRepository;
+import br.com.tributos.kernel.events.NotaFiscalEmitidaEvent;
 import br.com.tributos.iss.domain.ServicoRepository;
 import br.com.tributos.iss.domain.StatusCredenciamentoNomes;
 import br.com.tributos.iss.domain.StatusNotaFiscal;
@@ -133,8 +133,9 @@ public class EmitirNotaFiscalService {
         eventPublisher.publishEvent(new NotaFiscalEmitidaEvent(
             salva.id(),
             salva.tenantId(),
-            salva.contribuinteId(),
+            contribuinte.pessoaId(),
             salva.valorIss(),
+            salva.competencia(),
             salva.dataEmissao()
         ));
 
