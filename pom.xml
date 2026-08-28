@@ -31,6 +31,7 @@
     <module>shared-kernel</module>
     <module>platform-identity</module>
     <module>module-cadastro</module>
+    <module>module-iss</module>
     <module>app-bootstrap</module>
   </modules>
 
@@ -49,6 +50,11 @@
       <dependency>
         <groupId>br.com.tributos</groupId>
         <artifactId>module-cadastro</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>br.com.tributos</groupId>
+        <artifactId>module-iss</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
