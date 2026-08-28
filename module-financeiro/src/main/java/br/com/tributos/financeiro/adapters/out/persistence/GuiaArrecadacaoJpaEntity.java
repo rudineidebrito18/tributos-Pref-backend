@@ -12,6 +12,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
 import br.com.tributos.financeiro.domain.TipoTributo;
@@ -43,9 +46,11 @@ public class GuiaArrecadacaoJpaEntity {
     @Column(name = "contribuinte_id", nullable = false)
     private UUID contribuinteId;
 
+    @JdbcTypeCode(SqlTypes.SMALLINT)
     @Column(name = "competencia_mes")
     private Integer competenciaMes;
 
+    @JdbcTypeCode(SqlTypes.SMALLINT)
     @Column(name = "competencia_ano")
     private Integer competenciaAno;
 
