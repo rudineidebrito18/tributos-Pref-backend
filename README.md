@@ -63,6 +63,15 @@ curl -X POST http://localhost:8080/api/auth/login \
   -d '{"login":"admin","senha":"Demo@123"}'
 ```
 
+Usuário da equipe da plataforma (cadastro de novas prefeituras — `POST /api/admin/tenants`):
+
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -H "X-Tenant-Slug: _plataforma" \
+  -d '{"login":"plataforma-admin","senha":"Demo@123"}'
+```
+
 ## Autenticação
 
 Módulo real (`platform-identity`), substituindo o `permitAll()` do Sprint 0 inicial:

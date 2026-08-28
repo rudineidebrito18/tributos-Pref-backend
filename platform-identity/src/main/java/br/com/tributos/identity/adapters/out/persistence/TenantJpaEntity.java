@@ -74,6 +74,25 @@ public class TenantJpaEntity {
         // exigido pelo JPA
     }
 
+    public TenantJpaEntity(
+        UUID id, String slug, String nome, String uf, TipoEntidade tipoEntidade, String logoUrl,
+        String corAccent, String corAccentDark, String corAccentSecondary, String corAccentTertiary,
+        Set<String> modulosAtivos, boolean ativo
+    ) {
+        this.id = id;
+        this.slug = slug;
+        this.nome = nome;
+        this.uf = uf;
+        this.tipoEntidade = tipoEntidade;
+        this.logoUrl = logoUrl;
+        this.corAccent = corAccent;
+        this.corAccentDark = corAccentDark;
+        this.corAccentSecondary = corAccentSecondary;
+        this.corAccentTertiary = corAccentTertiary;
+        this.modulosAtivos = modulosAtivos;
+        this.ativo = ativo;
+    }
+
     public UUID getId() {
         return id;
     }

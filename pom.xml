@@ -30,6 +30,7 @@
   <modules>
     <module>shared-kernel</module>
     <module>platform-identity</module>
+    <module>module-cadastro</module>
     <module>app-bootstrap</module>
   </modules>
 
@@ -43,6 +44,11 @@
       <dependency>
         <groupId>br.com.tributos</groupId>
         <artifactId>platform-identity</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>br.com.tributos</groupId>
+        <artifactId>module-cadastro</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

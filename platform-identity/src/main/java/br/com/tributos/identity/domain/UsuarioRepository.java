@@ -14,4 +14,7 @@ public interface UsuarioRepository {
 
     /** Nomes dos papéis (RBAC) atribuídos ao usuário — já resolvidos para uso em claims do JWT. */
     Set<String> buscarNomesDosPapeis(UUID usuarioId);
+
+    /** Associa um papel global (ex.: {@code ADMIN_TENANT}) já existente no catálogo ao usuário. */
+    void atribuirPapel(UUID usuarioId, String nomeDoPapel);
 }

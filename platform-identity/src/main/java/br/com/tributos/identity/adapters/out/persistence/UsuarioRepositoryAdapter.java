@@ -15,9 +15,11 @@ import br.com.tributos.identity.domain.UsuarioRepository;
 public class UsuarioRepositoryAdapter implements UsuarioRepository {
 
     private final UsuarioJpaRepository jpaRepository;
+    private final PapelJpaRepository papelJpaRepository;
 
-    public UsuarioRepositoryAdapter(UsuarioJpaRepository jpaRepository) {
+    public UsuarioRepositoryAdapter(UsuarioJpaRepository jpaRepository, PapelJpaRepository papelJpaRepository) {
         this.jpaRepository = jpaRepository;
+        this.papelJpaRepository = papelJpaRepository;
     }
 
     @Override
@@ -51,6 +53,17 @@ public class UsuarioRepositoryAdapter implements UsuarioRepository {
         return jpaRepository.findById(usuarioId)
             .map(entidade -> entidade.getPapeis().stream().map(PapelJpaEntity::getNome).collect(Collectors.toSet()))
             .orElseGet(Set::of);
+    }
+
+    @Override
+    public void atribuirPapel(UUID usuarioId, String nomeDoPapel) {
+        UsuarioJpaEntity usuario = jpaRepository.findById(usuarioId)
+            .orElseThrow(() -> new IllegalStateException("Usuário " + usuarioId + " não encontrado para atribuir papel."));
+        PapelJpaEntity papel = papelJpaRepository.findByNome(nomeDoPapel)
+            .orElseThrow(() -> new IllegalStateException("Papel \"" + nomeDoPapel + "\" não cadastrado no catálogo."));
+
+        usuario.getPapeis().add(papel);
+        jpaRepository.save(usuario);
     }
 
     private static Usuario paraDominio(UsuarioJpaEntity entidade) {

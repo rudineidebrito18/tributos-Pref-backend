@@ -27,6 +27,17 @@ public class TenantRepositoryAdapter implements TenantRepository {
         return jpaRepository.findBySlug(slug).map(TenantRepositoryAdapter::paraDominio);
     }
 
+    @Override
+    public void salvar(Tenant tenant) {
+        PaletaTenant paleta = tenant.getPaleta();
+        TenantJpaEntity entidade = new TenantJpaEntity(
+            tenant.getId(), tenant.getSlug(), tenant.getNome(), tenant.getUf(), tenant.getTipoEntidade(),
+            tenant.getLogoUrl(), paleta.accent(), paleta.accentDark(), paleta.accentSecondary(), paleta.accentTertiary(),
+            tenant.getModulosAtivos(), tenant.isAtivo()
+        );
+        jpaRepository.save(entidade);
+    }
+
     private static Tenant paraDominio(TenantJpaEntity entidade) {
         PaletaTenant paleta = new PaletaTenant(
             entidade.getCorAccent(),

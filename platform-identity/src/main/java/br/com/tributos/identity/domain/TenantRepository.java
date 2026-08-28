@@ -11,4 +11,7 @@ import java.util.Optional;
 public interface TenantRepository {
 
     Optional<Tenant> buscarPorSlug(String slug);
+
+    /** Cria (ou substitui, se já existir o mesmo id) um tenant — usado pelo onboarding administrativo. */
+    void salvar(Tenant tenant);
 }

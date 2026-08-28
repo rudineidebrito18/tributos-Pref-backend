@@ -8,7 +8,8 @@ services:
       POSTGRES_USER: tributos
       POSTGRES_PASSWORD: tributos
     ports:
-      - '5432:5432'
+      # 5433 no host — 5432 costuma estar ocupada por outro projeto local.
+      - '5433:5432'
     volumes:
       - tributos_postgres_data:/var/lib/postgresql/data
     healthcheck:
