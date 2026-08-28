@@ -50,12 +50,43 @@ cp .env.example .env
 ```
 
 A aplicação sobe em `http://localhost:8080`. As migrations Flyway rodam automaticamente e
-semeiam um tenant `demo` (mesmo slug usado como fallback pelo frontend em desenvolvimento).
-Teste rápido:
+semeiam um tenant `demo` (mesmo slug usado como fallback pelo frontend em desenvolvimento),
+com um usuário administrador de exemplo (login `admin`, senha `Demo@123` — **só existe em
+dev local**, ver `V4__seed_rbac_demo.sql`). Teste rápido:
 
 ```bash
 curl http://localhost:8080/api/public/tenants/demo/branding
+
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -H "X-Tenant-Slug: demo" \
+  -d '{"login":"admin","senha":"Demo@123"}'
 ```
+
+## Autenticação
+
+Módulo real (`platform-identity`), substituindo o `permitAll()` do Sprint 0 inicial:
+
+- **Login em duas etapas**: `POST /api/auth/login` (header `X-Tenant-Slug`) retorna os
+  tokens diretamente, ou — se o usuário tiver MFA habilitado — um `tokenMfaPendente` de
+  curta duração que precisa ser confirmado em `POST /api/auth/mfa/verificar` (código TOTP).
+- **JWT auto-assinado (HS256)**: access token de 15 min, claims `sub` (id do usuário),
+  `tenant_id` e `roles` (usada pelo RBAC via `@PreAuthorize("hasRole(...)")`).
+- **Refresh token opaco** (30 dias, hash SHA-256 no banco, rotacionado a cada uso):
+  `POST /api/auth/refresh` e `POST /api/auth/logout`.
+- **MFA (TOTP/RFC 6238)**: `POST /api/auth/mfa/habilitar` (usuário autenticado, gera
+  segredo + URI de provisionamento para app autenticador) e
+  `POST /api/auth/mfa/confirmar` (código TOTP) para efetivar.
+- **RBAC**: papéis-base `ADMIN_TENANT`, `FISCAL`, `ATENDENTE` semeados por
+  `V4__seed_rbac_demo.sql`; catálogo de permissões granular (`modulo:recurso:acao`) pensado
+  para uma evolução futura a ABAC sem mudar a tabela.
+- **Multi-tenancy end-to-end**: `TenantContextFilter` lê `tenant_id` do JWT já validado e
+  popula `TenantContext`, usado por `TenantAwareDataSource` para `SET LOCAL
+  app.current_tenant` em cada conexão (RLS).
+
+Variáveis de ambiente relevantes (ver `application.yml`): `APP_SECURITY_JWT_SECRET`
+(obrigatório em produção, >= 32 bytes), `APP_SECURITY_JWT_EMISSOR`,
+`APP_SECURITY_MFA_EMISSOR`.
 
 ## Testes
 
@@ -68,9 +99,14 @@ usa Testcontainers e precisa de Docker rodando na máquina.
 
 ## Segurança — pendências conhecidas do Sprint 0
 
-- `SecurityConfig` libera todas as rotas (`anyRequest().permitAll()`) até o módulo de
-  autenticação (JWT + RBAC/ABAC) ser implementado — ver roadmap, Sprint 0.
+- `SecurityConfig` agora é um Resource Server JWT real (`anyRequest().authenticated()`,
+  só `/api/public/**` e os endpoints não-autenticados de `/api/auth/**` são públicos) —
+  ver seção "Autenticação" acima. MFA por e-mail (`TipoMfa.EMAIL`) ainda não tem adapter,
+  só o enum existe; só TOTP está implementado.
 - O isolamento por RLS depende de uma role de banco de dados de aplicação **sem** o
   atributo `BYPASSRLS`. Em desenvolvimento local o `docker-compose.yml` usa o usuário
   padrão do Postgres (superusuário, que ignora RLS) só para simplificar o ambiente — não
   reflete a configuração de produção, que precisa de uma role dedicada.
+- Chave JWT é HMAC simétrica (HS256) auto-assinada — suficiente para o Sprint 0 (sem
+  Authorization Server externo), mas a migração para chave assimétrica/Keycloak, se algum
+  dia necessária, muda só `JwtGeradorToken` e `SecurityConfig.jwtDecoder`.

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import br.com.tributos.kernel.exception.AutenticacaoException;
 import br.com.tributos.kernel.exception.NotFoundException;
 import br.com.tributos.kernel.exception.ValidationException;
 
@@ -26,6 +27,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErroResponse> tratarValidacao(ValidationException ex) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
             .body(ErroResponse.de(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage()));
+    }
+
+    @ExceptionHandler(AutenticacaoException.class)
+    public ResponseEntity<ErroResponse> tratarAutenticacao(AutenticacaoException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErroResponse.de(HttpStatus.UNAUTHORIZED, ex.getMessage()));
     }
 
     public record ErroResponse(Instant timestamp, int status, String erro, String mensagem) {

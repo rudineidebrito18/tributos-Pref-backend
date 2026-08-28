@@ -23,6 +23,17 @@ spring:
     # configuração adicional aqui. Ver PLANEJAMENTO_PROJETO.md §7.3.
     locations: classpath:db/migration
 
+app:
+  security:
+    jwt:
+      # Precisa ter >= 32 bytes (HS256). O valor abaixo é só para dev local — em qualquer
+      # outro ambiente, defina APP_SECURITY_JWT_SECRET com um segredo gerado
+      # aleatoriamente (ex.: `openssl rand -base64 48`) e nunca versionado.
+      secret: ${APP_SECURITY_JWT_SECRET:desenvolvimento-local-nao-usar-em-producao-0123456789}
+      emissor: ${APP_SECURITY_JWT_EMISSOR:tributos-backend}
+    mfa:
+      emissor: ${APP_SECURITY_MFA_EMISSOR:Tributos}
+
 server:
   port: ${SERVER_PORT:8080}
 
