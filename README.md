@@ -88,6 +88,22 @@ Variáveis de ambiente relevantes (ver `application.yml`): `APP_SECURITY_JWT_SEC
 (obrigatório em produção, >= 32 bytes), `APP_SECURITY_JWT_EMISSOR`,
 `APP_SECURITY_MFA_EMISSOR`.
 
+## Observabilidade
+
+- **Correlação de logs**: `RequestIdFilter` gera (ou propaga, se já vier de um proxy/gateway)
+  um `X-Request-Id` por requisição, devolvido no header de resposta e disponível no MDC
+  (`requestId`) em toda linha de log daquela requisição — inclusive quando ela é rejeitada
+  antes de chegar num controller (o filtro roda antes da cadeia do Spring Security).
+- **Health-check**: `GET /actuator/health` (com detalhes, incluindo indicador de banco) e os
+  grupos padrão Kubernetes `GET /actuator/health/liveness` / `GET /actuator/health/readiness`.
+- **Logs estruturados em produção**: defina `LOGGING_STRUCTURED_FORMAT_CONSOLE=ecs` (ou
+  `logstash`) para trocar o console para JSON — recurso nativo do Spring Boot (>= 3.4), sem
+  dependência extra; o MDC (`requestId`) entra automaticamente como campo. Em dev, o padrão é
+  texto legível com `[requestId]` embutido.
+- **Documentação da API**: Swagger UI em `http://localhost:8080/swagger-ui.html`
+  (`/v3/api-docs` para o JSON puro) — inclui botão "Authorize" para colar o `accessToken`
+  obtido no login e testar endpoints protegidos direto pela UI.
+
 ## Testes
 
 ```bash

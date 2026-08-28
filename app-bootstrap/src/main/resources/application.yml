@@ -41,8 +41,33 @@ management:
   endpoints:
     web:
       exposure:
+        # Só health/info/probes ficam expostos publicamente (ver SecurityConfig); os demais
+        # endpoints do Actuator (env, beans, threaddump, ...) continuam OFF por padrão —
+        # não são cobertos pela mesma allowlist de caminhos públicos.
         include: health,info
+  endpoint:
+    health:
+      # Grupos /actuator/health/liveness e /actuator/health/readiness (padrão Kubernetes).
+      probes:
+        enabled: true
+      show-details: always
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: ${spring.application.name}
+    version: 0.1.0-SNAPSHOT
 
 logging:
   level:
     br.com.tributos: INFO
+  pattern:
+    # %X{requestId} vem do RequestIdFilter — correlaciona todas as linhas de uma mesma
+    # requisição, inclusive quando ela é rejeitada antes de chegar num controller.
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %5p [%X{requestId:-sem-id}] %-40.40logger{39} : %m%n%wEx"
+  # Em produção, prefira logs estruturados em JSON (Elastic Common Schema ou Logstash) —
+  # recurso nativo do Spring Boot desde a 3.4, sem dependência extra. O MDC (requestId) é
+  # incluído automaticamente como campo. Ative via variável de ambiente, sem mudar código:
+  #   LOGGING_STRUCTURED_FORMAT_CONSOLE=ecs        (ou: logstash, gelf)

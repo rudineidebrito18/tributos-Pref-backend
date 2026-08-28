@@ -55,6 +55,13 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-flyway</artifactId>
     </dependency>
+    <!-- Versão fora do BOM do spring-boot-starter-parent (springdoc não é mantido pela
+         Spring); 3.1.0 é a primeira release com suporte declarado a Spring Boot 4.1.x. -->
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+      <version>3.1.0</version>
+    </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-postgresql</artifactId>

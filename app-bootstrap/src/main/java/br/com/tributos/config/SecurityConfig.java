@@ -39,8 +39,14 @@ public class SecurityConfig {
         "/api/auth/refresh",
         "/api/auth/logout",
         "/api/auth/mfa/verificar",
+        // path exato + /** para cobrir os grupos de probe liveness/readiness.
         "/actuator/health",
+        "/actuator/health/**",
         "/actuator/info",
+        // Documentação da API (springdoc) — descreve contratos, não expõe dado de tenant.
+        "/v3/api-docs/**",
+        "/swagger-ui/**",
+        "/swagger-ui.html",
     };
 
     @Bean
