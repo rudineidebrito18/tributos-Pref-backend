@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AlvaraCertidaoControllerTest {
 
     private static final String TENANT_SLUG = "demo";
-    private static final String TIPO_ALVARA_ID = "g0000001-0000-4000-8000-000000000001";
+    private static final String TIPO_ALVARA_ID = "70000001-0000-4000-8000-000000000001";
     private static final String TIPO_CONTRIBUINTE_ID = "b0000001-0000-4000-8000-000000000001";
     private static final String SITUACAO_ATIVA_ID = "c0000001-0000-4000-8000-000000000001";
     private static final String REGIME_SIMPLES_ID = "d0000001-0000-4000-8000-000000000001";
