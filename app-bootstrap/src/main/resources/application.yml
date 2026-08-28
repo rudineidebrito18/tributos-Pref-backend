@@ -29,6 +29,8 @@ spring:
       max-request-size: 14MB
 
 app:
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001}
   security:
     jwt:
       # Precisa ter >= 32 bytes (HS256). O valor abaixo é só para dev local — em qualquer

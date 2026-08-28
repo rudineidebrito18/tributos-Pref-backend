@@ -14,6 +14,8 @@ public interface GuiaArrecadacaoRepository {
 
     Optional<GuiaArrecadacao> buscarPorOrigem(OrigemGuia origemTipo, UUID origemId);
 
+    Optional<GuiaArrecadacao> buscarPorNumero(long numero);
+
     Page<GuiaArrecadacao> listar(TipoTributo tipoTributo, SituacaoGuia situacao, UUID contribuinteId, Pageable pageable);
 
     long proximoNumero();

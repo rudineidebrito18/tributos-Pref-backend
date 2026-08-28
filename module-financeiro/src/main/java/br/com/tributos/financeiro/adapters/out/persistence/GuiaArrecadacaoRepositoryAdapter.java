@@ -39,6 +39,11 @@ public class GuiaArrecadacaoRepositoryAdapter implements GuiaArrecadacaoReposito
     }
 
     @Override
+    public Optional<GuiaArrecadacao> buscarPorNumero(long numero) {
+        return jpaRepository.findByNumero(numero).map(this::paraDominio);
+    }
+
+    @Override
     public Page<GuiaArrecadacao> listar(
         TipoTributo tipoTributo,
         SituacaoGuia situacao,

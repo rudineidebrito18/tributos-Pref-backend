@@ -12,6 +12,8 @@ public interface PessoaRepository {
 
     Optional<Pessoa> buscarPorId(UUID id);
 
+    Optional<Pessoa> buscarPorCpfCnpj(String cpfCnpj);
+
     boolean existePorCpfCnpj(String cpfCnpj, UUID ignorarPessoaId);
 
     Page<Pessoa> listar(String busca, Pageable pageable);

@@ -19,6 +19,8 @@ public interface GuiaArrecadacaoJpaRepository extends JpaRepository<GuiaArrecada
 
     Optional<GuiaArrecadacaoJpaEntity> findByOrigemTipoAndOrigemId(OrigemGuia origemTipo, UUID origemId);
 
+    Optional<GuiaArrecadacaoJpaEntity> findByNumero(long numero);
+
     @Query("""
         SELECT g FROM GuiaArrecadacaoJpaEntity g
         WHERE (:tipoTributo IS NULL OR g.tipoTributo = :tipoTributo)

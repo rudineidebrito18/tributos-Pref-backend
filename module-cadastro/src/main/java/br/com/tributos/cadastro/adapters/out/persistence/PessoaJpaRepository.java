@@ -1,5 +1,6 @@
 package br.com.tributos.cadastro.adapters.out.persistence;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -13,6 +14,8 @@ public interface PessoaJpaRepository extends JpaRepository<PessoaJpaEntity, UUID
     boolean existsByCpfCnpjAndIdNot(String cpfCnpj, UUID id);
 
     boolean existsByCpfCnpj(String cpfCnpj);
+
+    Optional<PessoaJpaEntity> findByCpfCnpj(String cpfCnpj);
 
     @Query("""
         SELECT p FROM PessoaJpaEntity p

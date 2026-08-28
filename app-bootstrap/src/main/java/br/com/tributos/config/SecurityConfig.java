@@ -54,9 +54,11 @@ public class SecurityConfig {
         HttpSecurity http,
         JwtDecoder jwtDecoder,
         TenantContextFilter tenantContextFilter,
-        PublicApiRateLimitFilter publicApiRateLimitFilter
+        PublicApiRateLimitFilter publicApiRateLimitFilter,
+        SecurityHeadersFilter securityHeadersFilter
     ) throws Exception {
         return http
+            .cors(cors -> {})
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
@@ -72,6 +74,7 @@ public class SecurityConfig {
             // pelo TenantAwareDataSource (RLS). Em endpoints públicos (sem JWT), o filtro
             // simplesmente não encontra Authentication e não faz nada.
             .addFilterBefore(publicApiRateLimitFilter, BearerTokenAuthenticationFilter.class)
+            .addFilterBefore(securityHeadersFilter, PublicApiRateLimitFilter.class)
             .addFilterAfter(tenantContextFilter, BearerTokenAuthenticationFilter.class)
             .build();
     }

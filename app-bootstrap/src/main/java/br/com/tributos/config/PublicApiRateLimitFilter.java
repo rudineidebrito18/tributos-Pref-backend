@@ -14,8 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Rate limit simples em memória para endpoints públicos de validação ISS —
- * 60 requisições por minuto por IP.
+ * Rate limit simples em memória para endpoints públicos — 60 requisições por minuto por IP.
  */
 @Component
 public class PublicApiRateLimitFilter extends OncePerRequestFilter {
@@ -29,7 +28,7 @@ public class PublicApiRateLimitFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
-        if (!isIssPublicEndpoint(request)) {
+        if (!isPublicEndpoint(request)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -51,8 +50,8 @@ public class PublicApiRateLimitFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private static boolean isIssPublicEndpoint(HttpServletRequest request) {
+    private static boolean isPublicEndpoint(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path != null && path.matches("/api/public/tenants/[^/]+/iss/.*");
+        return path != null && path.startsWith("/api/public/");
     }
 }

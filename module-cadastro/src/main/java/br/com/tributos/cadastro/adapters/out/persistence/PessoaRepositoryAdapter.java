@@ -71,6 +71,12 @@ public class PessoaRepositoryAdapter implements PessoaRepository {
     }
 
     @Override
+    public Optional<Pessoa> buscarPorCpfCnpj(String cpfCnpj) {
+        String digitos = CpfCnpj.normalizar(cpfCnpj);
+        return jpaRepository.findByCpfCnpj(digitos).map(PessoaRepositoryAdapter::paraDominio);
+    }
+
+    @Override
     public boolean existePorCpfCnpj(String cpfCnpj, UUID ignorarPessoaId) {
         if (ignorarPessoaId == null) {
             return jpaRepository.existsByCpfCnpj(cpfCnpj);
