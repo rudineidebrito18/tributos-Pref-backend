@@ -23,6 +23,11 @@ spring:
     # configuração adicional aqui. Ver PLANEJAMENTO_PROJETO.md §7.3.
     locations: classpath:db/migration
 
+  servlet:
+    multipart:
+      max-file-size: 12MB
+      max-request-size: 14MB
+
 app:
   security:
     jwt:
@@ -33,6 +38,10 @@ app:
       emissor: ${APP_SECURITY_JWT_EMISSOR:tributos-backend}
     mfa:
       emissor: ${APP_SECURITY_MFA_EMISSOR:Tributos}
+  cadastro:
+    documentos:
+      diretorio-base: ${APP_CADASTRO_DOCUMENTOS_DIR:./data/documentos}
+      tamanho-maximo-mb: ${APP_CADASTRO_DOCUMENTOS_MAX_MB:10}
 
 server:
   port: ${SERVER_PORT:8080}
