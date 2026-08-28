@@ -50,7 +50,12 @@ public class SecurityConfig {
     };
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtDecoder jwtDecoder, TenantContextFilter tenantContextFilter) throws Exception {
+    public SecurityFilterChain filterChain(
+        HttpSecurity http,
+        JwtDecoder jwtDecoder,
+        TenantContextFilter tenantContextFilter,
+        PublicApiRateLimitFilter publicApiRateLimitFilter
+    ) throws Exception {
         return http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -66,6 +71,7 @@ public class SecurityConfig {
             // é dali que ele lê a claim `tenant_id` para preencher o TenantContext usado
             // pelo TenantAwareDataSource (RLS). Em endpoints públicos (sem JWT), o filtro
             // simplesmente não encontra Authentication e não faz nada.
+            .addFilterBefore(publicApiRateLimitFilter, BearerTokenAuthenticationFilter.class)
             .addFilterAfter(tenantContextFilter, BearerTokenAuthenticationFilter.class)
             .build();
     }
