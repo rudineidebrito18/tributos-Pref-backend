@@ -9,6 +9,7 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -55,7 +56,13 @@ public class TenantJpaEntity {
     @Column(name = "cor_accent_tertiary")
     private String corAccentTertiary;
 
-    @ElementCollection
+    // EAGER de propósito: TenantRepositoryAdapter.paraDominio() lê esta coleção FORA de um
+    // escopo @Transactional (a transação do Spring Data já fechou quando o .map() do
+    // Optional roda) — mesma razão de UsuarioJpaEntity.papeis usar EAGER. Sem isto, o
+    // endpoint público de branding devolve 401 (não 500!): a LazyInitializationException
+    // na serialização do JSON é relançada durante o forward para /error, que cai em
+    // "anyRequest().authenticated()" do SecurityConfig e mascara o erro real.
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "tenant_modulo_ativo", joinColumns = @jakarta.persistence.JoinColumn(name = "tenant_id"))
     @Column(name = "modulo_id")
     private Set<String> modulosAtivos;
