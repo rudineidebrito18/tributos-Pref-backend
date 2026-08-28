@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.TipoTributo;
+import br.com.tributos.kernel.events.GuiaItbiSolicitadaEvent;
 import br.com.tributos.kernel.events.LancamentoIptuParcelaGeradaEvent;
 import br.com.tributos.kernel.events.NotaFiscalEmitidaEvent;
 
@@ -49,6 +50,23 @@ public class GerarGuiaEventListener {
             evento.vencimento(),
             evento.valor(),
             "IPTU " + evento.exercicio() + " — parcela " + evento.numeroParcela()
+        ));
+    }
+
+    @EventListener
+    @Transactional
+    public void onGuiaItbiSolicitada(GuiaItbiSolicitadaEvent evento) {
+        gerarGuiaArrecadacaoService.executar(new GerarGuiaArrecadacaoService.GerarGuiaComando(
+            TipoTributo.ITBI,
+            OrigemGuia.ITBI_GUIA,
+            evento.guiaItbiId(),
+            evento.adquirentePessoaId(),
+            null,
+            null,
+            evento.dataSolicitacao(),
+            java.time.LocalDate.ofInstant(evento.dataSolicitacao(), java.time.ZoneId.of("America/Sao_Paulo")).plusDays(30),
+            evento.valorItbi(),
+            "ITBI — guia " + evento.guiaItbiId()
         ));
     }
 }
