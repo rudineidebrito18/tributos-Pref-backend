@@ -14,8 +14,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -118,12 +121,81 @@ class GuiaArrecadacaoControllerTest {
             .andExpect(jsonPath("$.content[0].statusPix").value("CONCLUIDA"));
     }
 
+    @Test
+    void naoDevePermitirAlterarStatusPixOuValorPagoViaPutOuPatch() throws Exception {
+        String token = login();
+        String guiaId = criarGuiaPendente(token);
+
+        mockMvc.perform(put("/api/financeiro/guias-arrecadacao/" + guiaId)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"statusPix":"CONCLUIDA","valorPago":0.01,"situacao":"PAGA"}
+                    """))
+            .andExpect(status().is4xxClientError());
+
+        mockMvc.perform(patch("/api/financeiro/guias-arrecadacao/" + guiaId)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"statusPix":"CONCLUIDA","valorPago":0.01}
+                    """))
+            .andExpect(status().is4xxClientError());
+
+        mockMvc.perform(get("/api/financeiro/guias-arrecadacao/" + guiaId)
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.situacao").value("PENDENTE"))
+            .andExpect(jsonPath("$.statusPix").value(nullValue()))
+            .andExpect(jsonPath("$.valorPago").value(nullValue()));
+    }
+
+    private String criarGuiaPendente(String token) throws Exception {
+        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "22.333.444/0001-81", "Empresa Seguranca Guia");
+        String contribuinteId = cadastrarEAprovarCredenciamento(token, pessoaContribuinteId);
+        String pessoaTomadorId = cadastrarPessoaFisica(token, "390.533.447-05", "Tomador Seguranca");
+
+        String corpoTomador = mockMvc.perform(post("/api/iss/tomadores")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"pessoaId\": \"%s\"}".formatted(pessoaTomadorId)))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString();
+        String tomadorId = objectMapper.readTree(corpoTomador).get("id").asText();
+
+        mockMvc.perform(post("/api/iss/notas-fiscais/emitir")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "contribuinteId": "%s",
+                      "tomadorId": "%s",
+                      "servicoId": "%s",
+                      "competencia": "2024-07-01",
+                      "valorServico": 5000,
+                      "valorDeducoes": 0,
+                      "receitaBrutaAcumulada12Meses": 200000
+                    }
+                    """.formatted(contribuinteId, tomadorId, SERVICO_ID)))
+            .andExpect(status().isCreated());
+
+        String corpoListagem = mockMvc.perform(get("/api/financeiro/guias-arrecadacao")
+                .header("Authorization", "Bearer " + token)
+                .param("tipoTributo", "ISS")
+                .param("contribuinteId", pessoaContribuinteId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content", hasSize(1)))
+            .andReturn().getResponse().getContentAsString();
+
+        return objectMapper.readTree(corpoListagem).get("content").get(0).get("id").asText();
+    }
+
     private String login() throws Exception {
         String corpo = mockMvc.perform(post("/api/auth/login")
                 .header("X-Tenant-Slug", TENANT_SLUG)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                    {"usuario":"admin","senha":"Demo@123"}
+                    {"login":"admin","senha":"Demo@123"}
                     """))
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
