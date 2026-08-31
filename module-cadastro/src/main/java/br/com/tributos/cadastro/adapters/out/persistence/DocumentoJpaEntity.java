@@ -24,6 +24,12 @@ public class DocumentoJpaEntity {
     @Column(nullable = false, length = 100)
     private String tipo;
 
+    @Column(length = 200)
+    private String titulo;
+
+    @Column(name = "categoria_id")
+    private UUID categoriaId;
+
     @Column(name = "nome_arquivo", nullable = false)
     private String nomeArquivo;
 
@@ -46,13 +52,16 @@ public class DocumentoJpaEntity {
     }
 
     public DocumentoJpaEntity(
-        UUID id, UUID tenantId, UUID pessoaId, String tipo, String nomeArquivo,
-        String conteudoTipo, long tamanhoBytes, String storageChave, boolean compartilhado, Instant criadoEm
+        UUID id, UUID tenantId, UUID pessoaId, String tipo, String titulo, UUID categoriaId,
+        String nomeArquivo, String conteudoTipo, long tamanhoBytes, String storageChave,
+        boolean compartilhado, Instant criadoEm
     ) {
         this.id = id;
         this.tenantId = tenantId;
         this.pessoaId = pessoaId;
         this.tipo = tipo;
+        this.titulo = titulo;
+        this.categoriaId = categoriaId;
         this.nomeArquivo = nomeArquivo;
         this.conteudoTipo = conteudoTipo;
         this.tamanhoBytes = tamanhoBytes;
@@ -75,6 +84,14 @@ public class DocumentoJpaEntity {
 
     public String getTipo() {
         return tipo;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public UUID getCategoriaId() {
+        return categoriaId;
     }
 
     public String getNomeArquivo() {
