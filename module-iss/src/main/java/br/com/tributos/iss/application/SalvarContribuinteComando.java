@@ -8,6 +8,12 @@ public record SalvarContribuinteComando(
     UUID tipoContribuinteId,
     UUID situacaoCadastralId,
     UUID regimeTributarioId,
+    String nomeFantasia,
+    String inscricaoEstadual,
+    String contato,
+    String telefone2,
+    String emailNota,
+    UUID usuarioId,
     String nomeContador,
     String emailContador
 ) {

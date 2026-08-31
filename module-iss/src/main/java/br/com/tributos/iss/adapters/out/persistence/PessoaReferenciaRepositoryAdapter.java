@@ -19,4 +19,11 @@ public class PessoaReferenciaRepositoryAdapter implements PessoaReferenciaReposi
     public boolean existe(UUID pessoaId) {
         return jpaRepository.existsById(pessoaId);
     }
+
+    @Override
+    public java.util.Optional<br.com.tributos.iss.domain.PessoaDadosResumo> buscarDados(UUID pessoaId) {
+        return jpaRepository.findById(pessoaId)
+            .map(p -> new br.com.tributos.iss.domain.PessoaDadosResumo(
+                p.getCpfCnpj(), p.getNome(), p.getEmail()));
+    }
 }

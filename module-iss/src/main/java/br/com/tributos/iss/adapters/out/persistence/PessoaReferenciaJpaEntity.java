@@ -21,10 +21,31 @@ public class PessoaReferenciaJpaEntity {
     @Column(name = "tenant_id", nullable = false)
     private UUID tenantId;
 
+    @Column(name = "cpf_cnpj", insertable = false, updatable = false)
+    private String cpfCnpj;
+
+    @Column(insertable = false, updatable = false)
+    private String nome;
+
+    @Column(insertable = false, updatable = false)
+    private String email;
+
     protected PessoaReferenciaJpaEntity() {
     }
 
     public UUID getId() {
         return id;
+    }
+
+    public String getCpfCnpj() {
+        return cpfCnpj;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getEmail() {
+        return email;
     }
 }

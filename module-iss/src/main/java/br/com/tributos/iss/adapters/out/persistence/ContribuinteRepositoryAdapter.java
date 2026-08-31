@@ -37,6 +37,12 @@ public class ContribuinteRepositoryAdapter implements ContribuinteRepository {
         entidade.setSituacaoCadastralId(contribuinte.situacaoCadastralId());
         entidade.setStatusCredenciamentoId(contribuinte.statusCredenciamentoId());
         entidade.setRegimeTributarioId(contribuinte.regimeTributarioId());
+        entidade.setNomeFantasia(contribuinte.nomeFantasia());
+        entidade.setInscricaoEstadual(contribuinte.inscricaoEstadual());
+        entidade.setContato(contribuinte.contato());
+        entidade.setTelefone2(contribuinte.telefone2());
+        entidade.setEmailNota(contribuinte.emailNota());
+        entidade.setUsuarioId(contribuinte.usuarioId());
         entidade.setNomeContador(contribuinte.nomeContador());
         entidade.setEmailContador(contribuinte.emailContador());
 
@@ -86,6 +92,12 @@ public class ContribuinteRepositoryAdapter implements ContribuinteRepository {
             entidade.getSituacaoCadastralId(),
             entidade.getStatusCredenciamentoId(),
             entidade.getRegimeTributarioId(),
+            entidade.getNomeFantasia(),
+            entidade.getInscricaoEstadual(),
+            entidade.getContato(),
+            entidade.getTelefone2(),
+            entidade.getEmailNota(),
+            entidade.getUsuarioId(),
             entidade.getNomeContador(),
             entidade.getEmailContador()
         );

@@ -36,6 +36,23 @@ public class ContribuinteJpaEntity {
     @Column(name = "regime_tributario_id", nullable = false)
     private UUID regimeTributarioId;
 
+    @Column(name = "nome_fantasia")
+    private String nomeFantasia;
+
+    @Column(name = "inscricao_estadual", length = 30)
+    private String inscricaoEstadual;
+
+    private String contato;
+
+    @Column(name = "telefone2", length = 20)
+    private String telefone2;
+
+    @Column(name = "email_nota")
+    private String emailNota;
+
+    @Column(name = "usuario_id")
+    private UUID usuarioId;
+
     @Column(name = "nome_contador")
     private String nomeContador;
 
@@ -113,6 +130,54 @@ public class ContribuinteJpaEntity {
 
     public void setRegimeTributarioId(UUID regimeTributarioId) {
         this.regimeTributarioId = regimeTributarioId;
+    }
+
+    public String getNomeFantasia() {
+        return nomeFantasia;
+    }
+
+    public void setNomeFantasia(String nomeFantasia) {
+        this.nomeFantasia = nomeFantasia;
+    }
+
+    public String getInscricaoEstadual() {
+        return inscricaoEstadual;
+    }
+
+    public void setInscricaoEstadual(String inscricaoEstadual) {
+        this.inscricaoEstadual = inscricaoEstadual;
+    }
+
+    public String getContato() {
+        return contato;
+    }
+
+    public void setContato(String contato) {
+        this.contato = contato;
+    }
+
+    public String getTelefone2() {
+        return telefone2;
+    }
+
+    public void setTelefone2(String telefone2) {
+        this.telefone2 = telefone2;
+    }
+
+    public String getEmailNota() {
+        return emailNota;
+    }
+
+    public void setEmailNota(String emailNota) {
+        this.emailNota = emailNota;
+    }
+
+    public UUID getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(UUID usuarioId) {
+        this.usuarioId = usuarioId;
     }
 
     public String getNomeContador() {

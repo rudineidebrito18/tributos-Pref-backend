@@ -69,6 +69,18 @@ public class SalvarContribuinteService {
             statusCredenciamentoId = existente.statusCredenciamentoId();
         }
 
+        UUID usuarioId = comando.usuarioId();
+        if (idExistente != null && usuarioId == null) {
+            usuarioId = contribuinteRepository.buscarPorId(idExistente)
+                .map(Contribuinte::usuarioId)
+                .orElse(null);
+        }
+
+        if (comando.emailNota() != null && !comando.emailNota().isBlank()
+            && !comando.emailNota().matches(".+@.+\\..+")) {
+            throw new ValidationException("E-mail para recebimento de notas inválido.");
+        }
+
         Contribuinte contribuinte = new Contribuinte(
             id,
             tenantId,
@@ -78,10 +90,24 @@ public class SalvarContribuinteService {
             comando.situacaoCadastralId(),
             statusCredenciamentoId,
             comando.regimeTributarioId(),
+            normalizar(comando.nomeFantasia()),
+            normalizar(comando.inscricaoEstadual()),
+            normalizar(comando.contato()),
+            normalizar(comando.telefone2()),
+            normalizar(comando.emailNota()),
+            usuarioId,
             comando.nomeContador(),
             comando.emailContador()
         );
         return contribuinteRepository.salvar(contribuinte);
+    }
+
+    private static String normalizar(String valor) {
+        if (valor == null) {
+            return null;
+        }
+        String trim = valor.trim();
+        return trim.isEmpty() ? null : trim;
     }
 
     private void validarCatalogo(TipoCatalogoIss tipo, UUID id, String rotulo) {

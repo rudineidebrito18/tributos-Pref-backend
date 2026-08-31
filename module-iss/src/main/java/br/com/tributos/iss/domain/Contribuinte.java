@@ -11,6 +11,12 @@ public record Contribuinte(
     UUID situacaoCadastralId,
     UUID statusCredenciamentoId,
     UUID regimeTributarioId,
+    String nomeFantasia,
+    String inscricaoEstadual,
+    String contato,
+    String telefone2,
+    String emailNota,
+    UUID usuarioId,
     String nomeContador,
     String emailContador
 ) {

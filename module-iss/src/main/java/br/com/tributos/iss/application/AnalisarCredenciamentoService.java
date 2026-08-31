@@ -105,6 +105,12 @@ public class AnalisarCredenciamentoService {
             contribuinte.situacaoCadastralId(),
             statusDestinoId,
             contribuinte.regimeTributarioId(),
+            contribuinte.nomeFantasia(),
+            contribuinte.inscricaoEstadual(),
+            contribuinte.contato(),
+            contribuinte.telefone2(),
+            contribuinte.emailNota(),
+            contribuinte.usuarioId(),
             contribuinte.nomeContador(),
             contribuinte.emailContador()
         ));

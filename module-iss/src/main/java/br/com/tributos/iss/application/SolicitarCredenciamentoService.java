@@ -71,6 +71,12 @@ public class SolicitarCredenciamentoService {
             contribuinte.situacaoCadastralId(),
             statusEmAnaliseId,
             contribuinte.regimeTributarioId(),
+            contribuinte.nomeFantasia(),
+            contribuinte.inscricaoEstadual(),
+            contribuinte.contato(),
+            contribuinte.telefone2(),
+            contribuinte.emailNota(),
+            contribuinte.usuarioId(),
             contribuinte.nomeContador(),
             contribuinte.emailContador()
         );

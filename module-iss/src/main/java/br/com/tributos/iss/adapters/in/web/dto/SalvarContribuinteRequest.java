@@ -22,6 +22,19 @@ public record SalvarContribuinteRequest(
     @NotNull(message = "Informe o regime tributário.")
     UUID regimeTributarioId,
 
+    String nomeFantasia,
+
+    String inscricaoEstadual,
+
+    String contato,
+
+    String telefone2,
+
+    @Email(message = "E-mail para recebimento de notas inválido.")
+    String emailNota,
+
+    UUID usuarioId,
+
     String nomeContador,
 
     @Email(message = "E-mail do contador inválido.")

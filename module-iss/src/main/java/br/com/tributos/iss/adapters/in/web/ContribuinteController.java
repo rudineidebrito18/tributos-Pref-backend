@@ -22,7 +22,9 @@ import jakarta.validation.Valid;
 import br.com.tributos.iss.adapters.in.web.dto.ContribuinteResponse;
 import br.com.tributos.iss.adapters.in.web.dto.SalvarContribuinteRequest;
 import br.com.tributos.iss.application.BuscarContribuinteService;
+import br.com.tributos.iss.application.ContribuinteListagemItem;
 import br.com.tributos.iss.application.ExcluirContribuinteService;
+import br.com.tributos.iss.application.GerarSenhaAcessoContribuinteService;
 import br.com.tributos.iss.application.ListarContribuintesService;
 import br.com.tributos.iss.application.SalvarContribuinteComando;
 import br.com.tributos.iss.application.SalvarContribuinteService;
@@ -36,17 +38,20 @@ public class ContribuinteController {
     private final BuscarContribuinteService buscarContribuinteService;
     private final SalvarContribuinteService salvarContribuinteService;
     private final ExcluirContribuinteService excluirContribuinteService;
+    private final GerarSenhaAcessoContribuinteService gerarSenhaAcessoContribuinteService;
 
     public ContribuinteController(
         ListarContribuintesService listarContribuintesService,
         BuscarContribuinteService buscarContribuinteService,
         SalvarContribuinteService salvarContribuinteService,
-        ExcluirContribuinteService excluirContribuinteService
+        ExcluirContribuinteService excluirContribuinteService,
+        GerarSenhaAcessoContribuinteService gerarSenhaAcessoContribuinteService
     ) {
         this.listarContribuintesService = listarContribuintesService;
         this.buscarContribuinteService = buscarContribuinteService;
         this.salvarContribuinteService = salvarContribuinteService;
         this.excluirContribuinteService = excluirContribuinteService;
+        this.gerarSenhaAcessoContribuinteService = gerarSenhaAcessoContribuinteService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
@@ -87,6 +92,13 @@ public class ContribuinteController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN_TENANT')")
+    @PostMapping("/{id}/gerar-senha-acesso")
+    public GerarSenhaAcessoResponse gerarSenhaAcesso(@PathVariable UUID id) {
+        GerarSenhaAcessoContribuinteService.Resultado resultado = gerarSenhaAcessoContribuinteService.executar(id);
+        return new GerarSenhaAcessoResponse(resultado.loginCriado(), resultado.senhaEnviadaPara());
+    }
+
     private static SalvarContribuinteComando paraComando(SalvarContribuinteRequest request) {
         return new SalvarContribuinteComando(
             request.pessoaId(),
@@ -94,19 +106,37 @@ public class ContribuinteController {
             request.tipoContribuinteId(),
             request.situacaoCadastralId(),
             request.regimeTributarioId(),
+            request.nomeFantasia(),
+            request.inscricaoEstadual(),
+            request.contato(),
+            request.telefone2(),
+            request.emailNota(),
+            request.usuarioId(),
             request.nomeContador(),
             request.emailContador()
         );
     }
 
-    public record ContribuinteResumoResponse(UUID id, UUID pessoaId, String inscricaoMunicipal, UUID statusCredenciamentoId) {
-        static ContribuinteResumoResponse de(Contribuinte contribuinte) {
+    public record ContribuinteResumoResponse(
+        UUID id,
+        String cpfCnpj,
+        String nome,
+        String email,
+        String status,
+        String situacaoCadastral
+    ) {
+        static ContribuinteResumoResponse de(ContribuinteListagemItem item) {
             return new ContribuinteResumoResponse(
-                contribuinte.id(),
-                contribuinte.pessoaId(),
-                contribuinte.inscricaoMunicipal(),
-                contribuinte.statusCredenciamentoId()
+                item.id(),
+                item.cpfCnpj(),
+                item.nome(),
+                item.email(),
+                item.status(),
+                item.situacaoCadastral()
             );
         }
+    }
+
+    public record GerarSenhaAcessoResponse(String loginCriado, String senhaEnviadaPara) {
     }
 }
