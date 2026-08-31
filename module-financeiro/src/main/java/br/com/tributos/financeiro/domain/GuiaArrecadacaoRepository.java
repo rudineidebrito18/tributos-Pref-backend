@@ -34,5 +34,7 @@ public interface GuiaArrecadacaoRepository {
 
     boolean possuiPendencia(UUID tenantId, UUID pessoaId);
 
+    boolean possuiPendenciaTributo(UUID tenantId, UUID pessoaId, TipoTributo tipoTributo);
+
     List<GuiaArrecadacao> buscarAtivasParaConciliacao(Instant solicitadoDesde, Pageable pageable);
 }

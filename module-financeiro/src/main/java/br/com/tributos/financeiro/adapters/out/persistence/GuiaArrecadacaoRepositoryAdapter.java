@@ -78,6 +78,13 @@ public class GuiaArrecadacaoRepositoryAdapter implements GuiaArrecadacaoReposito
     }
 
     @Override
+    public boolean possuiPendenciaTributo(UUID tenantId, UUID pessoaId, TipoTributo tipoTributo) {
+        return jpaRepository.existsByTenantIdAndContribuinteIdAndSituacaoAndTipoTributo(
+            tenantId, pessoaId, SituacaoGuia.PENDENTE, tipoTributo
+        );
+    }
+
+    @Override
     public List<GuiaArrecadacao> buscarAtivasParaConciliacao(Instant solicitadoDesde, Pageable pageable) {
         return jpaRepository.buscarAtivasParaConciliacao(solicitadoDesde, pageable).stream()
             .map(this::paraDominio)

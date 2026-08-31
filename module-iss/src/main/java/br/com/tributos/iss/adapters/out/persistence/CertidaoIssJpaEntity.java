@@ -42,6 +42,15 @@ public class CertidaoIssJpaEntity {
     @Column(nullable = false)
     private LocalDate validade;
 
+    @Column(name = "situacao_cnd_id")
+    private UUID situacaoCndId;
+
+    @Column(name = "observacao")
+    private String observacao;
+
+    @Column(name = "avulsa", nullable = false)
+    private boolean avulsa;
+
     protected CertidaoIssJpaEntity() {
     }
 
@@ -107,5 +116,29 @@ public class CertidaoIssJpaEntity {
 
     public void setValidade(LocalDate validade) {
         this.validade = validade;
+    }
+
+    public UUID getSituacaoCndId() {
+        return situacaoCndId;
+    }
+
+    public void setSituacaoCndId(UUID situacaoCndId) {
+        this.situacaoCndId = situacaoCndId;
+    }
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
+    }
+
+    public boolean isAvulsa() {
+        return avulsa;
+    }
+
+    public void setAvulsa(boolean avulsa) {
+        this.avulsa = avulsa;
     }
 }

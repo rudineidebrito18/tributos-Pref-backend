@@ -49,6 +49,13 @@ public interface GuiaArrecadacaoJpaRepository extends JpaRepository<GuiaArrecada
 
     boolean existsByTenantIdAndContribuinteIdAndSituacao(UUID tenantId, UUID contribuinteId, SituacaoGuia situacao);
 
+    boolean existsByTenantIdAndContribuinteIdAndSituacaoAndTipoTributo(
+        UUID tenantId,
+        UUID contribuinteId,
+        SituacaoGuia situacao,
+        TipoTributo tipoTributo
+    );
+
     @Query("""
         SELECT g FROM GuiaArrecadacaoJpaEntity g
         WHERE g.situacao = br.com.tributos.financeiro.domain.SituacaoGuia.PAGA

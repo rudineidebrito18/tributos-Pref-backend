@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 import br.com.tributos.iss.adapters.in.web.dto.CertidaoIssResponse;
+import br.com.tributos.iss.adapters.in.web.dto.EmitirCertidaoAvulsaRequest;
 import br.com.tributos.iss.adapters.in.web.dto.EmitirCertidaoRequest;
+import br.com.tributos.iss.application.EmitirCertidaoComando;
 import br.com.tributos.iss.application.EmitirCertidaoService;
 import br.com.tributos.iss.application.GeradorPdfIssService;
 import br.com.tributos.iss.application.ListarCertidoesService;
@@ -52,12 +54,35 @@ public class CertidaoController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'ATENDENTE')")
-    @PostMapping("/emitir")
+    @PostMapping
     public ResponseEntity<CertidaoIssResponse> emitir(@Valid @RequestBody EmitirCertidaoRequest request) {
         CertidaoIssResponse resposta = CertidaoIssResponse.de(
-            emitirCertidaoService.executar(request.contribuinteId(), request.tipo(), request.validade())
+            emitirCertidaoService.executar(paraComando(request, false))
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'ATENDENTE')")
+    @PostMapping("/avulsa")
+    public ResponseEntity<CertidaoIssResponse> emitirAvulsa(@Valid @RequestBody EmitirCertidaoAvulsaRequest request) {
+        CertidaoIssResponse resposta = CertidaoIssResponse.de(
+            emitirCertidaoService.executar(new EmitirCertidaoComando(
+                request.contribuinteId(),
+                request.tipo(),
+                request.validade(),
+                request.situacaoCndId(),
+                request.observacao(),
+                true,
+                request.tributos()
+            ))
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'ATENDENTE')")
+    @PostMapping("/emitir")
+    public ResponseEntity<CertidaoIssResponse> emitirLegado(@Valid @RequestBody EmitirCertidaoRequest request) {
+        return emitir(paraComandoLegado(request));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
@@ -67,5 +92,26 @@ public class CertidaoController {
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_PDF)
             .body(pdf);
+    }
+
+    private ResponseEntity<CertidaoIssResponse> emitir(EmitirCertidaoComando comando) {
+        CertidaoIssResponse resposta = CertidaoIssResponse.de(emitirCertidaoService.executar(comando));
+        return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
+    }
+
+    private static EmitirCertidaoComando paraComando(EmitirCertidaoRequest request, boolean avulsa) {
+        return new EmitirCertidaoComando(
+            request.contribuinteId(),
+            request.tipo(),
+            request.validade(),
+            request.situacaoCndId(),
+            request.observacao(),
+            avulsa,
+            request.tributos()
+        );
+    }
+
+    private static EmitirCertidaoComando paraComandoLegado(EmitirCertidaoRequest request) {
+        return paraComando(request, false);
     }
 }
