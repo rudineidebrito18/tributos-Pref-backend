@@ -8,4 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface TipoGuiaItbiJpaRepository extends JpaRepository<TipoGuiaItbiJpaEntity, UUID> {
 
     List<TipoGuiaItbiJpaEntity> findByAtivoTrueOrderByNome();
+
+    boolean existsByNomeAndIdNot(String nome, UUID id);
+
+    boolean existsByNome(String nome);
 }

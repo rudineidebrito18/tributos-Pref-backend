@@ -6,7 +6,15 @@ import java.util.UUID;
 
 public interface TipoGuiaItbiRepository {
 
+    List<TipoGuiaItbi> listar();
+
     List<TipoGuiaItbi> listarAtivos();
 
     Optional<TipoGuiaItbi> buscarPorId(UUID id);
+
+    TipoGuiaItbi salvar(TipoGuiaItbi tipoGuia);
+
+    void excluir(UUID id);
+
+    boolean existePorNome(String nome, UUID ignorarId);
 }
