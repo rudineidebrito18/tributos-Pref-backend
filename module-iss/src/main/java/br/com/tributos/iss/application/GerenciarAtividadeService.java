@@ -22,8 +22,8 @@ public class GerenciarAtividadeService {
     }
 
     @Transactional(readOnly = true)
-    public List<Atividade> listar() {
-        return atividadeRepository.listar();
+    public List<Atividade> listar(Boolean isServico) {
+        return atividadeRepository.listar(isServico);
     }
 
     @Transactional(readOnly = true)
@@ -33,19 +33,23 @@ public class GerenciarAtividadeService {
     }
 
     @Transactional
-    public Atividade criar(String codigo, String descricao, boolean ativo) {
+    public Atividade criar(String codigo, String descricao, boolean ativo, boolean isServico, String observacao) {
         validarCampos(codigo, descricao);
         String codigoNormalizado = codigo.trim();
         if (atividadeRepository.existePorCodigo(codigoNormalizado, null)) {
             throw new ValidationException("Já existe uma atividade com este código.");
         }
         UUID tenantId = TenantContext.getObrigatorio();
-        Atividade atividade = new Atividade(UUID.randomUUID(), tenantId, codigoNormalizado, descricao.trim(), ativo);
+        Atividade atividade = new Atividade(
+            UUID.randomUUID(), tenantId, codigoNormalizado, descricao.trim(), ativo, isServico, observacao
+        );
         return atividadeRepository.salvar(atividade);
     }
 
     @Transactional
-    public Atividade atualizar(UUID id, String codigo, String descricao, boolean ativo) {
+    public Atividade atualizar(
+        UUID id, String codigo, String descricao, boolean ativo, boolean isServico, String observacao
+    ) {
         validarCampos(codigo, descricao);
         Atividade existente = buscar(id);
         String codigoNormalizado = codigo.trim();
@@ -53,7 +57,13 @@ public class GerenciarAtividadeService {
             throw new ValidationException("Já existe uma atividade com este código.");
         }
         Atividade atualizada = new Atividade(
-            existente.id(), existente.tenantId(), codigoNormalizado, descricao.trim(), ativo
+            existente.id(),
+            existente.tenantId(),
+            codigoNormalizado,
+            descricao.trim(),
+            ativo,
+            isServico,
+            observacao
         );
         return atividadeRepository.salvar(atualizada);
     }

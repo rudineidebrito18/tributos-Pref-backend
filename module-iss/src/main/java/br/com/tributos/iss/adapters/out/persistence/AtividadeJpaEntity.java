@@ -27,6 +27,12 @@ public class AtividadeJpaEntity {
     @Column(nullable = false)
     private boolean ativo;
 
+    @Column(name = "is_servico", nullable = false)
+    private boolean isServico = true;
+
+    @Column(columnDefinition = "TEXT")
+    private String observacao;
+
     @Column(name = "criado_em", nullable = false, updatable = false, insertable = false)
     private Instant criadoEm;
 
@@ -71,5 +77,21 @@ public class AtividadeJpaEntity {
 
     public void setAtivo(boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public boolean isServico() {
+        return isServico;
+    }
+
+    public void setServico(boolean servico) {
+        isServico = servico;
+    }
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
     }
 }

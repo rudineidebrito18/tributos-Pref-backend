@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -33,8 +34,8 @@ public class AtividadeController {
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
     @GetMapping
-    public List<AtividadeResponse> listar() {
-        return gerenciarAtividadeService.listar().stream().map(AtividadeResponse::de).toList();
+    public List<AtividadeResponse> listar(@RequestParam(required = false) Boolean isServico) {
+        return gerenciarAtividadeService.listar(isServico).stream().map(AtividadeResponse::de).toList();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
@@ -47,7 +48,9 @@ public class AtividadeController {
     @PostMapping
     public ResponseEntity<AtividadeResponse> criar(@Valid @RequestBody SalvarAtividadeRequest request) {
         AtividadeResponse resposta = AtividadeResponse.de(
-            gerenciarAtividadeService.criar(request.codigo(), request.descricao(), request.ativo())
+            gerenciarAtividadeService.criar(
+                request.codigo(), request.descricao(), request.ativo(), request.isServico(), request.observacao()
+            )
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
     }
@@ -56,7 +59,9 @@ public class AtividadeController {
     @PutMapping("/{id}")
     public AtividadeResponse atualizar(@PathVariable UUID id, @Valid @RequestBody SalvarAtividadeRequest request) {
         return AtividadeResponse.de(
-            gerenciarAtividadeService.atualizar(id, request.codigo(), request.descricao(), request.ativo())
+            gerenciarAtividadeService.atualizar(
+                id, request.codigo(), request.descricao(), request.ativo(), request.isServico(), request.observacao()
+            )
         );
     }
 

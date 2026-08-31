@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface AtividadeRepository {
 
-    List<Atividade> listar();
+    List<Atividade> listar(Boolean isServico);
 
     Optional<Atividade> buscarPorId(UUID id);
 

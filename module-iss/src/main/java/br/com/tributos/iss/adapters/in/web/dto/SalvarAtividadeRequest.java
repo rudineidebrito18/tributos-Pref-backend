@@ -7,6 +7,8 @@ public record SalvarAtividadeRequest(
     String codigo,
     @NotBlank(message = "Informe a descrição da atividade.")
     String descricao,
-    boolean ativo
+    boolean ativo,
+    boolean isServico,
+    String observacao
 ) {
 }

@@ -20,8 +20,8 @@ public class AtividadeRepositoryAdapter implements AtividadeRepository {
     }
 
     @Override
-    public List<Atividade> listar() {
-        return jpaRepository.findAll().stream().map(AtividadeRepositoryAdapter::paraDominio).toList();
+    public List<Atividade> listar(Boolean isServico) {
+        return jpaRepository.listarComFiltro(isServico).stream().map(AtividadeRepositoryAdapter::paraDominio).toList();
     }
 
     @Override
@@ -43,6 +43,8 @@ public class AtividadeRepositoryAdapter implements AtividadeRepository {
         entidade.setCodigo(atividade.codigo());
         entidade.setDescricao(atividade.descricao());
         entidade.setAtivo(atividade.ativo());
+        entidade.setServico(atividade.isServico());
+        entidade.setObservacao(atividade.observacao());
 
         return paraDominio(jpaRepository.save(entidade));
     }
@@ -66,7 +68,9 @@ public class AtividadeRepositoryAdapter implements AtividadeRepository {
             entidade.getTenantId(),
             entidade.getCodigo(),
             entidade.getDescricao(),
-            entidade.isAtivo()
+            entidade.isAtivo(),
+            entidade.isServico(),
+            entidade.getObservacao()
         );
     }
 }
