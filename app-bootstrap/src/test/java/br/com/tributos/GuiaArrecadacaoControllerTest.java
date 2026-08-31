@@ -2,15 +2,10 @@ package br.com.tributos;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
+import br.com.tributos.support.AbstractIntegrationTest;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -25,10 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Critério de aceite Sprint 8: emitir nota fiscal gera guia automaticamente; PIX simulado confirma baixa.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureMockMvc
-@Testcontainers
-class GuiaArrecadacaoControllerTest {
+class GuiaArrecadacaoControllerTest extends AbstractIntegrationTest {
 
     private static final String TENANT_SLUG = "demo";
     private static final String TIPO_CONTRIBUINTE_ID = "b0000001-0000-4000-8000-000000000001";
@@ -37,10 +29,6 @@ class GuiaArrecadacaoControllerTest {
     private static final String STATUS_EM_ANALISE_ID = "a0000001-0000-4000-8000-000000000002";
     private static final String STATUS_APROVADO_ID = "a0000001-0000-4000-8000-000000000003";
     private static final String SERVICO_ID = "e0000002-0000-4000-8000-000000000002";
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     private MockMvc mockMvc;
@@ -51,7 +39,7 @@ class GuiaArrecadacaoControllerTest {
     @Test
     void deveGerarGuiaAutomaticamenteAoEmitirNotaEConfirmarPix() throws Exception {
         String token = login();
-        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "11.555.777/0001-61", "Empresa Financeiro Teste");
+        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "11.444.777/0001-61", "Empresa Financeiro Teste");
         String contribuinteId = cadastrarEAprovarCredenciamento(token, pessoaContribuinteId);
         String pessoaTomadorId = cadastrarPessoaFisica(token, "529.982.247-25", "Tomador Financeiro");
 
@@ -151,7 +139,7 @@ class GuiaArrecadacaoControllerTest {
     }
 
     private String criarGuiaPendente(String token) throws Exception {
-        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "22.333.444/0001-81", "Empresa Seguranca Guia");
+        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "12.345.678/0001-95", "Empresa Seguranca Guia");
         String contribuinteId = cadastrarEAprovarCredenciamento(token, pessoaContribuinteId);
         String pessoaTomadorId = cadastrarPessoaFisica(token, "390.533.447-05", "Tomador Seguranca");
 
@@ -202,59 +190,104 @@ class GuiaArrecadacaoControllerTest {
         return objectMapper.readTree(corpo).get("tokens").get("accessToken").asText();
     }
 
-    private String cadastrarPessoaJuridica(String token, String cnpj, String nome) throws Exception {
+    private String cadastrarPessoaJuridica(String token, String cpfCnpj, String nome) throws Exception {
+        String cidadeId = objectMapper.readTree(
+            mockMvc.perform(get("/api/cadastro/territorio/cidades?uf=SP")
+                    .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString()
+        ).get(0).get("id").asText();
+
         String corpo = mockMvc.perform(post("/api/cadastro/pessoas")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                    {"tipo":"JURIDICA","nome":"%s","cpfCnpj":"%s"}
-                    """.formatted(nome, cnpj)))
+                    {
+                      "tipoPessoa": "PJ",
+                      "cpfCnpj": "%s",
+                      "nome": "%s",
+                      "razaoSocial": "%s Ltda",
+                      "ativo": true,
+                      "enderecos": [{
+                        "cep": "01310100",
+                        "logradouro": "Av Paulista",
+                        "numero": "200",
+                        "bairro": "Bela Vista",
+                        "cidadeId": "%s",
+                        "principal": true
+                      }]
+                    }
+                    """.formatted(cpfCnpj, nome, nome, cidadeId)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(corpo).get("id").asText();
     }
 
-    private String cadastrarPessoaFisica(String token, String cpf, String nome) throws Exception {
+    private String cadastrarPessoaFisica(String token, String cpfCnpj, String nome) throws Exception {
+        String cidadeId = objectMapper.readTree(
+            mockMvc.perform(get("/api/cadastro/territorio/cidades?uf=SP")
+                    .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString()
+        ).get(0).get("id").asText();
+
         String corpo = mockMvc.perform(post("/api/cadastro/pessoas")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                    {"tipo":"FISICA","nome":"%s","cpfCnpj":"%s"}
-                    """.formatted(nome, cpf)))
+                    {
+                      "tipoPessoa": "PF",
+                      "cpfCnpj": "%s",
+                      "nome": "%s",
+                      "ativo": true,
+                      "enderecos": [{
+                        "cep": "01310100",
+                        "logradouro": "Rua Augusta",
+                        "numero": "500",
+                        "bairro": "Consolação",
+                        "cidadeId": "%s",
+                        "principal": true
+                      }]
+                    }
+                    """.formatted(cpfCnpj, nome, cidadeId)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(corpo).get("id").asText();
     }
 
     private String cadastrarEAprovarCredenciamento(String token, String pessoaId) throws Exception {
-        String corpoContrib = mockMvc.perform(post("/api/iss/contribuintes")
+        String corpoContribuinte = mockMvc.perform(post("/api/iss/contribuintes")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
                       "pessoaId": "%s",
+                      "inscricaoMunicipal": "FIN-%s",
                       "tipoContribuinteId": "%s",
-                      "situacaoFiscalId": "%s",
-                      "regimeTributarioId": "%s",
-                      "inscricaoMunicipal": "FIN-%s"
+                      "situacaoCadastralId": "%s",
+                      "regimeTributarioId": "%s"
                     }
-                    """.formatted(pessoaId, TIPO_CONTRIBUINTE_ID, SITUACAO_ATIVA_ID, REGIME_SIMPLES_ID, pessoaId.substring(0, 8))))
+                    """.formatted(pessoaId, pessoaId.substring(0, 8), TIPO_CONTRIBUINTE_ID, SITUACAO_ATIVA_ID, REGIME_SIMPLES_ID)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
 
-        String contribuinteId = objectMapper.readTree(corpoContrib).get("id").asText();
+        String contribuinteId = objectMapper.readTree(corpoContribuinte).get("id").asText();
 
-        mockMvc.perform(post("/api/iss/contribuintes/" + contribuinteId + "/credenciamento")
+        String corpoSolicitacao = mockMvc.perform(post("/api/iss/credenciamento/solicitar")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"statusCredenciamentoId\": \"%s\"}".formatted(STATUS_EM_ANALISE_ID)))
-            .andExpect(status().isOk());
+                .content("{\"contribuinteId\": \"%s\"}".formatted(contribuinteId)))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString();
 
-        mockMvc.perform(post("/api/iss/contribuintes/" + contribuinteId + "/credenciamento")
+        String solicitacaoId = objectMapper.readTree(corpoSolicitacao).get("id").asText();
+
+        mockMvc.perform(post("/api/iss/credenciamento/solicitacoes/%s/aprovar".formatted(solicitacaoId))
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"statusCredenciamentoId\": \"%s\"}".formatted(STATUS_APROVADO_ID)))
-            .andExpect(status().isOk());
+                .content("{\"observacao\": \"Documentação conferida.\"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.statusId").value(STATUS_APROVADO_ID));
 
         return contribuinteId;
     }

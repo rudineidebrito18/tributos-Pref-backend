@@ -1,0 +1,34 @@
+{
+    "pix": [
+        {
+            "endToEndId": "E60746948202103082223A7540Db1234",
+            "txid": "123234443",
+            "valor": "100.00",
+            "componentesValor": {
+                "original": { "valor": "90.00" },
+                "juros": { "valor": "5.00" },
+                "multa": { "valor": "5.00" }
+            },
+            "chave": "baaf230c-a642-546d-1254-aa16ae7c8dc6",
+            "horario": "2022-07-27T14:30:47.00-03:00",
+            "infoPagador": "Pedido XYZ",
+            "pagador": {
+                "cnpj": "99328834000198",
+                "nome": "EMPRESA EXEMPLO LTDA"
+            },
+            "campoNovoAindaNaoDocumentado": "deve ser ignorado"
+        },
+        {
+            "endToEndId": "E60746948202103082223A7540Db9999",
+            "txid": "987654321",
+            "valor": "250.50",
+            "componentesValor": { "original": { "valor": "250.50" } },
+            "chave": "baaf230c-a642-546d-1254-aa16ae7c8dc6",
+            "horario": "2022-07-27T14:31:02-03:00",
+            "pagador": {
+                "cpf": "93492239293",
+                "nome": "VICTOR LOPES DORNELES"
+            }
+        }
+    ]
+}

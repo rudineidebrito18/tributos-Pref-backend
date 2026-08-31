@@ -1,0 +1,8 @@
+# Perfil usado pelos testes de integração (Testcontainers).
+# Não referencia DB_URL do .env de desenvolvimento — o @ServiceConnection
+# substitui spring.datasource.url pelo JDBC do container efêmero.
+spring:
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:1/tributos-test
+    username: test
+    password: test
