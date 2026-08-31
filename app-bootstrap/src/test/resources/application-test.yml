@@ -2,6 +2,8 @@
 # Não referencia DB_URL do .env de desenvolvimento — o AbstractIntegrationTest
 # substitui spring.datasource.url pelo JDBC do container efêmero.
 spring:
+  profiles:
+    active: dev-sem-bb
   datasource:
     url: jdbc:postgresql://127.0.0.1:1/tributos-test
     username: test

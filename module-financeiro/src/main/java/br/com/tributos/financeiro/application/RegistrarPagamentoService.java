@@ -48,21 +48,6 @@ public class RegistrarPagamentoService {
     }
 
     @Transactional
-    public SimulacaoPixResult simularPix(UUID guiaId) {
-        GuiaArrecadacao guia = buscarPendente(guiaId);
-        String txid = "MOCK-" + guia.id().toString().replace("-", "").substring(0, 20);
-        String codigoBarras = "23793.38128 60000.000003 00000.000400 1 " + String.format("%014d", guia.numero());
-        String qrCodePayload = "00020126580014br.gov.bcb.pix0136" + txid + "5204000053039865802BR5925MOCK TRIBUTOS6009SAO PAULO62070503***6304ABCD";
-
-        GuiaArrecadacao atualizada = efetivarParcialPix(guia, txid, codigoBarras, qrCodePayload);
-        return new SimulacaoPixResult(
-            atualizada.pixTxid(),
-            atualizada.codigoBarras(),
-            qrCodePayload
-        );
-    }
-
-    @Transactional
     public GuiaArrecadacao confirmarPix(UUID guiaId) {
         GuiaArrecadacao guia = guiaArrecadacaoRepository.buscarPorId(guiaId)
             .orElseThrow(() -> new NotFoundException("Guia de arrecadação não encontrada."));
@@ -70,7 +55,7 @@ public class RegistrarPagamentoService {
             return guia;
         }
         if (guia.pixTxid() == null) {
-            throw new ValidationException("Simule o PIX antes de confirmar o pagamento.");
+            throw new ValidationException("Gere o PIX antes de confirmar o pagamento.");
         }
         var formaPix = formaPagamentoRepository.buscarPorCodigo(CODIGO_FORMA_PIX)
             .orElseThrow(() -> new IllegalStateException("Forma de pagamento PIX não configurada."));
@@ -91,29 +76,6 @@ public class RegistrarPagamentoService {
             throw new ValidationException("A guia não está pendente de pagamento.");
         }
         return guia;
-    }
-
-    private GuiaArrecadacao efetivarParcialPix(
-        GuiaArrecadacao guia,
-        String txid,
-        String codigoBarras,
-        String qrCodePayload
-    ) {
-        GuiaArrecadacao parcial = copiarGuia(
-            guia,
-            guia.situacao(),
-            guia.formaPagamentoId(),
-            guia.dataEfetivacao(),
-            guia.valorPago(),
-            codigoBarras,
-            txid,
-            StatusPix.ATIVA,
-            qrCodePayload,
-            guia.pixLink(),
-            guia.pixEndToEndId(),
-            Instant.now()
-        );
-        return guiaArrecadacaoRepository.salvar(parcial);
     }
 
     private GuiaArrecadacao efetivarPagamento(
@@ -178,14 +140,12 @@ public class RegistrarPagamentoService {
             codigoBarras,
             pixTxid,
             guia.descricaoAvulsa(),
+            guia.codigoVerificacao(),
             statusPix,
             pixQrcodePayload,
             pixLink,
             pixEndToEndId,
             pixSolicitadoEm
         );
-    }
-
-    public record SimulacaoPixResult(String pixTxid, String codigoBarras, String qrCodePayload) {
     }
 }

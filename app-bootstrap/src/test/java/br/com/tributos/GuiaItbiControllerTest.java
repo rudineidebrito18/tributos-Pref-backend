@@ -11,6 +11,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -65,7 +66,9 @@ class GuiaItbiControllerTest extends AbstractIntegrationTest {
 
         String guiaFinanceiroId = objectMapper.readTree(corpoFinanceiro).get("content").get(0).get("id").asText();
 
-        mockMvc.perform(post("/api/financeiro/guias-arrecadacao/" + guiaFinanceiroId + "/simular-pix")
+        salvarConfigPix(token);
+
+        mockMvc.perform(post("/api/financeiro/guias-arrecadacao/" + guiaFinanceiroId + "/pix")
                 .header("Authorization", "Bearer " + token))
             .andExpect(status().isOk());
 
@@ -146,5 +149,24 @@ class GuiaItbiControllerTest extends AbstractIntegrationTest {
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(corpo).get("id").asText();
+    }
+
+    private void salvarConfigPix(String token) throws Exception {
+        mockMvc.perform(put("/api/plataforma/configuracao-pix/SANDBOX")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "ativo": true,
+                      "clientId": "client-demo",
+                      "clientSecret": "segredo123",
+                      "developerApplicationKey": "dev-key-demo",
+                      "escopos": "pix.arrecadacao-requisicao pix.arrecadacao-info",
+                      "numeroConvenio": "123456",
+                      "chavePix": "00000000000000000000000000000000000000000000",
+                      "indicadorCodigoBarras": "N"
+                    }
+                    """))
+            .andExpect(status().isOk());
     }
 }

@@ -6,7 +6,6 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
-import br.com.tributos.financeiro.adapters.out.pixbb.BbOAuthProperties;
 import br.com.tributos.support.AbstractIntegrationTest;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import tools.jackson.databind.JsonNode;
@@ -42,9 +41,6 @@ class ConfiguracaoPixControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    private BbOAuthProperties bbOAuthProperties;
 
     @Test
     void adminDeveSalvarSemExporSegredoEFiscalDeveReceber403() throws Exception {
@@ -174,9 +170,6 @@ class ConfiguracaoPixControllerTest extends AbstractIntegrationTest {
 
     @Test
     void deveTestarConexaoRetornandoErroDoBbSemVazarSegredo() throws Exception {
-        assertThat(bbOAuthProperties.homologacaoBaseUrl())
-            .isEqualTo("http://localhost:" + WIRE_MOCK_OAUTH.port());
-
         WIRE_MOCK_OAUTH.resetAll();
         WIRE_MOCK_OAUTH.stubFor(WireMock.post(urlEqualTo("/oauth/token"))
             .willReturn(aResponse()

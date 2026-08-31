@@ -86,6 +86,9 @@ public class GuiaArrecadacaoJpaEntity {
     @Column(name = "descricao_avulsa")
     private String descricaoAvulsa;
 
+    @Column(name = "codigo_verificacao", length = 32)
+    private String codigoVerificacao;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status_pix", length = 40)
     private StatusPix statusPix;
@@ -252,6 +255,14 @@ public class GuiaArrecadacaoJpaEntity {
 
     public void setDescricaoAvulsa(String descricaoAvulsa) {
         this.descricaoAvulsa = descricaoAvulsa;
+    }
+
+    public String getCodigoVerificacao() {
+        return codigoVerificacao;
+    }
+
+    public void setCodigoVerificacao(String codigoVerificacao) {
+        this.codigoVerificacao = codigoVerificacao;
     }
 
     public StatusPix getStatusPix() {

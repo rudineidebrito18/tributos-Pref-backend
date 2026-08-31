@@ -41,6 +41,14 @@ public class BbHttpClientFactory {
             .build();
     }
 
+    /** Em localhost (WireMock nos testes), usa HTTP simples; demais hosts exigem mTLS. */
+    public HttpClient criarHttpClient(CredenciaisPixBb credenciais, String baseUrl) {
+        if (baseUrl != null && (baseUrl.startsWith("http://localhost") || baseUrl.startsWith("http://127.0.0.1"))) {
+            return HttpClient.newHttpClient();
+        }
+        return criarHttpClientMtls(credenciais);
+    }
+
     void limparCache() {
         sslContextCache.clear();
     }

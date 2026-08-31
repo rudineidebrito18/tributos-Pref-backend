@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(BbOAuthProperties.class)
+@EnableConfigurationProperties({BbOAuthProperties.class, BbPixApiProperties.class})
 public class PixBbConfiguration {
 
     @Bean

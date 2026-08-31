@@ -66,26 +66,8 @@ class RegistrarPagamentoServiceTest {
     }
 
     @Test
-    void simularPixDeveGravarStatusAtivaEPayload() {
-        GuiaArrecadacao pendente = guiaPendente();
-        when(guiaArrecadacaoRepository.buscarPorId(guiaId)).thenReturn(Optional.of(pendente));
-        when(guiaArrecadacaoRepository.salvar(any())).thenAnswer(inv -> inv.getArgument(0));
-
-        service.simularPix(guiaId);
-
-        ArgumentCaptor<GuiaArrecadacao> captor = ArgumentCaptor.forClass(GuiaArrecadacao.class);
-        verify(guiaArrecadacaoRepository).salvar(captor.capture());
-        GuiaArrecadacao salva = captor.getValue();
-        assertThat(salva.situacao()).isEqualTo(SituacaoGuia.PENDENTE);
-        assertThat(salva.statusPix()).isEqualTo(StatusPix.ATIVA);
-        assertThat(salva.pixTxid()).startsWith("MOCK-");
-        assertThat(salva.pixQrcodePayload()).contains(salva.pixTxid());
-        assertThat(salva.pixSolicitadoEm()).isNotNull();
-    }
-
-    @Test
     void confirmarPixDeveGravarConcluidaEFormaPix() {
-        GuiaArrecadacao comPix = comPixSimulado();
+        GuiaArrecadacao comPix = comPixGerado();
         when(guiaArrecadacaoRepository.buscarPorId(guiaId)).thenReturn(Optional.of(comPix));
         when(formaPagamentoRepository.buscarPorCodigo(RegistrarPagamentoService.CODIGO_FORMA_PIX))
             .thenReturn(Optional.of(new FormaPagamento(formaPixId, "PIX", "PIX")));
@@ -122,6 +104,7 @@ class RegistrarPagamentoServiceTest {
             null,
             null,
             null,
+            "CODVERIF123456789012",
             null,
             null,
             null,
@@ -130,7 +113,7 @@ class RegistrarPagamentoServiceTest {
         );
     }
 
-    private GuiaArrecadacao comPixSimulado() {
+    private GuiaArrecadacao comPixGerado() {
         GuiaArrecadacao base = guiaPendente();
         return new GuiaArrecadacao(
             base.id(),
@@ -150,8 +133,9 @@ class RegistrarPagamentoServiceTest {
             base.dataEfetivacao(),
             base.valorPago(),
             "23793.38128",
-            "MOCK-txid",
+            "TXID-123",
             base.descricaoAvulsa(),
+            base.codigoVerificacao(),
             StatusPix.ATIVA,
             "qr-payload",
             null,

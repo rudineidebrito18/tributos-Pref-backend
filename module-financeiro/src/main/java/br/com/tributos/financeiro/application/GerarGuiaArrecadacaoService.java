@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.tributos.financeiro.domain.GeradorCodigoVerificacaoGuia;
 import br.com.tributos.financeiro.domain.GuiaArrecadacao;
 import br.com.tributos.financeiro.domain.GuiaArrecadacaoRepository;
 import br.com.tributos.financeiro.domain.OrigemGuia;
@@ -70,6 +71,7 @@ public class GerarGuiaArrecadacaoService {
             null,
             null,
             comando.descricaoAvulsa(),
+            GeradorCodigoVerificacaoGuia.gerar(),
             null,
             null,
             null,

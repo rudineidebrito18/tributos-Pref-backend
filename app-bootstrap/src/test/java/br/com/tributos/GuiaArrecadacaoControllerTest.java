@@ -80,10 +80,12 @@ class GuiaArrecadacaoControllerTest extends AbstractIntegrationTest {
 
         String guiaId = objectMapper.readTree(corpoListagem).get("content").get(0).get("id").asText();
 
-        mockMvc.perform(post("/api/financeiro/guias-arrecadacao/" + guiaId + "/simular-pix")
+        salvarConfigPix(token);
+
+        mockMvc.perform(post("/api/financeiro/guias-arrecadacao/" + guiaId + "/pix")
                 .header("Authorization", "Bearer " + token))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.pixTxid").exists());
+            .andExpect(jsonPath("$.txid").exists());
 
         mockMvc.perform(get("/api/financeiro/guias-arrecadacao/" + guiaId)
                 .header("Authorization", "Bearer " + token))
@@ -290,5 +292,24 @@ class GuiaArrecadacaoControllerTest extends AbstractIntegrationTest {
             .andExpect(jsonPath("$.statusId").value(STATUS_APROVADO_ID));
 
         return contribuinteId;
+    }
+
+    private void salvarConfigPix(String token) throws Exception {
+        mockMvc.perform(put("/api/plataforma/configuracao-pix/SANDBOX")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "ativo": true,
+                      "clientId": "client-demo",
+                      "clientSecret": "segredo123",
+                      "developerApplicationKey": "dev-key-demo",
+                      "escopos": "pix.arrecadacao-requisicao pix.arrecadacao-info",
+                      "numeroConvenio": "123456",
+                      "chavePix": "00000000000000000000000000000000000000000000",
+                      "indicadorCodigoBarras": "N"
+                    }
+                    """))
+            .andExpect(status().isOk());
     }
 }

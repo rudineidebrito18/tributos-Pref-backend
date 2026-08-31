@@ -17,10 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.tributos.financeiro.adapters.in.web.dto.BaixaManualRequest;
 import br.com.tributos.financeiro.adapters.in.web.dto.EmitirDamAvulsoRequest;
+import br.com.tributos.financeiro.adapters.in.web.dto.GerarPixResponse;
 import br.com.tributos.financeiro.adapters.in.web.dto.GuiaArrecadacaoResponse;
-import br.com.tributos.financeiro.adapters.in.web.dto.SimulacaoPixResponse;
 import br.com.tributos.financeiro.application.BuscarGuiaService;
 import br.com.tributos.financeiro.application.EmitirDamAvulsoService;
+import br.com.tributos.financeiro.application.GerarPixGuiaService;
 import br.com.tributos.financeiro.application.ListarGuiasService;
 import br.com.tributos.financeiro.application.RegistrarPagamentoService;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
@@ -36,6 +37,7 @@ public class GuiaArrecadacaoController {
     private final ListarGuiasService listarGuiasService;
     private final BuscarGuiaService buscarGuiaService;
     private final EmitirDamAvulsoService emitirDamAvulsoService;
+    private final GerarPixGuiaService gerarPixGuiaService;
     private final RegistrarPagamentoService registrarPagamentoService;
     private final GuiaArrecadacaoResponseMapper guiaArrecadacaoResponseMapper;
 
@@ -43,12 +45,14 @@ public class GuiaArrecadacaoController {
         ListarGuiasService listarGuiasService,
         BuscarGuiaService buscarGuiaService,
         EmitirDamAvulsoService emitirDamAvulsoService,
+        GerarPixGuiaService gerarPixGuiaService,
         RegistrarPagamentoService registrarPagamentoService,
         GuiaArrecadacaoResponseMapper guiaArrecadacaoResponseMapper
     ) {
         this.listarGuiasService = listarGuiasService;
         this.buscarGuiaService = buscarGuiaService;
         this.emitirDamAvulsoService = emitirDamAvulsoService;
+        this.gerarPixGuiaService = gerarPixGuiaService;
         this.registrarPagamentoService = registrarPagamentoService;
         this.guiaArrecadacaoResponseMapper = guiaArrecadacaoResponseMapper;
     }
@@ -87,10 +91,9 @@ public class GuiaArrecadacaoController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
-    @PostMapping("/{id}/simular-pix")
-    public SimulacaoPixResponse simularPix(@PathVariable UUID id) {
-        var r = registrarPagamentoService.simularPix(id);
-        return new SimulacaoPixResponse(r.pixTxid(), r.codigoBarras(), r.qrCodePayload());
+    @PostMapping("/{id}/pix")
+    public GerarPixResponse gerarPix(@PathVariable UUID id) {
+        return GerarPixResponse.de(gerarPixGuiaService.executar(id));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")

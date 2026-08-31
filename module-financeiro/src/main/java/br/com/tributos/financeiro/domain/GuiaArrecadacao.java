@@ -25,6 +25,7 @@ public record GuiaArrecadacao(
     String codigoBarras,
     String pixTxid,
     String descricaoAvulsa,
+    String codigoVerificacao,
     StatusPix statusPix,
     String pixQrcodePayload,
     String pixLink,

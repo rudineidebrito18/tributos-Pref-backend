@@ -89,6 +89,7 @@ public class GuiaArrecadacaoRepositoryAdapter implements GuiaArrecadacaoReposito
             e.getCodigoBarras(),
             e.getPixTxid(),
             e.getDescricaoAvulsa(),
+            e.getCodigoVerificacao(),
             e.getStatusPix(),
             e.getPixQrcodePayload(),
             e.getPixLink(),
@@ -118,6 +119,7 @@ public class GuiaArrecadacaoRepositoryAdapter implements GuiaArrecadacaoReposito
         e.setCodigoBarras(g.codigoBarras());
         e.setPixTxid(g.pixTxid());
         e.setDescricaoAvulsa(g.descricaoAvulsa());
+        e.setCodigoVerificacao(g.codigoVerificacao());
         e.setStatusPix(g.statusPix());
         e.setPixQrcodePayload(g.pixQrcodePayload());
         e.setPixLink(g.pixLink());
