@@ -1,5 +1,6 @@
 package br.com.tributos.financeiro.adapters.in.web;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -19,9 +20,12 @@ import br.com.tributos.financeiro.adapters.in.web.dto.BaixaManualRequest;
 import br.com.tributos.financeiro.adapters.in.web.dto.EmitirDamAvulsoRequest;
 import br.com.tributos.financeiro.adapters.in.web.dto.GerarPixResponse;
 import br.com.tributos.financeiro.adapters.in.web.dto.GuiaArrecadacaoResponse;
+import br.com.tributos.financeiro.adapters.in.web.dto.PixConciliacaoLogResponse;
 import br.com.tributos.financeiro.application.BuscarGuiaService;
+import br.com.tributos.financeiro.application.ConciliarPixService;
 import br.com.tributos.financeiro.application.EmitirDamAvulsoService;
 import br.com.tributos.financeiro.application.GerarPixGuiaService;
+import br.com.tributos.financeiro.application.ListarConciliacaoPixLogService;
 import br.com.tributos.financeiro.application.ListarGuiasService;
 import br.com.tributos.financeiro.application.RegistrarPagamentoService;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
@@ -39,6 +43,8 @@ public class GuiaArrecadacaoController {
     private final EmitirDamAvulsoService emitirDamAvulsoService;
     private final GerarPixGuiaService gerarPixGuiaService;
     private final RegistrarPagamentoService registrarPagamentoService;
+    private final ConciliarPixService conciliarPixService;
+    private final ListarConciliacaoPixLogService listarConciliacaoPixLogService;
     private final GuiaArrecadacaoResponseMapper guiaArrecadacaoResponseMapper;
 
     public GuiaArrecadacaoController(
@@ -47,6 +53,8 @@ public class GuiaArrecadacaoController {
         EmitirDamAvulsoService emitirDamAvulsoService,
         GerarPixGuiaService gerarPixGuiaService,
         RegistrarPagamentoService registrarPagamentoService,
+        ConciliarPixService conciliarPixService,
+        ListarConciliacaoPixLogService listarConciliacaoPixLogService,
         GuiaArrecadacaoResponseMapper guiaArrecadacaoResponseMapper
     ) {
         this.listarGuiasService = listarGuiasService;
@@ -54,6 +62,8 @@ public class GuiaArrecadacaoController {
         this.emitirDamAvulsoService = emitirDamAvulsoService;
         this.gerarPixGuiaService = gerarPixGuiaService;
         this.registrarPagamentoService = registrarPagamentoService;
+        this.conciliarPixService = conciliarPixService;
+        this.listarConciliacaoPixLogService = listarConciliacaoPixLogService;
         this.guiaArrecadacaoResponseMapper = guiaArrecadacaoResponseMapper;
     }
 
@@ -100,6 +110,18 @@ public class GuiaArrecadacaoController {
     @PostMapping("/{id}/confirmar-pix")
     public GuiaArrecadacaoResponse confirmarPix(@PathVariable UUID id) {
         return guiaArrecadacaoResponseMapper.paraResponse(registrarPagamentoService.confirmarPix(id));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL')")
+    @PostMapping("/{id}/conciliar-pix")
+    public GuiaArrecadacaoResponse conciliarPix(@PathVariable UUID id) {
+        return guiaArrecadacaoResponseMapper.paraResponse(conciliarPixService.executar(id));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL')")
+    @GetMapping("/{id}/conciliacao-log")
+    public List<PixConciliacaoLogResponse> conciliacaoLog(@PathVariable UUID id) {
+        return listarConciliacaoPixLogService.executar(id);
     }
 
     @PreAuthorize("hasRole('ADMIN_TENANT')")

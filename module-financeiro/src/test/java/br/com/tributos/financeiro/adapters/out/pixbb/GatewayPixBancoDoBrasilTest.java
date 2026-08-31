@@ -70,6 +70,76 @@ class GatewayPixBancoDoBrasilTest {
             .withHeader("Authorization", equalTo("Bearer access-token-teste")));
     }
 
+    @Test
+    void deveConsultarPorTxid() {
+        stubConsultaTxid("TXID-CONSULTA", "CONCLUIDA");
+
+        var status = gateway.consultarPorTxid(contexto(), "TXID-CONSULTA");
+
+        assertThat(status.estadoSolicitacao()).isEqualTo("CONCLUIDA");
+        wireMock.verify(com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor(
+            urlPathEqualTo("/v1/arrecadacao-qrcodes/TXID-CONSULTA")));
+    }
+
+    @Test
+    void deveConsultarPagamentos() {
+        stubPagamentos("TXID-PAG");
+
+        var pagamentos = gateway.consultarPagamentos(contexto(), "TXID-PAG");
+
+        assertThat(pagamentos).hasSize(1);
+        assertThat(pagamentos.get(0).endToEndId()).isEqualTo("E2E-123");
+        wireMock.verify(com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor(
+            urlPathEqualTo("/v1/arrecadacao-qrcodes/pagamentos/TXID-PAG")));
+    }
+
+    private br.com.tributos.financeiro.application.ports.GatewayPix.ConsultaPixContexto contexto() {
+        return new br.com.tributos.financeiro.application.ports.GatewayPix.ConsultaPixContexto(
+            new CredenciaisPixBb(
+                UUID.randomUUID(),
+                "SANDBOX",
+                "client-test",
+                "secret-test",
+                "pix.arrecadacao-info",
+                null,
+                null
+            ),
+            "dev-key-teste"
+        );
+    }
+
+    private void stubConsultaTxid(String txid, String estado) {
+        wireMock.stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/v1/arrecadacao-qrcodes/" + txid))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody("""
+                    {
+                      "codigoConciliacaoSolicitante": "%s",
+                      "estadoSolicitacao": "%s"
+                    }
+                    """.formatted(txid, estado))));
+    }
+
+    private void stubPagamentos(String txid) {
+        wireMock.stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(
+                urlPathEqualTo("/v1/arrecadacao-qrcodes/pagamentos/" + txid))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody("""
+                    {
+                      "listaPagamentos": [
+                        {
+                          "endToEndId": "E2E-123",
+                          "valorPagamento": "150.00",
+                          "horarioPagamento": "2026-08-31T12:00:00-03:00"
+                        }
+                      ]
+                    }
+                    """)));
+    }
+
     private void stubOAuth() {
         wireMock.stubFor(WireMock.post(urlPathEqualTo("/oauth/token"))
             .willReturn(aResponse()

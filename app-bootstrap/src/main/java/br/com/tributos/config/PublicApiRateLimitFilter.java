@@ -14,16 +14,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Rate limit simples em memória para endpoints públicos — 60 requisições por minuto por IP.
+ * Rate limit simples em memória para endpoints públicos — configurável por propriedade.
  */
 @Component
 public class PublicApiRateLimitFilter extends OncePerRequestFilter {
 
-    private static final int MAX_REQUESTS = 60;
-    private static final long WINDOW_MS = 60_000;
-
+    private final PublicApiRateLimitProperties properties;
     private final ConcurrentHashMap<String, AtomicInteger> counts = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Long> windowStart = new ConcurrentHashMap<>();
+
+    public PublicApiRateLimitFilter(PublicApiRateLimitProperties properties) {
+        this.properties = properties;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -37,12 +39,12 @@ public class PublicApiRateLimitFilter extends OncePerRequestFilter {
         long now = System.currentTimeMillis();
 
         Long start = windowStart.get(ip);
-        if (start == null || now - start >= WINDOW_MS) {
+        if (start == null || now - start >= properties.windowMs()) {
             windowStart.put(ip, now);
             counts.put(ip, new AtomicInteger(0));
         }
 
-        if (counts.get(ip).incrementAndGet() > MAX_REQUESTS) {
+        if (counts.get(ip).incrementAndGet() > properties.maxRequests()) {
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             return;
         }
@@ -52,6 +54,9 @@ public class PublicApiRateLimitFilter extends OncePerRequestFilter {
 
     private static boolean isPublicEndpoint(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path != null && path.startsWith("/api/public/");
+        if (path == null) {
+            return false;
+        }
+        return path.startsWith("/api/public/") || path.startsWith("/api/webhooks/");
     }
 }

@@ -39,5 +39,6 @@ public abstract class AbstractIntegrationTest {
             () -> "http://localhost:" + WIRE_MOCK_OAUTH.port());
         registry.add("pix.bb.oauth.producao-base-url",
             () -> "http://localhost:" + WIRE_MOCK_OAUTH.port());
+        registry.add("app.pix.conciliacao.habilitada", () -> "false");
     }
 }

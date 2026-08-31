@@ -139,6 +139,7 @@ class GerarPixGuiaServiceTest {
             "00000000000000000000000000000000000000000000",
             "N",
             null,
+            null,
             null
         );
     }

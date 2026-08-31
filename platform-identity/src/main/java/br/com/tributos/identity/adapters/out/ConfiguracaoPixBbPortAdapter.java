@@ -36,7 +36,8 @@ public class ConfiguracaoPixBbPortAdapter implements ConfiguracaoPixBbPort {
             config.getChavePix(),
             config.getIndicadorCodigoBarras(),
             config.getCertificadoPath(),
-            config.getCertificadoSenha()
+            config.getCertificadoSenha(),
+            config.getWebhookToken()
         );
     }
 }

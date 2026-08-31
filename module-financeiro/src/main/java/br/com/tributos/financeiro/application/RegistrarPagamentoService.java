@@ -69,6 +69,47 @@ public class RegistrarPagamentoService {
         );
     }
 
+    @Transactional
+    public ResultadoLiquidacaoPix liquidacaoViaWebhook(
+        GuiaArrecadacao guia,
+        BigDecimal valorRecebido,
+        String endToEndId,
+        Instant horarioPagamento
+    ) {
+        if (valorRecebido == null || valorRecebido.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ValidationException("Valor recebido inválido.");
+        }
+        if (guia.situacao() == SituacaoGuia.PAGA
+            && endToEndId != null
+            && endToEndId.equals(guia.pixEndToEndId())) {
+            return new ResultadoLiquidacaoPix(guia, true, true);
+        }
+        var formaPix = formaPagamentoRepository.buscarPorCodigo(CODIGO_FORMA_PIX)
+            .orElseThrow(() -> new IllegalStateException("Forma de pagamento PIX não configurada."));
+
+        boolean valorCompleto = valorRecebido.compareTo(guia.valor()) >= 0;
+        SituacaoGuia novaSituacao = valorCompleto ? SituacaoGuia.PAGA : SituacaoGuia.PENDENTE;
+        Instant dataEfetivacao = valorCompleto
+            ? (horarioPagamento != null ? horarioPagamento : Instant.now())
+            : guia.dataEfetivacao();
+
+        GuiaArrecadacao atualizada = copiarGuia(
+            guia,
+            novaSituacao,
+            formaPix.id(),
+            dataEfetivacao,
+            valorRecebido,
+            guia.codigoBarras(),
+            guia.pixTxid(),
+            StatusPix.CONCLUIDA,
+            guia.pixQrcodePayload(),
+            guia.pixLink(),
+            endToEndId,
+            guia.pixSolicitadoEm()
+        );
+        return new ResultadoLiquidacaoPix(guiaArrecadacaoRepository.salvar(atualizada), valorCompleto, false);
+    }
+
     private GuiaArrecadacao buscarPendente(UUID guiaId) {
         GuiaArrecadacao guia = guiaArrecadacaoRepository.buscarPorId(guiaId)
             .orElseThrow(() -> new NotFoundException("Guia de arrecadação não encontrada."));

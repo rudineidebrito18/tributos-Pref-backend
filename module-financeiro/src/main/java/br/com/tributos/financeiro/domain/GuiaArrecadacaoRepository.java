@@ -1,5 +1,7 @@
 package br.com.tributos.financeiro.domain;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,6 +18,8 @@ public interface GuiaArrecadacaoRepository {
 
     Optional<GuiaArrecadacao> buscarPorNumero(long numero);
 
+    Optional<GuiaArrecadacao> buscarPorPixTxid(UUID tenantId, String pixTxid);
+
     Page<GuiaArrecadacao> listar(
         TipoTributo tipoTributo,
         SituacaoGuia situacao,
@@ -28,4 +32,6 @@ public interface GuiaArrecadacaoRepository {
     long proximoNumero();
 
     boolean possuiPendencia(UUID tenantId, UUID pessoaId);
+
+    List<GuiaArrecadacao> buscarAtivasParaConciliacao(Instant solicitadoDesde, Pageable pageable);
 }

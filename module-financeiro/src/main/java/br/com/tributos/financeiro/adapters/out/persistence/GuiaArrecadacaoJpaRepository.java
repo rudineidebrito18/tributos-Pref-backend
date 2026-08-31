@@ -22,6 +22,8 @@ public interface GuiaArrecadacaoJpaRepository extends JpaRepository<GuiaArrecada
 
     Optional<GuiaArrecadacaoJpaEntity> findByNumero(long numero);
 
+    Optional<GuiaArrecadacaoJpaEntity> findByTenantIdAndPixTxid(UUID tenantId, String pixTxid);
+
     @Query("""
         SELECT g FROM GuiaArrecadacaoJpaEntity g
         WHERE (:tipoTributo IS NULL OR g.tipoTributo = :tipoTributo)
@@ -55,5 +57,17 @@ public interface GuiaArrecadacaoJpaRepository extends JpaRepository<GuiaArrecada
         @Param("inicio") Instant inicio,
         @Param("fim") Instant fim,
         @Param("tipoTributo") TipoTributo tipoTributo
+    );
+
+    @Query("""
+        SELECT g FROM GuiaArrecadacaoJpaEntity g
+        WHERE g.statusPix = br.com.tributos.financeiro.domain.StatusPix.ATIVA
+          AND g.pixTxid IS NOT NULL
+          AND g.pixSolicitadoEm >= :desde
+        ORDER BY g.pixSolicitadoEm ASC
+        """)
+    List<GuiaArrecadacaoJpaEntity> buscarAtivasParaConciliacao(
+        @Param("desde") Instant desde,
+        Pageable pageable
     );
 }

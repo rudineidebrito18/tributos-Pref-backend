@@ -32,11 +32,21 @@ public class GatewayPixFalso implements GatewayPix {
 
     @Override
     public StatusCobrancaPix consultarPorTxid(ConsultaPixContexto contexto, String txid) {
+        if (txid != null && txid.contains("CONCLUIDA")) {
+            return new StatusCobrancaPix(txid, "CONCLUIDA");
+        }
         return new StatusCobrancaPix(txid, "ATIVA");
     }
 
     @Override
     public List<PagamentoPix> consultarPagamentos(ConsultaPixContexto contexto, String txid) {
+        if (txid != null && txid.contains("CONCLUIDA")) {
+            return List.of(new PagamentoPix(
+                "E2E-FAKE-CONCILIACAO",
+                "100.00",
+                "2026-08-31T12:00:00-03:00"
+            ));
+        }
         return List.of();
     }
 

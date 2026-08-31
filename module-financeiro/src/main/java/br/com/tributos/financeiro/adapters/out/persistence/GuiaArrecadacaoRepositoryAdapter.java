@@ -1,5 +1,7 @@
 package br.com.tributos.financeiro.adapters.out.persistence;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,6 +47,11 @@ public class GuiaArrecadacaoRepositoryAdapter implements GuiaArrecadacaoReposito
     }
 
     @Override
+    public Optional<GuiaArrecadacao> buscarPorPixTxid(UUID tenantId, String pixTxid) {
+        return jpaRepository.findByTenantIdAndPixTxid(tenantId, pixTxid).map(this::paraDominio);
+    }
+
+    @Override
     public Page<GuiaArrecadacao> listar(
         TipoTributo tipoTributo,
         SituacaoGuia situacao,
@@ -66,6 +73,13 @@ public class GuiaArrecadacaoRepositoryAdapter implements GuiaArrecadacaoReposito
     @Override
     public boolean possuiPendencia(UUID tenantId, UUID pessoaId) {
         return jpaRepository.existsByTenantIdAndContribuinteIdAndSituacao(tenantId, pessoaId, SituacaoGuia.PENDENTE);
+    }
+
+    @Override
+    public List<GuiaArrecadacao> buscarAtivasParaConciliacao(Instant solicitadoDesde, Pageable pageable) {
+        return jpaRepository.buscarAtivasParaConciliacao(solicitadoDesde, pageable).stream()
+            .map(this::paraDominio)
+            .toList();
     }
 
     private GuiaArrecadacao paraDominio(GuiaArrecadacaoJpaEntity e) {

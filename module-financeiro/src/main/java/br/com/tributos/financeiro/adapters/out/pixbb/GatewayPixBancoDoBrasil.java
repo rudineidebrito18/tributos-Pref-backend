@@ -7,6 +7,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.context.annotation.Profile;
@@ -19,6 +20,7 @@ import br.com.tributos.financeiro.application.ports.GatewayPix.PagamentoPix;
 import br.com.tributos.financeiro.application.ports.GatewayPix.RespostaQrCode;
 import br.com.tributos.financeiro.application.ports.GatewayPix.StatusCobrancaPix;
 import br.com.tributos.kernel.pixbb.CredenciaisPixBb;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
@@ -79,17 +81,115 @@ public class GatewayPixBancoDoBrasil implements GatewayPix {
 
     @Override
     public StatusCobrancaPix consultarPorTxid(ConsultaPixContexto contexto, String txid) {
-        throw new UnsupportedOperationException("Consulta PIX por txid será implementada em E5.6.");
+        String corpo = executarGet(contexto, "/arrecadacao-qrcodes/" + URLEncoder.encode(txid, StandardCharsets.UTF_8));
+        return parseStatusCobranca(corpo, txid);
     }
 
     @Override
     public List<PagamentoPix> consultarPagamentos(ConsultaPixContexto contexto, String txid) {
-        throw new UnsupportedOperationException("Consulta de pagamentos PIX será implementada em E5.6.");
+        String corpo = executarGet(contexto, "/arrecadacao-qrcodes/pagamentos/" + URLEncoder.encode(txid, StandardCharsets.UTF_8));
+        return parsePagamentos(corpo);
     }
 
     @Override
     public void baixarQrCode(ConsultaPixContexto contexto, String txid) {
-        throw new UnsupportedOperationException("Baixa de QR Code PIX será implementada em E5.6.");
+        throw new UnsupportedOperationException("Baixa de QR Code PIX no BB será implementada em etapa futura.");
+    }
+
+    private String executarGet(ConsultaPixContexto contexto, String path) {
+        String token = bbOAuthClient.obterToken(contexto.credenciais()).accessToken();
+        String baseUrl = baseUrlApi(contexto.credenciais().ambiente());
+        String url = baseUrl + path + "?gw-dev-app-key="
+            + URLEncoder.encode(contexto.developerApplicationKey(), StandardCharsets.UTF_8);
+
+        HttpClient cliente = httpClientFactory.criarHttpClient(contexto.credenciais(), baseUrl);
+        HttpRequest requisicao = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .header("Authorization", "Bearer " + token)
+            .GET()
+            .build();
+
+        try {
+            HttpResponse<String> resposta = cliente.send(requisicao, HttpResponse.BodyHandlers.ofString());
+            if (resposta.statusCode() < 200 || resposta.statusCode() >= 300) {
+                throw new BbPixApiFalhaException(parseErro(resposta.body()));
+            }
+            return resposta.body();
+        } catch (BbPixApiFalhaException ex) {
+            throw ex;
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new BbPixApiFalhaException("Falha ao consultar PIX no BB.", ex);
+        } catch (IOException ex) {
+            throw new BbPixApiFalhaException("Falha ao consultar PIX no BB.", ex);
+        }
+    }
+
+    private StatusCobrancaPix parseStatusCobranca(String corpo, String txidFallback) {
+        if (corpo == null || corpo.isBlank()) {
+            throw new BbPixApiFalhaException("Resposta vazia ao consultar PIX no BB.");
+        }
+        try {
+            JsonNode json = JSON.readTree(corpo);
+            String txid = json.path("codigoConciliacaoSolicitante").asString(null);
+            if (txid == null || txid.isBlank()) {
+                txid = json.path("txid").asString(txidFallback);
+            }
+            String estado = json.path("estadoSolicitacao").asString(null);
+            if (estado == null || estado.isBlank()) {
+                throw new BbPixApiFalhaException("Resposta do BB sem estadoSolicitacao.");
+            }
+            return new StatusCobrancaPix(txid, estado);
+        } catch (BbPixApiFalhaException ex) {
+            throw ex;
+        } catch (RuntimeException ex) {
+            throw new BbPixApiFalhaException("Resposta inválida ao consultar PIX no BB.", ex);
+        }
+    }
+
+    private List<PagamentoPix> parsePagamentos(String corpo) {
+        if (corpo == null || corpo.isBlank()) {
+            return List.of();
+        }
+        try {
+            JsonNode json = JSON.readTree(corpo);
+            JsonNode lista = json.isArray() ? json : localizarArrayPagamentos(json);
+            if (lista == null || !lista.isArray()) {
+                return List.of();
+            }
+            List<PagamentoPix> pagamentos = new ArrayList<>();
+            for (JsonNode item : lista) {
+                String endToEndId = primeiroTexto(item, "endToEndId", "endToEndID");
+                String valor = primeiroTexto(item, "valor", "valorPagamento", "valorPago");
+                String horario = primeiroTexto(item, "horario", "horarioPagamento", "dataPagamento");
+                if (endToEndId != null && valor != null) {
+                    pagamentos.add(new PagamentoPix(endToEndId, valor, horario));
+                }
+            }
+            return pagamentos;
+        } catch (RuntimeException ex) {
+            throw new BbPixApiFalhaException("Resposta inválida ao consultar pagamentos PIX no BB.", ex);
+        }
+    }
+
+    private static JsonNode localizarArrayPagamentos(JsonNode json) {
+        for (String campo : List.of("lista", "listaPagamentos", "pagamentos", "pix")) {
+            JsonNode no = json.path(campo);
+            if (no.isArray()) {
+                return no;
+            }
+        }
+        return null;
+    }
+
+    private static String primeiroTexto(JsonNode no, String... campos) {
+        for (String campo : campos) {
+            String valor = no.path(campo).asString(null);
+            if (valor != null && !valor.isBlank()) {
+                return valor;
+            }
+        }
+        return null;
     }
 
     private RespostaQrCode parseRespostaQrCode(String corpo) {

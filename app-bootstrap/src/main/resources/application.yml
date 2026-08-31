@@ -31,6 +31,16 @@ spring:
 app:
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001}
+  public-api:
+    rate-limit:
+      max-requests: ${APP_PUBLIC_API_RATE_LIMIT_MAX:60}
+      window-ms: ${APP_PUBLIC_API_RATE_LIMIT_WINDOW_MS:60000}
+  pix:
+    conciliacao:
+      habilitada: ${APP_PIX_CONCILIACAO_HABILITADA:true}
+      cron: ${APP_PIX_CONCILIACAO_CRON:0 */15 * * * *}
+      tamanho-lote: ${APP_PIX_CONCILIACAO_LOTE:100}
+      dias-retroativos: ${APP_PIX_CONCILIACAO_DIAS:30}
   # Chave para cifrar segredos em repouso (credenciais PIX). Mínimo recomendado: 32 bytes.
   secret-key: ${APP_SECRET_KEY:desenvolvimento-local-chave-cifra-nao-usar-em-producao!!}
   security:

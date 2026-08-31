@@ -14,7 +14,8 @@ public record ConfiguracaoPixOperacional(
     String chavePix,
     String indicadorCodigoBarras,
     String certificadoPath,
-    String certificadoSenha
+    String certificadoSenha,
+    String webhookToken
 ) {
     public CredenciaisPixBb credenciais() {
         return new CredenciaisPixBb(

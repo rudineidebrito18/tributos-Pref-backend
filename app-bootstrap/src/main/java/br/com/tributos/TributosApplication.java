@@ -2,6 +2,7 @@ package br.com.tributos;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Ponto de entrada. Escaneia {@code br.com.tributos} inteiro — cada módulo de domínio
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * {@code @RestController}/{@code @Entity} serem descobertos, sem configuração adicional.
  */
 @SpringBootApplication
+@EnableScheduling
 public class TributosApplication {
 
     public static void main(String[] args) {

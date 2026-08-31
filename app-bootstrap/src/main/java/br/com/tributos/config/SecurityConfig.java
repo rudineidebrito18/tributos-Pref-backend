@@ -35,6 +35,7 @@ public class SecurityConfig {
 
     private static final String[] CAMINHOS_PUBLICOS = {
         "/api/public/**",
+        "/api/webhooks/pix/**",
         "/api/auth/login",
         "/api/auth/refresh",
         "/api/auth/logout",
