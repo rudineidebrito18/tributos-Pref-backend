@@ -1,5 +1,6 @@
 package br.com.tributos.iss.adapters.in.web.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -14,8 +15,15 @@ public record EmitirAlvaraRequest(
     UUID tipoAlvaraId,
     @NotNull(message = "Informe a data de expedição.")
     LocalDate dataExpedicao,
-    @NotNull(message = "Informe a situação fiscal.")
     SituacaoFiscalAlvara situacaoFiscal,
-    LocalDate validade
+    LocalDate validade,
+    BigDecimal valorPorUnidade,
+    String unidadeMedidaDescritivo,
+    BigDecimal qtdUnidadeMedida,
+    BigDecimal valor,
+    String documentoHtml,
+    String responsavelTecnico,
+    String inscricaoConselhoRt,
+    String observacao
 ) {
 }

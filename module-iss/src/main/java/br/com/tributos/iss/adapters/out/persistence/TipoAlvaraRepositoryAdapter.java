@@ -44,6 +44,19 @@ public class TipoAlvaraRepositoryAdapter implements TipoAlvaraRepository {
         entidade.setValorBase(tipoAlvara.valorBase());
         entidade.setDiasValidade(tipoAlvara.diasValidade());
         entidade.setAtivo(tipoAlvara.ativo());
+        entidade.setAnoVigencia(tipoAlvara.anoVigencia());
+        entidade.setIdentificacaoModeloDocumento(tipoAlvara.identificacaoModeloDocumento());
+        entidade.setPermiteValorDinamico(tipoAlvara.permiteValorDinamico());
+        entidade.setPermiteCalculoValor(tipoAlvara.permiteCalculoValor());
+        entidade.setUnidadeMedidaDescritivo(tipoAlvara.unidadeMedidaDescritivo());
+        entidade.setHabilitarValidade(tipoAlvara.habilitarValidade());
+        entidade.setHabilitarCalculoVencimento(tipoAlvara.habilitarCalculoVencimento());
+        entidade.setBaseVencimento(tipoAlvara.baseVencimento());
+        entidade.setDiasMesesVencimento(tipoAlvara.diasMesesVencimento());
+        entidade.setTitulo(tipoAlvara.titulo());
+        entidade.setSecretaria(tipoAlvara.secretaria());
+        entidade.setCargo(tipoAlvara.cargo());
+        entidade.setAssinaturaDocumentoId(tipoAlvara.assinaturaDocumentoId());
 
         return paraDominio(jpaRepository.save(entidade));
     }
@@ -56,14 +69,27 @@ public class TipoAlvaraRepositoryAdapter implements TipoAlvaraRepository {
         return jpaRepository.existsByNomeAndIdNot(nome, excetoId);
     }
 
-    private static TipoAlvara paraDominio(TipoAlvaraJpaEntity entidade) {
+    static TipoAlvara paraDominio(TipoAlvaraJpaEntity entidade) {
         return new TipoAlvara(
             entidade.getId(),
             entidade.getTenantId(),
             entidade.getNome(),
             entidade.getValorBase(),
             entidade.getDiasValidade(),
-            entidade.isAtivo()
+            entidade.isAtivo(),
+            entidade.getAnoVigencia(),
+            entidade.getIdentificacaoModeloDocumento(),
+            entidade.isPermiteValorDinamico(),
+            entidade.isPermiteCalculoValor(),
+            entidade.getUnidadeMedidaDescritivo(),
+            entidade.isHabilitarValidade(),
+            entidade.isHabilitarCalculoVencimento(),
+            entidade.getBaseVencimento(),
+            entidade.getDiasMesesVencimento(),
+            entidade.getTitulo(),
+            entidade.getSecretaria(),
+            entidade.getCargo(),
+            entidade.getAssinaturaDocumentoId()
         );
     }
 }

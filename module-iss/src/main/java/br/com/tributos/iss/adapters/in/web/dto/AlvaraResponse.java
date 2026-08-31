@@ -18,7 +18,15 @@ public record AlvaraResponse(
     SituacaoFiscalAlvara situacaoFiscal,
     BigDecimal valor,
     String codigoVerificacao,
-    Instant dataEmissao
+    Instant dataEmissao,
+    BigDecimal valorPorUnidade,
+    String unidadeMedidaDescritivo,
+    BigDecimal qtdUnidadeMedida,
+    String documentoHtml,
+    String responsavelTecnico,
+    String inscricaoConselhoRt,
+    String motivoCancelamento,
+    String observacao
 ) {
 
     public static AlvaraResponse de(Alvara alvara) {
@@ -32,7 +40,15 @@ public record AlvaraResponse(
             alvara.situacaoFiscal(),
             alvara.valor(),
             alvara.codigoVerificacao(),
-            alvara.dataEmissao()
+            alvara.dataEmissao(),
+            alvara.valorPorUnidade(),
+            alvara.unidadeMedidaDescritivo(),
+            alvara.qtdUnidadeMedida(),
+            alvara.documentoHtml(),
+            alvara.responsavelTecnico(),
+            alvara.inscricaoConselhoRt(),
+            alvara.motivoCancelamento(),
+            alvara.observacao()
         );
     }
 }

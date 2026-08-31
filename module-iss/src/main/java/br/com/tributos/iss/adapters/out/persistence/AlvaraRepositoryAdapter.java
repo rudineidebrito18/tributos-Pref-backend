@@ -40,6 +40,14 @@ public class AlvaraRepositoryAdapter implements AlvaraRepository {
         entidade.setValor(alvara.valor());
         entidade.setCodigoVerificacao(alvara.codigoVerificacao());
         entidade.setDataEmissao(alvara.dataEmissao());
+        entidade.setValorPorUnidade(alvara.valorPorUnidade());
+        entidade.setUnidadeMedidaDescritivo(alvara.unidadeMedidaDescritivo());
+        entidade.setQtdUnidadeMedida(alvara.qtdUnidadeMedida());
+        entidade.setDocumentoHtml(alvara.documentoHtml());
+        entidade.setResponsavelTecnico(alvara.responsavelTecnico());
+        entidade.setInscricaoConselhoRt(alvara.inscricaoConselhoRt());
+        entidade.setMotivoCancelamento(alvara.motivoCancelamento());
+        entidade.setObservacao(alvara.observacao());
 
         return paraDominio(jpaRepository.save(entidade));
     }
@@ -64,7 +72,7 @@ public class AlvaraRepositoryAdapter implements AlvaraRepository {
         return jpaRepository.findMaxNumero() + 1;
     }
 
-    private static Alvara paraDominio(AlvaraJpaEntity entidade) {
+    static Alvara paraDominio(AlvaraJpaEntity entidade) {
         return new Alvara(
             entidade.getId(),
             entidade.getTenantId(),
@@ -76,7 +84,15 @@ public class AlvaraRepositoryAdapter implements AlvaraRepository {
             entidade.getSituacaoFiscal(),
             entidade.getValor(),
             entidade.getCodigoVerificacao(),
-            entidade.getDataEmissao()
+            entidade.getDataEmissao(),
+            entidade.getValorPorUnidade(),
+            entidade.getUnidadeMedidaDescritivo(),
+            entidade.getQtdUnidadeMedida(),
+            entidade.getDocumentoHtml(),
+            entidade.getResponsavelTecnico(),
+            entidade.getInscricaoConselhoRt(),
+            entidade.getMotivoCancelamento(),
+            entidade.getObservacao()
         );
     }
 }

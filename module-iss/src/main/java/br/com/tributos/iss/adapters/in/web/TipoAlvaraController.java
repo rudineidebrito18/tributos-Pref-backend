@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
+import br.com.tributos.iss.adapters.in.web.dto.HistoricoValorAlvaraResponse;
 import br.com.tributos.iss.adapters.in.web.dto.SalvarTipoAlvaraRequest;
 import br.com.tributos.iss.adapters.in.web.dto.TipoAlvaraResponse;
 import br.com.tributos.iss.application.GerenciarTipoAlvaraService;
+import br.com.tributos.iss.application.SalvarTipoAlvaraComando;
 
 @RestController
 @RequestMapping("/api/iss/tipos-alvara")
@@ -36,13 +38,19 @@ public class TipoAlvaraController {
         return gerenciarTipoAlvaraService.listar().stream().map(TipoAlvaraResponse::de).toList();
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
+    @GetMapping("/{id}/historico-valores")
+    public List<HistoricoValorAlvaraResponse> historicoValores(@PathVariable UUID id) {
+        return gerenciarTipoAlvaraService.listarHistoricoValores(id).stream()
+            .map(HistoricoValorAlvaraResponse::de)
+            .toList();
+    }
+
     @PreAuthorize("hasRole('ADMIN_TENANT')")
     @PostMapping
     public ResponseEntity<TipoAlvaraResponse> criar(@Valid @RequestBody SalvarTipoAlvaraRequest request) {
         TipoAlvaraResponse resposta = TipoAlvaraResponse.de(
-            gerenciarTipoAlvaraService.criar(
-                request.nome(), request.valorBase(), request.diasValidade(), request.ativo()
-            )
+            gerenciarTipoAlvaraService.criar(paraComando(request))
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
     }
@@ -50,10 +58,28 @@ public class TipoAlvaraController {
     @PreAuthorize("hasRole('ADMIN_TENANT')")
     @PutMapping("/{id}")
     public TipoAlvaraResponse atualizar(@PathVariable UUID id, @Valid @RequestBody SalvarTipoAlvaraRequest request) {
-        return TipoAlvaraResponse.de(
-            gerenciarTipoAlvaraService.atualizar(
-                id, request.nome(), request.valorBase(), request.diasValidade(), request.ativo()
-            )
+        return TipoAlvaraResponse.de(gerenciarTipoAlvaraService.atualizar(id, paraComando(request)));
+    }
+
+    private static SalvarTipoAlvaraComando paraComando(SalvarTipoAlvaraRequest request) {
+        return new SalvarTipoAlvaraComando(
+            request.nome(),
+            request.valorBase(),
+            request.diasValidade(),
+            request.ativo() != null ? request.ativo() : true,
+            request.anoVigencia(),
+            request.identificacaoModeloDocumento(),
+            request.permiteValorDinamico() != null ? request.permiteValorDinamico() : false,
+            request.permiteCalculoValor() != null ? request.permiteCalculoValor() : false,
+            request.unidadeMedidaDescritivo(),
+            request.habilitarValidade() != null ? request.habilitarValidade() : true,
+            request.habilitarCalculoVencimento() != null ? request.habilitarCalculoVencimento() : false,
+            request.baseVencimento(),
+            request.diasMesesVencimento(),
+            request.titulo(),
+            request.secretaria(),
+            request.cargo(),
+            request.assinaturaDocumentoId()
         );
     }
 }

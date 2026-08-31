@@ -52,6 +52,30 @@ public class AlvaraJpaEntity {
     @Column(name = "data_emissao", nullable = false)
     private Instant dataEmissao;
 
+    @Column(name = "valor_por_unidade", precision = 14, scale = 2)
+    private BigDecimal valorPorUnidade;
+
+    @Column(name = "unidade_medida_descritivo", length = 100)
+    private String unidadeMedidaDescritivo;
+
+    @Column(name = "qtd_unidade_medida", precision = 14, scale = 4)
+    private BigDecimal qtdUnidadeMedida;
+
+    @Column(name = "documento_html")
+    private String documentoHtml;
+
+    @Column(name = "responsavel_tecnico", length = 200)
+    private String responsavelTecnico;
+
+    @Column(name = "inscricao_conselho_rt", length = 50)
+    private String inscricaoConselhoRt;
+
+    @Column(name = "motivo_cancelamento")
+    private String motivoCancelamento;
+
+    @Column(name = "observacao")
+    private String observacao;
+
     protected AlvaraJpaEntity() {
     }
 
@@ -141,5 +165,69 @@ public class AlvaraJpaEntity {
 
     public void setDataEmissao(Instant dataEmissao) {
         this.dataEmissao = dataEmissao;
+    }
+
+    public BigDecimal getValorPorUnidade() {
+        return valorPorUnidade;
+    }
+
+    public void setValorPorUnidade(BigDecimal valorPorUnidade) {
+        this.valorPorUnidade = valorPorUnidade;
+    }
+
+    public String getUnidadeMedidaDescritivo() {
+        return unidadeMedidaDescritivo;
+    }
+
+    public void setUnidadeMedidaDescritivo(String unidadeMedidaDescritivo) {
+        this.unidadeMedidaDescritivo = unidadeMedidaDescritivo;
+    }
+
+    public BigDecimal getQtdUnidadeMedida() {
+        return qtdUnidadeMedida;
+    }
+
+    public void setQtdUnidadeMedida(BigDecimal qtdUnidadeMedida) {
+        this.qtdUnidadeMedida = qtdUnidadeMedida;
+    }
+
+    public String getDocumentoHtml() {
+        return documentoHtml;
+    }
+
+    public void setDocumentoHtml(String documentoHtml) {
+        this.documentoHtml = documentoHtml;
+    }
+
+    public String getResponsavelTecnico() {
+        return responsavelTecnico;
+    }
+
+    public void setResponsavelTecnico(String responsavelTecnico) {
+        this.responsavelTecnico = responsavelTecnico;
+    }
+
+    public String getInscricaoConselhoRt() {
+        return inscricaoConselhoRt;
+    }
+
+    public void setInscricaoConselhoRt(String inscricaoConselhoRt) {
+        this.inscricaoConselhoRt = inscricaoConselhoRt;
+    }
+
+    public String getMotivoCancelamento() {
+        return motivoCancelamento;
+    }
+
+    public void setMotivoCancelamento(String motivoCancelamento) {
+        this.motivoCancelamento = motivoCancelamento;
+    }
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
     }
 }

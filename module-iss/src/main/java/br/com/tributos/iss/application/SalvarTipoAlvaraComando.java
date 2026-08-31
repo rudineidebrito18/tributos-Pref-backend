@@ -1,11 +1,11 @@
-package br.com.tributos.iss.domain;
+package br.com.tributos.iss.application;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public record TipoAlvara(
-    UUID id,
-    UUID tenantId,
+import br.com.tributos.iss.domain.BaseVencimentoAlvara;
+
+public record SalvarTipoAlvaraComando(
     String nome,
     BigDecimal valorBase,
     int diasValidade,

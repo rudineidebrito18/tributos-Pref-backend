@@ -1,33 +1,25 @@
-package br.com.tributos.iss.domain;
+package br.com.tributos.iss.application;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
-public record Alvara(
-    UUID id,
-    UUID tenantId,
-    long numero,
-    UUID tipoAlvaraId,
+import br.com.tributos.iss.domain.SituacaoFiscalAlvara;
+
+public record EmitirAlvaraComando(
     UUID contribuinteId,
+    UUID tipoAlvaraId,
     LocalDate dataExpedicao,
-    LocalDate validade,
     SituacaoFiscalAlvara situacaoFiscal,
-    BigDecimal valor,
-    String codigoVerificacao,
-    Instant dataEmissao,
+    LocalDate validade,
     BigDecimal valorPorUnidade,
     String unidadeMedidaDescritivo,
     BigDecimal qtdUnidadeMedida,
+    BigDecimal valor,
     String documentoHtml,
     String responsavelTecnico,
     String inscricaoConselhoRt,
-    String motivoCancelamento,
     String observacao
 ) {
-
-    public boolean vigente(LocalDate referencia) {
-        return ValidadorVigenciaDocumento.estaVigente(validade, referencia);
-    }
 }

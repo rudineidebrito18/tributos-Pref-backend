@@ -12,6 +12,7 @@ import tools.jackson.databind.ObjectMapper;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,8 +39,22 @@ class AlvaraCertidaoControllerTest extends AbstractIntegrationTest {
     @Test
     void deveEmitirAlvaraDownloadPdfEmitirCertidaoEValidarPublicamente() throws Exception {
         String token = login();
-        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "66.777.888/0001-81", "Empresa Alvará Teste");
-        String contribuinteId = cadastrarEAprovarCredenciamento(token, pessoaContribuinteId);
+        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "22.876.543/0001-00", "Empresa Alvará Teste");
+        String contribuinteId = cadastrarEAprovarCredenciamento(token, pessoaContribuinteId, "789010");
+
+        mockMvc.perform(put("/api/iss/tipos-alvara/%s".formatted(TIPO_ALVARA_ID))
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "nome": "Funcionamento",
+                      "valorBase": 150.00,
+                      "diasValidade": 365,
+                      "ativo": true,
+                      "permiteCalculoValor": false
+                    }
+                    """))
+            .andExpect(status().isOk());
 
         String corpoAlvara = mockMvc.perform(post("/api/iss/alvaras/emitir")
                 .header("Authorization", "Bearer " + token)
@@ -49,12 +64,12 @@ class AlvaraCertidaoControllerTest extends AbstractIntegrationTest {
                       "contribuinteId": "%s",
                       "tipoAlvaraId": "%s",
                       "dataExpedicao": "2026-01-15",
-                      "situacaoFiscal": "REGULAR"
+                      "situacaoFiscal": "PAGA"
                     }
                     """.formatted(contribuinteId, TIPO_ALVARA_ID)))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.numero").isNumber())
-            .andExpect(jsonPath("$.situacaoFiscal").value("REGULAR"))
+            .andExpect(jsonPath("$.situacaoFiscal").value("PAGA"))
             .andReturn().getResponse().getContentAsString();
 
         String alvaraId = objectMapper.readTree(corpoAlvara).get("id").asText();
@@ -79,12 +94,14 @@ class AlvaraCertidaoControllerTest extends AbstractIntegrationTest {
                 .content("""
                     {
                       "contribuinteId": "%s",
-                      "tipo": "NADA_CONSTA"
+                      "tipo": "NADA_CONSTA",
+                      "tributos": ["ISS"]
                     }
                     """.formatted(contribuinteId)))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.numero").isNumber())
             .andExpect(jsonPath("$.tipo").value("NADA_CONSTA"))
+            .andExpect(jsonPath("$.tributos", hasSize(1)))
             .andReturn().getResponse().getContentAsString();
 
         String certidaoId = objectMapper.readTree(corpoCertidao).get("id").asText();
@@ -109,19 +126,102 @@ class AlvaraCertidaoControllerTest extends AbstractIntegrationTest {
             .andExpect(jsonPath("$.vigente").value(true));
     }
 
-    private String cadastrarEAprovarCredenciamento(String token, String pessoaId) throws Exception {
+    @Test
+    void deveCalcularValorAlvaraPorUnidadeCancelarEIsentar() throws Exception {
+        String token = login();
+        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "20.876.543/0001-84", "Empresa Alvará Calculado");
+        String contribuinteId = cadastrarEAprovarCredenciamento(token, pessoaContribuinteId, "789011");
+
+        mockMvc.perform(put("/api/iss/tipos-alvara/%s".formatted(TIPO_ALVARA_ID))
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "nome": "Funcionamento",
+                      "valorBase": 150.00,
+                      "diasValidade": 365,
+                      "ativo": true,
+                      "permiteValorDinamico": false,
+                      "permiteCalculoValor": true
+                    }
+                    """))
+            .andExpect(status().isOk());
+
+        String corpoAlvara = mockMvc.perform(post("/api/iss/alvaras/emitir")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "contribuinteId": "%s",
+                      "tipoAlvaraId": "%s",
+                      "dataExpedicao": "2026-02-01",
+                      "situacaoFiscal": "PENDENTE",
+                      "valorPorUnidade": 10.00,
+                      "qtdUnidadeMedida": 3.0000
+                    }
+                    """.formatted(contribuinteId, TIPO_ALVARA_ID)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.valor").value(30.00))
+            .andExpect(jsonPath("$.situacaoFiscal").value("PENDENTE"))
+            .andReturn().getResponse().getContentAsString();
+
+        String alvaraId = objectMapper.readTree(corpoAlvara).get("id").asText();
+
+        mockMvc.perform(post("/api/iss/alvaras/%s/cancelar".formatted(alvaraId))
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{}"))
+            .andExpect(status().isBadRequest());
+
+        mockMvc.perform(post("/api/iss/alvaras/%s/isentar".formatted(alvaraId))
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.situacaoFiscal").value("ISENTA"));
+
+        mockMvc.perform(post("/api/iss/alvaras/%s/cancelar".formatted(alvaraId))
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"motivoCancelamento\": \"Solicitação do contribuinte.\"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.situacaoFiscal").value("CANCELADA"));
+    }
+
+    @Test
+    void deveEmitirCertidaoAvulsaComObservacao() throws Exception {
+        String token = login();
+        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "21.876.543/0001-47", "Empresa Certidao Avulsa");
+        String contribuinteId = cadastrarEAprovarCredenciamento(token, pessoaContribuinteId, "789012");
+
+        mockMvc.perform(post("/api/iss/certidoes/avulsa")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "contribuinteId": "%s",
+                      "tipo": "NADA_CONSTA",
+                      "observacao": "Emissão avulsa autorizada pela fiscalização.",
+                      "tributos": ["IPTU", "ISS"]
+                    }
+                    """.formatted(contribuinteId)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.avulsa").value(true))
+            .andExpect(jsonPath("$.observacao").value("Emissão avulsa autorizada pela fiscalização."))
+            .andExpect(jsonPath("$.tributos", hasSize(2)));
+    }
+
+    private String cadastrarEAprovarCredenciamento(String token, String pessoaId, String inscricaoMunicipal) throws Exception {
         String corpoContribuinte = mockMvc.perform(post("/api/iss/contribuintes")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
                       "pessoaId": "%s",
-                      "inscricaoMunicipal": "789012",
+                      "inscricaoMunicipal": "%s",
                       "tipoContribuinteId": "%s",
                       "situacaoCadastralId": "%s",
                       "regimeTributarioId": "%s"
                     }
-                    """.formatted(pessoaId, TIPO_CONTRIBUINTE_ID, SITUACAO_ATIVA_ID, REGIME_SIMPLES_ID)))
+                    """.formatted(pessoaId, inscricaoMunicipal, TIPO_CONTRIBUINTE_ID, SITUACAO_ATIVA_ID, REGIME_SIMPLES_ID)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
 

@@ -1,5 +1,6 @@
 package br.com.tributos.iss.application;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -13,6 +14,7 @@ import br.com.tributos.iss.domain.CatalogoIssRepository;
 import br.com.tributos.iss.domain.Contribuinte;
 import br.com.tributos.iss.domain.ContribuinteRepository;
 import br.com.tributos.iss.domain.GeradorCodigoVerificacao;
+import br.com.tributos.iss.domain.SanitizadorHtmlIss;
 import br.com.tributos.iss.domain.SituacaoFiscalAlvara;
 import br.com.tributos.iss.domain.StatusCredenciamentoNomes;
 import br.com.tributos.iss.domain.TipoAlvara;
@@ -44,14 +46,8 @@ public class EmitirAlvaraService {
     }
 
     @Transactional
-    public Alvara executar(
-        UUID contribuinteId,
-        UUID tipoAlvaraId,
-        LocalDate dataExpedicao,
-        SituacaoFiscalAlvara situacaoFiscal,
-        LocalDate validadeOverride
-    ) {
-        Contribuinte contribuinte = contribuinteRepository.buscarPorId(contribuinteId)
+    public Alvara executar(EmitirAlvaraComando comando) {
+        Contribuinte contribuinte = contribuinteRepository.buscarPorId(comando.contribuinteId())
             .orElseThrow(() -> new NotFoundException("Contribuinte não encontrado."));
 
         UUID statusAprovadoId = catalogoIssRepository
@@ -63,26 +59,28 @@ public class EmitirAlvaraService {
             throw new ValidationException("O contribuinte precisa estar com credenciamento aprovado para emitir alvará.");
         }
 
-        TipoAlvara tipo = tipoAlvaraRepository.buscarPorId(tipoAlvaraId)
+        TipoAlvara tipo = tipoAlvaraRepository.buscarPorId(comando.tipoAlvaraId())
             .orElseThrow(() -> new NotFoundException("Tipo de alvará não encontrado."));
 
         if (!tipo.ativo()) {
             throw new ValidationException("O tipo de alvará selecionado está inativo.");
         }
 
-        if (dataExpedicao == null) {
+        if (comando.dataExpedicao() == null) {
             throw new ValidationException("Informe a data de expedição do alvará.");
         }
 
-        if (situacaoFiscal == null) {
-            throw new ValidationException("Informe a situação fiscal do alvará.");
-        }
+        SituacaoFiscalAlvara situacaoFiscal = comando.situacaoFiscal() != null
+            ? comando.situacaoFiscal()
+            : SituacaoFiscalAlvara.PENDENTE;
 
-        LocalDate validade = validadeOverride != null
-            ? validadeOverride
-            : dataExpedicao.plusDays(tipo.diasValidade());
+        LocalDate validade = comando.validade() != null
+            ? comando.validade()
+            : dataExpedicao(comando, tipo);
 
-        ValidadorVigenciaDocumento.validarPeriodoAlvara(dataExpedicao, validade);
+        ValidadorVigenciaDocumento.validarPeriodoAlvara(comando.dataExpedicao(), validade);
+
+        BigDecimal valor = calcularValor(tipo, comando);
 
         UUID tenantId = TenantContext.getObrigatorio();
         long numero = alvaraRepository.proximoNumero();
@@ -93,16 +91,47 @@ public class EmitirAlvaraService {
             UUID.randomUUID(),
             tenantId,
             numero,
-            tipoAlvaraId,
-            contribuinteId,
-            dataExpedicao,
+            comando.tipoAlvaraId(),
+            comando.contribuinteId(),
+            comando.dataExpedicao(),
             validade,
             situacaoFiscal,
-            tipo.valorBase(),
+            valor,
             codigoVerificacao,
-            dataEmissao
+            dataEmissao,
+            comando.valorPorUnidade(),
+            comando.unidadeMedidaDescritivo(),
+            comando.qtdUnidadeMedida(),
+            SanitizadorHtmlIss.sanitizar(comando.documentoHtml()),
+            comando.responsavelTecnico(),
+            comando.inscricaoConselhoRt(),
+            null,
+            comando.observacao()
         );
 
         return alvaraRepository.salvar(alvara);
+    }
+
+    private static LocalDate dataExpedicao(EmitirAlvaraComando comando, TipoAlvara tipo) {
+        if (tipo.habilitarCalculoVencimento() && tipo.baseVencimento() != null && tipo.diasMesesVencimento() != null) {
+            return switch (tipo.baseVencimento()) {
+                case MES -> comando.dataExpedicao().plusMonths(tipo.diasMesesVencimento());
+                case DIAS -> comando.dataExpedicao().plusDays(tipo.diasMesesVencimento());
+            };
+        }
+        return comando.dataExpedicao().plusDays(tipo.diasValidade());
+    }
+
+    static BigDecimal calcularValor(TipoAlvara tipo, EmitirAlvaraComando comando) {
+        if (tipo.permiteCalculoValor()) {
+            if (comando.valorPorUnidade() == null || comando.qtdUnidadeMedida() == null) {
+                throw new ValidationException("Informe valor por unidade e quantidade para cálculo do alvará.");
+            }
+            return comando.valorPorUnidade().multiply(comando.qtdUnidadeMedida());
+        }
+        if (comando.valor() != null) {
+            return comando.valor();
+        }
+        return tipo.valorBase();
     }
 }
