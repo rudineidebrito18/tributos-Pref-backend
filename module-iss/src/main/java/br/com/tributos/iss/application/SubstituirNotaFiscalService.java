@@ -42,29 +42,23 @@ public class SubstituirNotaFiscalService {
             comando.valorServico(),
             comando.valorDeducoes(),
             comando.receitaBrutaAcumulada12Meses(),
-            comando.serie()
+            comando.serie(),
+            comando.atividadeId(),
+            comando.valorIr(),
+            comando.valorPis(),
+            comando.valorCofins(),
+            comando.valorCsll(),
+            comando.valorInss(),
+            comando.issRetidoFonte()
         );
 
         NotaFiscal notaSubstituta = emitirNotaFiscalService.executar(comandoComContribuinte);
 
-        NotaFiscal notaSubstituida = new NotaFiscal(
-            notaOriginal.id(),
-            notaOriginal.tenantId(),
-            notaOriginal.numero(),
-            notaOriginal.serie(),
-            notaOriginal.contribuinteId(),
-            notaOriginal.tomadorId(),
-            notaOriginal.servicoId(),
-            notaOriginal.competencia(),
-            notaOriginal.valorServico(),
-            notaOriginal.valorDeducoes(),
-            notaOriginal.baseCalculo(),
-            notaOriginal.aliquotaAplicada(),
-            notaOriginal.valorIss(),
+        NotaFiscal notaSubstituida = CancelarNotaFiscalService.copiarComStatus(
+            notaOriginal,
             StatusNotaFiscal.SUBSTITUIDA,
-            notaSubstituta.id(),
             notaOriginal.motivoCancelamento(),
-            notaOriginal.dataEmissao()
+            notaSubstituta.id()
         );
 
         notaFiscalRepository.salvar(notaSubstituida);

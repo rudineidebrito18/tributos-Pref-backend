@@ -20,6 +20,7 @@ import jakarta.validation.Valid;
 
 import br.com.tributos.iss.adapters.in.web.dto.CancelarNotaFiscalRequest;
 import br.com.tributos.iss.adapters.in.web.dto.EmitirNotaFiscalRequest;
+import br.com.tributos.iss.adapters.in.web.dto.NotaFiscalListagemResponse;
 import br.com.tributos.iss.adapters.in.web.dto.NotaFiscalResponse;
 import br.com.tributos.iss.adapters.in.web.dto.SubstituirNotaFiscalRequest;
 import br.com.tributos.iss.application.CancelarNotaFiscalService;
@@ -51,14 +52,14 @@ public class NotaFiscalController {
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
     @GetMapping
-    public Page<NotaFiscalResponse> listar(
+    public Page<NotaFiscalListagemResponse> listar(
         @RequestParam(required = false) UUID contribuinteId,
         @RequestParam(required = false) UUID tomadorId,
         @RequestParam(required = false) YearMonth competencia,
         Pageable pageable
     ) {
         return listarNotasFiscaisService.executar(contribuinteId, tomadorId, competencia, pageable)
-            .map(NotaFiscalResponse::de);
+            .map(NotaFiscalListagemResponse::de);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'ATENDENTE')")
@@ -100,7 +101,14 @@ public class NotaFiscalController {
             request.valorServico(),
             request.valorDeducoes(),
             request.receitaBrutaAcumulada12Meses(),
-            request.serie()
+            request.serie(),
+            request.atividadeId(),
+            request.valorIr(),
+            request.valorPis(),
+            request.valorCofins(),
+            request.valorCsll(),
+            request.valorInss(),
+            request.issRetidoFonte()
         );
     }
 
@@ -113,7 +121,14 @@ public class NotaFiscalController {
             request.valorServico(),
             request.valorDeducoes(),
             request.receitaBrutaAcumulada12Meses(),
-            request.serie()
+            request.serie(),
+            request.atividadeId(),
+            request.valorIr(),
+            request.valorPis(),
+            request.valorCofins(),
+            request.valorCsll(),
+            request.valorInss(),
+            request.issRetidoFonte()
         );
     }
 }

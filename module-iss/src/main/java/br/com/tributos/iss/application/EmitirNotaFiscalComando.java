@@ -12,6 +12,13 @@ public record EmitirNotaFiscalComando(
     BigDecimal valorServico,
     BigDecimal valorDeducoes,
     BigDecimal receitaBrutaAcumulada12Meses,
-    String serie
+    String serie,
+    UUID atividadeId,
+    BigDecimal valorIr,
+    BigDecimal valorPis,
+    BigDecimal valorCofins,
+    BigDecimal valorCsll,
+    BigDecimal valorInss,
+    Boolean issRetidoFonte
 ) {
 }

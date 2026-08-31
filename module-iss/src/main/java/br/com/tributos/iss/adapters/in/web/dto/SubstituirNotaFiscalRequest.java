@@ -21,6 +21,13 @@ public record SubstituirNotaFiscalRequest(
     @NotNull(message = "Informe a receita bruta acumulada dos últimos 12 meses.")
     @Positive(message = "A receita bruta acumulada deve ser maior que zero.")
     BigDecimal receitaBrutaAcumulada12Meses,
-    String serie
+    String serie,
+    UUID atividadeId,
+    BigDecimal valorIr,
+    BigDecimal valorPis,
+    BigDecimal valorCofins,
+    BigDecimal valorCsll,
+    BigDecimal valorInss,
+    Boolean issRetidoFonte
 ) {
 }

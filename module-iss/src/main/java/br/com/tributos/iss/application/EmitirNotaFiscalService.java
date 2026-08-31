@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.tributos.iss.domain.AtividadeServicoRepository;
 import br.com.tributos.iss.domain.CalculadorValorIss;
 import br.com.tributos.iss.domain.CatalogoIssRepository;
 import br.com.tributos.iss.domain.Contribuinte;
@@ -33,7 +34,9 @@ public class EmitirNotaFiscalService {
     private final TomadorRepository tomadorRepository;
     private final ServicoRepository servicoRepository;
     private final CatalogoIssRepository catalogoIssRepository;
+    private final AtividadeServicoRepository atividadeServicoRepository;
     private final CalcularAliquotaEfetivaService calcularAliquotaEfetivaService;
+    private final BuscarAliquotaVigenteService buscarAliquotaVigenteService;
     private final ApplicationEventPublisher eventPublisher;
 
     public EmitirNotaFiscalService(
@@ -42,7 +45,9 @@ public class EmitirNotaFiscalService {
         TomadorRepository tomadorRepository,
         ServicoRepository servicoRepository,
         CatalogoIssRepository catalogoIssRepository,
+        AtividadeServicoRepository atividadeServicoRepository,
         CalcularAliquotaEfetivaService calcularAliquotaEfetivaService,
+        BuscarAliquotaVigenteService buscarAliquotaVigenteService,
         ApplicationEventPublisher eventPublisher
     ) {
         this.notaFiscalRepository = notaFiscalRepository;
@@ -50,7 +55,9 @@ public class EmitirNotaFiscalService {
         this.tomadorRepository = tomadorRepository;
         this.servicoRepository = servicoRepository;
         this.catalogoIssRepository = catalogoIssRepository;
+        this.atividadeServicoRepository = atividadeServicoRepository;
         this.calcularAliquotaEfetivaService = calcularAliquotaEfetivaService;
+        this.buscarAliquotaVigenteService = buscarAliquotaVigenteService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -90,17 +97,29 @@ public class EmitirNotaFiscalService {
             throw new ValidationException("Informe a competência da nota fiscal.");
         }
 
-        var aliquota = calcularAliquotaEfetivaService.calcular(
-            contribuinte.regimeTributarioId(),
-            comando.receitaBrutaAcumulada12Meses(),
-            competencia
-        );
+        BigDecimal aliquotaIssEfetiva;
+        if (comando.atividadeId() != null) {
+            aliquotaIssEfetiva = buscarAliquotaVigenteService.executar(comando.atividadeId(), comando.servicoId());
+        } else {
+            aliquotaIssEfetiva = calcularAliquotaEfetivaService.calcular(
+                contribuinte.regimeTributarioId(),
+                comando.receitaBrutaAcumulada12Meses(),
+                competencia
+            ).aliquotaIssEfetiva();
+        }
 
         CalculadorValorIss.Resultado valores = CalculadorValorIss.calcular(
             comando.valorServico(),
             deducoes,
-            aliquota.aliquotaIssEfetiva()
+            aliquotaIssEfetiva
         );
+
+        boolean issRetidoFonte = resolverIssRetidoFonte(comando);
+        BigDecimal valorIr = normalizarRetencao(comando.valorIr());
+        BigDecimal valorPis = normalizarRetencao(comando.valorPis());
+        BigDecimal valorCofins = normalizarRetencao(comando.valorCofins());
+        BigDecimal valorCsll = normalizarRetencao(comando.valorCsll());
+        BigDecimal valorInss = normalizarRetencao(comando.valorInss());
 
         UUID tenantId = TenantContext.getObrigatorio();
         UUID notaId = UUID.randomUUID();
@@ -120,8 +139,14 @@ public class EmitirNotaFiscalService {
             comando.valorServico(),
             deducoes,
             valores.baseCalculo(),
-            aliquota.aliquotaIssEfetiva(),
+            aliquotaIssEfetiva,
             valores.valorIss(),
+            valorIr,
+            valorPis,
+            valorCofins,
+            valorCsll,
+            valorInss,
+            issRetidoFonte,
             StatusNotaFiscal.EMITIDA,
             null,
             null,
@@ -140,5 +165,24 @@ public class EmitirNotaFiscalService {
         ));
 
         return salva;
+    }
+
+    private boolean resolverIssRetidoFonte(EmitirNotaFiscalComando comando) {
+        if (comando.issRetidoFonte() != null) {
+            return comando.issRetidoFonte();
+        }
+        if (comando.atividadeId() != null) {
+            return atividadeServicoRepository.buscarPorAtividadeEServico(comando.atividadeId(), comando.servicoId())
+                .map(v -> v.retencaoFonte())
+                .orElse(false);
+        }
+        return false;
+    }
+
+    private static BigDecimal normalizarRetencao(BigDecimal valor) {
+        if (valor == null || valor.compareTo(BigDecimal.ZERO) < 0) {
+            return BigDecimal.ZERO;
+        }
+        return valor;
     }
 }

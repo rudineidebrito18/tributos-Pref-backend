@@ -3,6 +3,7 @@ package br.com.tributos;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 import br.com.tributos.support.AbstractIntegrationTest;
@@ -33,6 +34,144 @@ class NotaFiscalControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Test
+    void deveEmitirNotaComAliquotaDoCatalogoAtividadeServico() throws Exception {
+        String token = login();
+        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "00.000.000/0001-91", "Empresa Catalogo NFS-e");
+        String contribuinteId = cadastrarEAprovarCredenciamento(token, pessoaContribuinteId, "765432");
+        String pessoaTomadorId = cadastrarPessoaFisica(token, "100.000.008-76", "Maria Tomador Catalogo");
+
+        String corpoTomador = mockMvc.perform(post("/api/iss/tomadores")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"pessoaId\": \"%s\"}".formatted(pessoaTomadorId)))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString();
+
+        String tomadorId = objectMapper.readTree(corpoTomador).get("id").asText();
+
+        String localIncidenciaId = objectMapper.readTree(
+            mockMvc.perform(get("/api/iss/locais-incidencia")
+                    .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString()
+        ).get(0).get("id").asText();
+
+        jdbcTemplate.update(
+            "DELETE FROM iss_atividade_servico WHERE atividade_id = ? AND servico_id = ?::uuid",
+            java.util.UUID.fromString("e0000001-0000-4000-8000-000000000001"),
+            java.util.UUID.fromString(SERVICO_ID)
+        );
+
+        mockMvc.perform(post("/api/iss/atividades-servicos")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "atividadeId": "e0000001-0000-4000-8000-000000000001",
+                      "servicoId": "%s",
+                      "localIncidenciaId": "%s",
+                      "aliquota": 3.5,
+                      "tributavel": true,
+                      "imune": false,
+                      "deducao": false,
+                      "substitutoTributario": false,
+                      "retencaoFonte": false
+                    }
+                    """.formatted(SERVICO_ID, localIncidenciaId)))
+            .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/iss/notas-fiscais/emitir")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "contribuinteId": "%s",
+                      "tomadorId": "%s",
+                      "servicoId": "%s",
+                      "atividadeId": "e0000001-0000-4000-8000-000000000001",
+                      "competencia": "2024-06-01",
+                      "valorServico": 10000,
+                      "valorDeducoes": 0,
+                      "receitaBrutaAcumulada12Meses": 200000
+                    }
+                    """.formatted(contribuinteId, tomadorId, SERVICO_ID)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.aliquotaAplicada").value(3.5))
+            .andExpect(jsonPath("$.valorIss").value(350.00));
+    }
+
+    @Test
+    void deveEmitirNotaComRetencaoFonteDoCatalogoAtividadeServico() throws Exception {
+        String token = login();
+        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "19.876.543/0001-03", "Empresa Retencao NFS-e");
+        String contribuinteId = cadastrarEAprovarCredenciamento(token, pessoaContribuinteId, "876544");
+        String pessoaTomadorId = cadastrarPessoaFisica(token, "100.000.010-90", "Tomador Retencao");
+
+        String corpoTomador = mockMvc.perform(post("/api/iss/tomadores")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"pessoaId\": \"%s\"}".formatted(pessoaTomadorId)))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString();
+
+        String tomadorId = objectMapper.readTree(corpoTomador).get("id").asText();
+
+        String localIncidenciaId = objectMapper.readTree(
+            mockMvc.perform(get("/api/iss/locais-incidencia")
+                    .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString()
+        ).get(0).get("id").asText();
+
+        jdbcTemplate.update(
+            "DELETE FROM iss_atividade_servico WHERE atividade_id = ? AND servico_id = ?::uuid",
+            java.util.UUID.fromString("e0000001-0000-4000-8000-000000000001"),
+            java.util.UUID.fromString(SERVICO_ID)
+        );
+
+        mockMvc.perform(post("/api/iss/atividades-servicos")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "atividadeId": "e0000001-0000-4000-8000-000000000001",
+                      "servicoId": "%s",
+                      "localIncidenciaId": "%s",
+                      "aliquota": 3.5,
+                      "tributavel": true,
+                      "imune": false,
+                      "deducao": false,
+                      "substitutoTributario": false,
+                      "retencaoFonte": true
+                    }
+                    """.formatted(SERVICO_ID, localIncidenciaId)))
+            .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/iss/notas-fiscais/emitir")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "contribuinteId": "%s",
+                      "tomadorId": "%s",
+                      "servicoId": "%s",
+                      "atividadeId": "e0000001-0000-4000-8000-000000000001",
+                      "competencia": "2024-06-01",
+                      "valorServico": 10000,
+                      "valorDeducoes": 0,
+                      "receitaBrutaAcumulada12Meses": 200000,
+                      "valorIr": 10
+                    }
+                    """.formatted(contribuinteId, tomadorId, SERVICO_ID)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.issRetidoFonte").value(true))
+            .andExpect(jsonPath("$.valorIr").value(10.00));
+    }
 
     @Test
     void deveEmitirListarECancelarNotaFiscal() throws Exception {
@@ -79,7 +218,7 @@ class NotaFiscalControllerTest extends AbstractIntegrationTest {
                 .param("size", "10"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content", hasSize(1)))
-            .andExpect(jsonPath("$.content[0].status").value("EMITIDA"));
+            .andExpect(jsonPath("$.content[0].situacao").value("EMITIDA"));
 
         mockMvc.perform(post("/api/iss/notas-fiscais/%s/cancelar".formatted(notaId))
                 .header("Authorization", "Bearer " + token)
@@ -90,18 +229,22 @@ class NotaFiscalControllerTest extends AbstractIntegrationTest {
     }
 
     private String cadastrarEAprovarCredenciamento(String token, String pessoaId) throws Exception {
+        return cadastrarEAprovarCredenciamento(token, pessoaId, "654321");
+    }
+
+    private String cadastrarEAprovarCredenciamento(String token, String pessoaId, String inscricaoMunicipal) throws Exception {
         String corpoContribuinte = mockMvc.perform(post("/api/iss/contribuintes")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
                       "pessoaId": "%s",
-                      "inscricaoMunicipal": "654321",
+                      "inscricaoMunicipal": "%s",
                       "tipoContribuinteId": "%s",
                       "situacaoCadastralId": "%s",
                       "regimeTributarioId": "%s"
                     }
-                    """.formatted(pessoaId, TIPO_CONTRIBUINTE_ID, SITUACAO_ATIVA_ID, REGIME_SIMPLES_ID)))
+                    """.formatted(pessoaId, inscricaoMunicipal, TIPO_CONTRIBUINTE_ID, SITUACAO_ATIVA_ID, REGIME_SIMPLES_ID)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
 
