@@ -2,14 +2,10 @@ package br.com.tributos;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
+import br.com.tributos.support.AbstractIntegrationTest;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -22,10 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Critério de aceite Sprint 4: emitir nota fiscal, listar e cancelar.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureMockMvc
-@Testcontainers
-class NotaFiscalControllerTest {
+class NotaFiscalControllerTest extends AbstractIntegrationTest {
 
     private static final String TENANT_SLUG = "demo";
     private static final String TIPO_CONTRIBUINTE_ID = "b0000001-0000-4000-8000-000000000001";
@@ -34,10 +27,6 @@ class NotaFiscalControllerTest {
     private static final String STATUS_EM_ANALISE_ID = "a0000001-0000-4000-8000-000000000002";
     private static final String STATUS_APROVADO_ID = "a0000001-0000-4000-8000-000000000003";
     private static final String SERVICO_ID = "e0000002-0000-4000-8000-000000000002";
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     private MockMvc mockMvc;
@@ -48,9 +37,9 @@ class NotaFiscalControllerTest {
     @Test
     void deveEmitirListarECancelarNotaFiscal() throws Exception {
         String token = login();
-        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "11.444.777/0001-61", "Empresa NFS-e Teste");
+        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "33.444.555/0001-81", "Empresa NFS-e Teste");
         String contribuinteId = cadastrarEAprovarCredenciamento(token, pessoaContribuinteId);
-        String pessoaTomadorId = cadastrarPessoaFisica(token, "390.533.447-05", "João Tomador NFS-e");
+        String pessoaTomadorId = cadastrarPessoaFisica(token, "100.000.001-08", "João Tomador NFS-e");
 
         String corpoTomador = mockMvc.perform(post("/api/iss/tomadores")
                 .header("Authorization", "Bearer " + token)
@@ -77,7 +66,7 @@ class NotaFiscalControllerTest {
                     """.formatted(contribuinteId, tomadorId, SERVICO_ID)))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.status").value("EMITIDA"))
-            .andExpect(jsonPath("$.numero").value(1))
+            .andExpect(jsonPath("$.numero").isNumber())
             .andReturn().getResponse().getContentAsString();
 
         String notaId = objectMapper.readTree(corpoNota).get("id").asText();

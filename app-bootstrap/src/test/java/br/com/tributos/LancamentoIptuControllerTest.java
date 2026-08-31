@@ -5,14 +5,10 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
+import br.com.tributos.support.AbstractIntegrationTest;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -25,11 +21,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Critério de aceite Sprint 7: parametrização IPTU e geração de lançamento anual.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureMockMvc
-@Testcontainers
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class LancamentoIptuControllerTest {
+class LancamentoIptuControllerTest extends AbstractIntegrationTest {
 
     private static final String TENANT_SLUG = "demo";
     private static final String TIPO_PREDIAL_ID = "80000001-0000-4000-8000-000000000001";
@@ -37,10 +30,6 @@ class LancamentoIptuControllerTest {
     private static final String DESTINACAO_RESIDENCIAL_ID = "80000003-0000-4000-8000-000000000001";
     private static final String ZONA_CENTRO_ID = "80000006-0000-4000-8000-000000000001";
     private static final int EXERCICIO = 2025;
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     private MockMvc mockMvc;
@@ -52,7 +41,7 @@ class LancamentoIptuControllerTest {
     @Order(1)
     void deveGerarLancamentoAnualComParcelas() throws Exception {
         String token = login();
-        String pessoaId = cadastrarPessoaFisica(token, "529.982.247-25", "Maria Proprietária IPTU Lancamento");
+        String pessoaId = cadastrarPessoaFisica(token, "100.000.005-23", "Maria Proprietária IPTU Lancamento");
 
         String corpoImovel = mockMvc.perform(post("/api/iptu/imoveis")
                 .header("Authorization", "Bearer " + token)
@@ -144,7 +133,7 @@ class LancamentoIptuControllerTest {
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isUnprocessableEntity());
     }
 
     private String cadastrarPessoaFisica(String token, String cpfCnpj, String nome) throws Exception {

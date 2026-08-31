@@ -2,14 +2,10 @@ package br.com.tributos;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
+import br.com.tributos.support.AbstractIntegrationTest;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -21,20 +17,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Critério de aceite Sprint 9: solicitar guia ITBI, pagar e confirmar transferência no imóvel.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureMockMvc
-@Testcontainers
-class GuiaItbiControllerTest {
+class GuiaItbiControllerTest extends AbstractIntegrationTest {
 
     private static final String TENANT_SLUG = "demo";
     private static final String TIPO_PREDIAL_ID = "80000001-0000-4000-8000-000000000001";
     private static final String TIPO_EDIFICACAO_ID = "80000002-0000-4000-8000-000000000001";
     private static final String TIPO_ITBI_ID = "a1000001-0000-4000-8000-000000000001";
     private static final String NATUREZA_ID = "a1000002-0000-4000-8000-000000000001";
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     private MockMvc mockMvc;
@@ -45,8 +34,8 @@ class GuiaItbiControllerTest {
     @Test
     void deveSolicitarPagarETransferirTitularidade() throws Exception {
         String token = login();
-        String vendedorId = cadastrarPessoa(token, "FISICA", "111.444.777-35", "Vendedor ITBI");
-        String compradorId = cadastrarPessoa(token, "FISICA", "390.533.447-05", "Comprador ITBI");
+        String vendedorId = cadastrarPessoa(token, "111.444.777-35", "Vendedor ITBI");
+        String compradorId = cadastrarPessoa(token, "100.000.006-04", "Comprador ITBI");
 
         String imovelId = cadastrarImovel(token, vendedorId);
 
@@ -100,17 +89,39 @@ class GuiaItbiControllerTest {
         String corpo = mockMvc.perform(post("/api/auth/login")
                 .header("X-Tenant-Slug", TENANT_SLUG)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"usuario\":\"admin\",\"senha\":\"Demo@123\"}"))
+                .content("{\"login\":\"admin\",\"senha\":\"Demo@123\"}"))
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(corpo).get("tokens").get("accessToken").asText();
     }
 
-    private String cadastrarPessoa(String token, String tipo, String cpfCnpj, String nome) throws Exception {
+    private String cadastrarPessoa(String token, String cpfCnpj, String nome) throws Exception {
+        String cidadeId = objectMapper.readTree(
+            mockMvc.perform(get("/api/cadastro/territorio/cidades?uf=SP")
+                    .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString()
+        ).get(0).get("id").asText();
+
         String corpo = mockMvc.perform(post("/api/cadastro/pessoas")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"tipo\":\"%s\",\"nome\":\"%s\",\"cpfCnpj\":\"%s\"}".formatted(tipo, nome, cpfCnpj)))
+                .content("""
+                    {
+                      "tipoPessoa": "PF",
+                      "cpfCnpj": "%s",
+                      "nome": "%s",
+                      "ativo": true,
+                      "enderecos": [{
+                        "cep": "01310100",
+                        "logradouro": "Rua Augusta",
+                        "numero": "500",
+                        "bairro": "Consolação",
+                        "cidadeId": "%s",
+                        "principal": true
+                      }]
+                    }
+                    """.formatted(cpfCnpj, nome, cidadeId)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(corpo).get("id").asText();

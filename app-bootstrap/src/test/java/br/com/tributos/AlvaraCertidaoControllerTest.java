@@ -2,14 +2,10 @@ package br.com.tributos;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
+import br.com.tributos.support.AbstractIntegrationTest;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -23,10 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Critério de aceite Sprint 5: emitir alvará, download PDF, emitir certidão e validar via endpoint público.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureMockMvc
-@Testcontainers
-class AlvaraCertidaoControllerTest {
+class AlvaraCertidaoControllerTest extends AbstractIntegrationTest {
 
     private static final String TENANT_SLUG = "demo";
     private static final String TIPO_ALVARA_ID = "70000001-0000-4000-8000-000000000001";
@@ -35,10 +28,6 @@ class AlvaraCertidaoControllerTest {
     private static final String REGIME_SIMPLES_ID = "d0000001-0000-4000-8000-000000000001";
     private static final String STATUS_EM_ANALISE_ID = "a0000001-0000-4000-8000-000000000002";
     private static final String STATUS_APROVADO_ID = "a0000001-0000-4000-8000-000000000003";
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     private MockMvc mockMvc;
@@ -49,7 +38,7 @@ class AlvaraCertidaoControllerTest {
     @Test
     void deveEmitirAlvaraDownloadPdfEmitirCertidaoEValidarPublicamente() throws Exception {
         String token = login();
-        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "22.333.444/0001-55", "Empresa Alvará Teste");
+        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "66.777.888/0001-81", "Empresa Alvará Teste");
         String contribuinteId = cadastrarEAprovarCredenciamento(token, pessoaContribuinteId);
 
         String corpoAlvara = mockMvc.perform(post("/api/iss/alvaras/emitir")
@@ -59,12 +48,12 @@ class AlvaraCertidaoControllerTest {
                     {
                       "contribuinteId": "%s",
                       "tipoAlvaraId": "%s",
-                      "dataExpedicao": "2024-01-15",
+                      "dataExpedicao": "2026-01-15",
                       "situacaoFiscal": "REGULAR"
                     }
                     """.formatted(contribuinteId, TIPO_ALVARA_ID)))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.numero").value(1))
+            .andExpect(jsonPath("$.numero").isNumber())
             .andExpect(jsonPath("$.situacaoFiscal").value("REGULAR"))
             .andReturn().getResponse().getContentAsString();
 
@@ -94,7 +83,7 @@ class AlvaraCertidaoControllerTest {
                     }
                     """.formatted(contribuinteId)))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.numero").value(1))
+            .andExpect(jsonPath("$.numero").isNumber())
             .andExpect(jsonPath("$.tipo").value("NADA_CONSTA"))
             .andReturn().getResponse().getContentAsString();
 

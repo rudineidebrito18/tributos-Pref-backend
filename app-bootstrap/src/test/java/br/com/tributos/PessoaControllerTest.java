@@ -2,14 +2,10 @@ package br.com.tributos;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
+import br.com.tributos.support.AbstractIntegrationTest;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -20,16 +16,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureMockMvc
-@Testcontainers
-class PessoaControllerTest {
+class PessoaControllerTest extends AbstractIntegrationTest {
 
     private static final String TENANT_SLUG = "demo";
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     private MockMvc mockMvc;
@@ -92,7 +81,7 @@ class PessoaControllerTest {
                 .content("""
                     {
                       "tipoPessoa": "PJ",
-                      "cpfCnpj": "11.444.777/0001-61",
+                      "cpfCnpj": "12.345.678/0001-95",
                       "nome": "Padaria Central",
                       "razaoSocial": "Padaria Central Ltda",
                       "email": "contato@padaria.com",

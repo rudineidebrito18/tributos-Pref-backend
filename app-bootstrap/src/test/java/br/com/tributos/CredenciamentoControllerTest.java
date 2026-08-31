@@ -2,14 +2,10 @@ package br.com.tributos;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
+import br.com.tributos.support.AbstractIntegrationTest;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -23,10 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Critério de aceite do Sprint 2: cadastrar contribuinte, solicitar credenciamento e aprovar.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureMockMvc
-@Testcontainers
-class CredenciamentoControllerTest {
+class CredenciamentoControllerTest extends AbstractIntegrationTest {
 
     private static final String TENANT_SLUG = "demo";
     private static final String TIPO_CONTRIBUINTE_ID = "b0000001-0000-4000-8000-000000000001";
@@ -35,10 +28,6 @@ class CredenciamentoControllerTest {
     private static final String STATUS_NAO_CREDENCIADO_ID = "a0000001-0000-4000-8000-000000000001";
     private static final String STATUS_EM_ANALISE_ID = "a0000001-0000-4000-8000-000000000002";
     private static final String STATUS_APROVADO_ID = "a0000001-0000-4000-8000-000000000003";
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     private MockMvc mockMvc;
@@ -113,7 +102,7 @@ class CredenciamentoControllerTest {
                 .content("""
                     {
                       "tipoPessoa": "PJ",
-                      "cpfCnpj": "11.444.777/0001-61",
+                      "cpfCnpj": "22.333.444/0001-81",
                       "nome": "Empresa ISS Teste",
                       "razaoSocial": "Empresa ISS Teste Ltda",
                       "ativo": true,

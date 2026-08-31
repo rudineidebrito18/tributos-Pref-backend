@@ -2,15 +2,11 @@ package br.com.tributos;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
+import br.com.tributos.support.AbstractIntegrationTest;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -25,16 +21,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Critério de aceite do Sprint 1: pessoa cadastrada com endereço e documento anexado.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureMockMvc
-@Testcontainers
-class DocumentoControllerTest {
+class DocumentoControllerTest extends AbstractIntegrationTest {
 
     private static final String TENANT_SLUG = "demo";
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     private MockMvc mockMvc;
@@ -94,7 +83,7 @@ class DocumentoControllerTest {
                 .content("""
                     {
                       "tipoPessoa": "PF",
-                      "cpfCnpj": "529.982.247-25",
+                      "cpfCnpj": "123.456.789-09",
                       "nome": "Maria da Silva",
                       "email": "maria@email.com",
                       "ativo": true,

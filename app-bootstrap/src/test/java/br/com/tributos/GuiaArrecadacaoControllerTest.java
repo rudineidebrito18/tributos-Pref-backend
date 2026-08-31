@@ -39,9 +39,9 @@ class GuiaArrecadacaoControllerTest extends AbstractIntegrationTest {
     @Test
     void deveGerarGuiaAutomaticamenteAoEmitirNotaEConfirmarPix() throws Exception {
         String token = login();
-        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "11.444.777/0001-61", "Empresa Financeiro Teste");
+        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "44.555.666/0001-81", "Empresa Financeiro Teste");
         String contribuinteId = cadastrarEAprovarCredenciamento(token, pessoaContribuinteId);
-        String pessoaTomadorId = cadastrarPessoaFisica(token, "529.982.247-25", "Tomador Financeiro");
+        String pessoaTomadorId = cadastrarPessoaFisica(token, "100.000.002-80", "Tomador Financeiro");
 
         String corpoTomador = mockMvc.perform(post("/api/iss/tomadores")
                 .header("Authorization", "Bearer " + token)
@@ -139,9 +139,9 @@ class GuiaArrecadacaoControllerTest extends AbstractIntegrationTest {
     }
 
     private String criarGuiaPendente(String token) throws Exception {
-        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "12.345.678/0001-95", "Empresa Seguranca Guia");
+        String pessoaContribuinteId = cadastrarPessoaJuridica(token, "55.666.777/0001-81", "Empresa Seguranca Guia");
         String contribuinteId = cadastrarEAprovarCredenciamento(token, pessoaContribuinteId);
-        String pessoaTomadorId = cadastrarPessoaFisica(token, "390.533.447-05", "Tomador Seguranca");
+        String pessoaTomadorId = cadastrarPessoaFisica(token, "100.000.003-61", "Tomador Seguranca");
 
         String corpoTomador = mockMvc.perform(post("/api/iss/tomadores")
                 .header("Authorization", "Bearer " + token)

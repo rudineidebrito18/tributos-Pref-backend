@@ -2,14 +2,10 @@ package br.com.tributos;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
+import br.com.tributos.support.AbstractIntegrationTest;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -24,17 +20,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Cobre autorização ({@code PLATAFORMA_ADMIN} vs {@code ADMIN_TENANT}), criação do tenant
  * com usuário inicial e isolamento básico (admin de um tenant não pode criar outro).
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureMockMvc
-@Testcontainers
-class TenantAdminControllerTest {
+class TenantAdminControllerTest extends AbstractIntegrationTest {
 
     private static final String TENANT_DEMO = "demo";
     private static final String TENANT_PLATAFORMA = "_plataforma";
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     private MockMvc mockMvc;
@@ -84,7 +73,7 @@ class TenantAdminControllerTest {
                 .header("Authorization", "Bearer " + tokenPlataforma)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corpoCriarTenant("demo", "outro-admin@demo.local")))
-            .andExpect(status().isBadRequest())
+            .andExpect(status().isUnprocessableEntity())
             .andExpect(jsonPath("$.mensagem").value("Já existe um tenant com o slug \"demo\"."));
     }
 

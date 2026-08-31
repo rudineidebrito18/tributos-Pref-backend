@@ -1,12 +1,17 @@
 package br.com.tributos.iss.adapters.out.persistence;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+
+import jakarta.persistence.criteria.Predicate;
 
 import br.com.tributos.iss.domain.NotaFiscal;
 import br.com.tributos.iss.domain.NotaFiscalRepository;
@@ -58,8 +63,21 @@ public class NotaFiscalRepositoryAdapter implements NotaFiscalRepository {
 
     @Override
     public Page<NotaFiscal> listar(UUID contribuinteId, UUID tomadorId, LocalDate competencia, Pageable pageable) {
-        return jpaRepository.buscarComFiltro(contribuinteId, tomadorId, competencia, pageable)
-            .map(NotaFiscalRepositoryAdapter::paraDominio);
+        Specification<NotaFiscalJpaEntity> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (contribuinteId != null) {
+                predicates.add(cb.equal(root.get("contribuinteId"), contribuinteId));
+            }
+            if (tomadorId != null) {
+                predicates.add(cb.equal(root.get("tomadorId"), tomadorId));
+            }
+            if (competencia != null) {
+                predicates.add(cb.equal(root.get("competencia"), competencia));
+            }
+            query.orderBy(cb.desc(root.get("numero")));
+            return cb.and(predicates.toArray(Predicate[]::new));
+        };
+        return jpaRepository.findAll(spec, pageable).map(NotaFiscalRepositoryAdapter::paraDominio);
     }
 
     @Override

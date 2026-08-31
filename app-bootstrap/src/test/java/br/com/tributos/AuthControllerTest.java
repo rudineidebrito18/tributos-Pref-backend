@@ -8,16 +8,14 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base32;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
+import br.com.tributos.support.AbstractIntegrationTest;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -33,22 +31,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * faria, confirma, e comprova que o próximo login passa a exigir o desafio). Usuário
  * semeado por V4__seed_rbac_demo.sql (tenant "demo", login "admin", senha "Demo@123").
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureMockMvc
-@Testcontainers
-class AuthControllerTest {
+class AuthControllerTest extends AbstractIntegrationTest {
 
     private static final String TENANT_SLUG = "demo";
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @AfterEach
+    void restaurarAdminDemoSemMfa() {
+        jdbcTemplate.update("""
+            UPDATE usuario
+               SET mfa_habilitado = false,
+                   mfa_tipo = NULL,
+                   mfa_secret = NULL
+             WHERE login = 'admin'
+               AND tenant_id = (SELECT id FROM tenant WHERE slug = 'demo')
+            """);
+    }
 
     @Test
     void deveNegarLoginComSenhaIncorreta() throws Exception {
