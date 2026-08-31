@@ -23,6 +23,10 @@
       <groupId>br.com.tributos</groupId>
       <artifactId>shared-kernel</artifactId>
     </dependency>
+    <dependency>
+      <groupId>br.com.tributos</groupId>
+      <artifactId>module-cadastro</artifactId>
+    </dependency>
 
     <!-- `provided`: os adapters usam anotações Spring/JPA, mas quem decide QUAL runtime
          (Spring Boot, versão de Hibernate) é o módulo executável (app-bootstrap), não este

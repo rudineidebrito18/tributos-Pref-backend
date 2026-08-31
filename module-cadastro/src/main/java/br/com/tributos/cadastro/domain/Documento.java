@@ -8,6 +8,8 @@ public record Documento(
     UUID tenantId,
     UUID pessoaId,
     String tipo,
+    String titulo,
+    UUID categoriaId,
     String nomeArquivo,
     String conteudoTipo,
     long tamanhoBytes,

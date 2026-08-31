@@ -16,8 +16,10 @@ public final class Usuario {
 
     private final UUID id;
     private final UUID tenantId;
-    private final String login;
-    private final String email;
+    private String nome;
+    private String login;
+    private String email;
+    private UUID fotoDocumentoId;
     private String senhaHash;
     private boolean mfaHabilitado;
     private TipoMfa mfaTipo;
@@ -27,8 +29,10 @@ public final class Usuario {
     public Usuario(
         UUID id,
         UUID tenantId,
+        String nome,
         String login,
         String email,
+        UUID fotoDocumentoId,
         String senhaHash,
         boolean mfaHabilitado,
         TipoMfa mfaTipo,
@@ -37,8 +41,10 @@ public final class Usuario {
     ) {
         this.id = id;
         this.tenantId = tenantId;
+        this.nome = nome;
         this.login = login;
         this.email = email;
+        this.fotoDocumentoId = fotoDocumentoId;
         this.senhaHash = senhaHash;
         this.mfaHabilitado = mfaHabilitado;
         this.mfaTipo = mfaTipo;
@@ -69,6 +75,16 @@ public final class Usuario {
         this.mfaSecret = null;
     }
 
+    public void atualizarPerfil(String nome, String login, String email) {
+        this.nome = nome;
+        this.login = login;
+        this.email = email;
+    }
+
+    public void definirFotoDocumentoId(UUID fotoDocumentoId) {
+        this.fotoDocumentoId = fotoDocumentoId;
+    }
+
     public void trocarSenha(String novoHash) {
         this.senhaHash = novoHash;
     }
@@ -81,12 +97,20 @@ public final class Usuario {
         return tenantId;
     }
 
+    public String getNome() {
+        return nome;
+    }
+
     public String getLogin() {
         return login;
     }
 
     public String getEmail() {
         return email;
+    }
+
+    public UUID getFotoDocumentoId() {
+        return fotoDocumentoId;
     }
 
     public String getSenhaHash() {

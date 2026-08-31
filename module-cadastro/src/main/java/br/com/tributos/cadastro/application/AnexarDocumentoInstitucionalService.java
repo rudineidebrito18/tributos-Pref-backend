@@ -58,7 +58,7 @@ public class AnexarDocumentoInstitucionalService {
         }
 
         return documentoRepository.salvar(new Documento(
-            documentoId, tenantId, null, tipo.trim(), nomeArquivo, conteudoTipo,
+            documentoId, tenantId, null, tipo.trim(), null, null, nomeArquivo, conteudoTipo,
             arquivo.getSize(), storageChave, false, Instant.now()
         ));
     }

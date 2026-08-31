@@ -27,11 +27,17 @@ public class UsuarioJpaEntity {
     @Column(name = "tenant_id", nullable = false)
     private UUID tenantId;
 
+    @Column(length = 200)
+    private String nome;
+
     @Column(nullable = false)
     private String login;
 
     @Column(nullable = false)
     private String email;
+
+    @Column(name = "foto_documento_id")
+    private UUID fotoDocumentoId;
 
     @Column(name = "senha_hash", nullable = false)
     private String senhaHash;
@@ -61,13 +67,15 @@ public class UsuarioJpaEntity {
     }
 
     public UsuarioJpaEntity(
-        UUID id, UUID tenantId, String login, String email, String senhaHash,
-        boolean mfaHabilitado, TipoMfa mfaTipo, String mfaSecret, boolean ativo
+        UUID id, UUID tenantId, String nome, String login, String email, UUID fotoDocumentoId,
+        String senhaHash, boolean mfaHabilitado, TipoMfa mfaTipo, String mfaSecret, boolean ativo
     ) {
         this.id = id;
         this.tenantId = tenantId;
+        this.nome = nome;
         this.login = login;
         this.email = email;
+        this.fotoDocumentoId = fotoDocumentoId;
         this.senhaHash = senhaHash;
         this.mfaHabilitado = mfaHabilitado;
         this.mfaTipo = mfaTipo;
@@ -83,12 +91,36 @@ public class UsuarioJpaEntity {
         return tenantId;
     }
 
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
     public String getLogin() {
         return login;
     }
 
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public UUID getFotoDocumentoId() {
+        return fotoDocumentoId;
+    }
+
+    public void setFotoDocumentoId(UUID fotoDocumentoId) {
+        this.fotoDocumentoId = fotoDocumentoId;
     }
 
     public String getSenhaHash() {

@@ -1,5 +1,6 @@
 package br.com.tributos.identity.adapters.out.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -28,6 +29,11 @@ public class UsuarioRepositoryAdapter implements UsuarioRepository {
     }
 
     @Override
+    public Optional<Usuario> buscarPorEmail(UUID tenantId, String email) {
+        return jpaRepository.findByTenantIdAndEmail(tenantId, email).map(UsuarioRepositoryAdapter::paraDominio);
+    }
+
+    @Override
     public Optional<Usuario> buscarPorId(UUID id) {
         return jpaRepository.findById(id).map(UsuarioRepositoryAdapter::paraDominio);
     }
@@ -36,10 +42,15 @@ public class UsuarioRepositoryAdapter implements UsuarioRepository {
     public void salvar(Usuario usuario) {
         UsuarioJpaEntity entidade = jpaRepository.findById(usuario.getId())
             .orElseGet(() -> new UsuarioJpaEntity(
-                usuario.getId(), usuario.getTenantId(), usuario.getLogin(), usuario.getEmail(),
-                usuario.getSenhaHash(), usuario.isMfaHabilitado(), usuario.getMfaTipo(), usuario.getMfaSecret(), usuario.isAtivo()
+                usuario.getId(), usuario.getTenantId(), usuario.getNome(), usuario.getLogin(), usuario.getEmail(),
+                usuario.getFotoDocumentoId(), usuario.getSenhaHash(), usuario.isMfaHabilitado(),
+                usuario.getMfaTipo(), usuario.getMfaSecret(), usuario.isAtivo()
             ));
 
+        entidade.setNome(usuario.getNome());
+        entidade.setLogin(usuario.getLogin());
+        entidade.setEmail(usuario.getEmail());
+        entidade.setFotoDocumentoId(usuario.getFotoDocumentoId());
         entidade.setSenhaHash(usuario.getSenhaHash());
         entidade.setMfaHabilitado(usuario.isMfaHabilitado());
         entidade.setMfaTipo(usuario.getMfaTipo());
@@ -56,6 +67,18 @@ public class UsuarioRepositoryAdapter implements UsuarioRepository {
     }
 
     @Override
+    public List<Usuario> listarAtivosDoTenant(UUID tenantId) {
+        return jpaRepository.findByTenantIdAndAtivoTrueOrderByLoginAsc(tenantId).stream()
+            .map(UsuarioRepositoryAdapter::paraDominio)
+            .toList();
+    }
+
+    @Override
+    public boolean existeLoginOuEmail(UUID tenantId, String login, String email, UUID excluirUsuarioId) {
+        return jpaRepository.existsLoginOuEmail(tenantId, login, email, excluirUsuarioId);
+    }
+
+    @Override
     public void atribuirPapel(UUID usuarioId, String nomeDoPapel) {
         UsuarioJpaEntity usuario = jpaRepository.findById(usuarioId)
             .orElseThrow(() -> new IllegalStateException("Usuário " + usuarioId + " não encontrado para atribuir papel."));
@@ -69,8 +92,9 @@ public class UsuarioRepositoryAdapter implements UsuarioRepository {
     private static Usuario paraDominio(UsuarioJpaEntity entidade) {
         TipoMfa tipoMfa = entidade.getMfaTipo() == null ? TipoMfa.NENHUM : entidade.getMfaTipo();
         return new Usuario(
-            entidade.getId(), entidade.getTenantId(), entidade.getLogin(), entidade.getEmail(),
-            entidade.getSenhaHash(), entidade.isMfaHabilitado(), tipoMfa, entidade.getMfaSecret(), entidade.isAtivo()
+            entidade.getId(), entidade.getTenantId(), entidade.getNome(), entidade.getLogin(), entidade.getEmail(),
+            entidade.getFotoDocumentoId(), entidade.getSenhaHash(), entidade.isMfaHabilitado(),
+            tipoMfa, entidade.getMfaSecret(), entidade.isAtivo()
         );
     }
 }
