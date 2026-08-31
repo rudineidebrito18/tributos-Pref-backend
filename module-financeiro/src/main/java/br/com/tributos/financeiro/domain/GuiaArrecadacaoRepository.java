@@ -26,6 +26,7 @@ public interface GuiaArrecadacaoRepository {
         UUID contribuinteId,
         StatusPix statusPix,
         UUID formaPagamentoId,
+        OrigemGuia origemTipo,
         Pageable pageable
     );
 

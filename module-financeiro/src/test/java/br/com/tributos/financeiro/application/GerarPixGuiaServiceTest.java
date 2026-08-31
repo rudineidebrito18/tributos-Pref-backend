@@ -22,6 +22,7 @@ import br.com.tributos.financeiro.domain.GuiaArrecadacaoRepository;
 import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
 import br.com.tributos.financeiro.domain.StatusPix;
+import br.com.tributos.financeiro.domain.TipoTributacao;
 import br.com.tributos.financeiro.domain.TipoTributo;
 import br.com.tributos.kernel.cadastro.DadosDevedorPix;
 import br.com.tributos.kernel.cadastro.DevedorPixPort;
@@ -166,6 +167,7 @@ class GerarPixGuiaServiceTest {
             null,
             null,
             "CODVERIF123456789012",
+            TipoTributacao.TRIBUTAVEL,
             null,
             null,
             null,
@@ -197,6 +199,7 @@ class GerarPixGuiaServiceTest {
             "TXID-EXISTENTE",
             base.descricaoAvulsa(),
             base.codigoVerificacao(),
+            base.tipoTributacao(),
             StatusPix.ATIVA,
             "qr",
             "link",

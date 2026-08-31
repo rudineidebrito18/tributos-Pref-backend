@@ -14,6 +14,7 @@ import br.com.tributos.financeiro.domain.GuiaArrecadacao;
 import br.com.tributos.financeiro.domain.GuiaArrecadacaoRepository;
 import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
+import br.com.tributos.financeiro.domain.TipoTributacao;
 import br.com.tributos.financeiro.domain.TipoTributo;
 import br.com.tributos.kernel.exception.ValidationException;
 import br.com.tributos.kernel.tenancy.TenantContext;
@@ -72,6 +73,7 @@ public class GerarGuiaArrecadacaoService {
             null,
             comando.descricaoAvulsa(),
             GeradorCodigoVerificacaoGuia.gerar(),
+            comando.tipoTributacao() != null ? comando.tipoTributacao() : TipoTributacao.TRIBUTAVEL,
             null,
             null,
             null,
@@ -92,7 +94,8 @@ public class GerarGuiaArrecadacaoService {
         Instant dataEmissao,
         LocalDate dataVencimento,
         BigDecimal valor,
-        String descricaoAvulsa
+        String descricaoAvulsa,
+        TipoTributacao tipoTributacao
     ) {
     }
 }

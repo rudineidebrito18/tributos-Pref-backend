@@ -18,6 +18,7 @@ import org.hibernate.type.SqlTypes;
 import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
 import br.com.tributos.financeiro.domain.StatusPix;
+import br.com.tributos.financeiro.domain.TipoTributacao;
 import br.com.tributos.financeiro.domain.TipoTributo;
 
 @Entity
@@ -88,6 +89,10 @@ public class GuiaArrecadacaoJpaEntity {
 
     @Column(name = "codigo_verificacao", length = 32)
     private String codigoVerificacao;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_tributacao", nullable = false, length = 20)
+    private TipoTributacao tipoTributacao = TipoTributacao.TRIBUTAVEL;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status_pix", length = 40)
@@ -263,6 +268,14 @@ public class GuiaArrecadacaoJpaEntity {
 
     public void setCodigoVerificacao(String codigoVerificacao) {
         this.codigoVerificacao = codigoVerificacao;
+    }
+
+    public TipoTributacao getTipoTributacao() {
+        return tipoTributacao;
+    }
+
+    public void setTipoTributacao(TipoTributacao tipoTributacao) {
+        this.tipoTributacao = tipoTributacao;
     }
 
     public StatusPix getStatusPix() {

@@ -21,6 +21,7 @@ import br.com.tributos.financeiro.adapters.in.web.dto.EmitirDamAvulsoRequest;
 import br.com.tributos.financeiro.adapters.in.web.dto.GerarPixResponse;
 import br.com.tributos.financeiro.adapters.in.web.dto.GuiaArrecadacaoResponse;
 import br.com.tributos.financeiro.adapters.in.web.dto.PixConciliacaoLogResponse;
+import br.com.tributos.financeiro.application.AlterarSituacaoGuiaService;
 import br.com.tributos.financeiro.application.BuscarGuiaService;
 import br.com.tributos.financeiro.application.ConciliarPixService;
 import br.com.tributos.financeiro.application.EmitirDamAvulsoService;
@@ -28,6 +29,7 @@ import br.com.tributos.financeiro.application.GerarPixGuiaService;
 import br.com.tributos.financeiro.application.ListarConciliacaoPixLogService;
 import br.com.tributos.financeiro.application.ListarGuiasService;
 import br.com.tributos.financeiro.application.RegistrarPagamentoService;
+import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
 import br.com.tributos.financeiro.domain.StatusPix;
 import br.com.tributos.financeiro.domain.TipoTributo;
@@ -45,6 +47,7 @@ public class GuiaArrecadacaoController {
     private final RegistrarPagamentoService registrarPagamentoService;
     private final ConciliarPixService conciliarPixService;
     private final ListarConciliacaoPixLogService listarConciliacaoPixLogService;
+    private final AlterarSituacaoGuiaService alterarSituacaoGuiaService;
     private final GuiaArrecadacaoResponseMapper guiaArrecadacaoResponseMapper;
 
     public GuiaArrecadacaoController(
@@ -55,6 +58,7 @@ public class GuiaArrecadacaoController {
         RegistrarPagamentoService registrarPagamentoService,
         ConciliarPixService conciliarPixService,
         ListarConciliacaoPixLogService listarConciliacaoPixLogService,
+        AlterarSituacaoGuiaService alterarSituacaoGuiaService,
         GuiaArrecadacaoResponseMapper guiaArrecadacaoResponseMapper
     ) {
         this.listarGuiasService = listarGuiasService;
@@ -64,6 +68,7 @@ public class GuiaArrecadacaoController {
         this.registrarPagamentoService = registrarPagamentoService;
         this.conciliarPixService = conciliarPixService;
         this.listarConciliacaoPixLogService = listarConciliacaoPixLogService;
+        this.alterarSituacaoGuiaService = alterarSituacaoGuiaService;
         this.guiaArrecadacaoResponseMapper = guiaArrecadacaoResponseMapper;
     }
 
@@ -75,10 +80,11 @@ public class GuiaArrecadacaoController {
         @RequestParam(required = false) UUID contribuinteId,
         @RequestParam(required = false) StatusPix statusPix,
         @RequestParam(required = false) String formaPagamentoCodigo,
+        @RequestParam(required = false) OrigemGuia origemTipo,
         Pageable pageable
     ) {
         return listarGuiasService.executar(
-            tipoTributo, situacao, contribuinteId, statusPix, formaPagamentoCodigo, pageable
+            tipoTributo, situacao, contribuinteId, statusPix, formaPagamentoCodigo, origemTipo, pageable
         ).map(guiaArrecadacaoResponseMapper::paraResponse);
     }
 
@@ -96,8 +102,22 @@ public class GuiaArrecadacaoController {
             request.contribuinteId(),
             request.valor(),
             request.dataVencimento(),
-            request.descricao()
+            request.descricao(),
+            request.tipoTributo(),
+            request.tipoTributacao()
         ));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL')")
+    @PostMapping("/{id}/isentar")
+    public GuiaArrecadacaoResponse isentar(@PathVariable UUID id) {
+        return guiaArrecadacaoResponseMapper.paraResponse(alterarSituacaoGuiaService.isentar(id));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL')")
+    @PostMapping("/{id}/cancelar")
+    public GuiaArrecadacaoResponse cancelar(@PathVariable UUID id) {
+        return guiaArrecadacaoResponseMapper.paraResponse(alterarSituacaoGuiaService.cancelar(id));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import br.com.tributos.financeiro.domain.FormaPagamentoRepository;
 import br.com.tributos.financeiro.domain.GuiaArrecadacao;
 import br.com.tributos.financeiro.domain.GuiaArrecadacaoRepository;
+import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
 import br.com.tributos.financeiro.domain.StatusPix;
 import br.com.tributos.financeiro.domain.TipoTributo;
@@ -34,6 +35,7 @@ public class ListarGuiasService {
         UUID contribuinteId,
         StatusPix statusPix,
         String formaPagamentoCodigo,
+        OrigemGuia origemTipo,
         Pageable pageable
     ) {
         UUID formaPagamentoId = null;
@@ -43,7 +45,7 @@ public class ListarGuiasService {
                 .orElseThrow(() -> new ValidationException("Forma de pagamento inválida."));
         }
         return guiaArrecadacaoRepository.listar(
-            tipoTributo, situacao, contribuinteId, statusPix, formaPagamentoId, pageable
+            tipoTributo, situacao, contribuinteId, statusPix, formaPagamentoId, origemTipo, pageable
         );
     }
 }

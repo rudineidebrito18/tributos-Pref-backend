@@ -154,6 +154,7 @@ public class ConciliarPixService {
             guia.pixTxid(),
             guia.descricaoAvulsa(),
             guia.codigoVerificacao(),
+            guia.tipoTributacao(),
             statusPix,
             guia.pixQrcodePayload(),
             guia.pixLink(),

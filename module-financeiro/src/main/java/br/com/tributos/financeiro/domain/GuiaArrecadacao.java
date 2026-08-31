@@ -26,6 +26,7 @@ public record GuiaArrecadacao(
     String pixTxid,
     String descricaoAvulsa,
     String codigoVerificacao,
+    TipoTributacao tipoTributacao,
     StatusPix statusPix,
     String pixQrcodePayload,
     String pixLink,

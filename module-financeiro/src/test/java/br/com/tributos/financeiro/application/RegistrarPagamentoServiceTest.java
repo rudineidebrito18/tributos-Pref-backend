@@ -19,6 +19,7 @@ import br.com.tributos.financeiro.domain.GuiaArrecadacaoRepository;
 import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
 import br.com.tributos.financeiro.domain.StatusPix;
+import br.com.tributos.financeiro.domain.TipoTributacao;
 import br.com.tributos.financeiro.domain.TipoTributo;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,6 +106,7 @@ class RegistrarPagamentoServiceTest {
             null,
             null,
             "CODVERIF123456789012",
+            TipoTributacao.TRIBUTAVEL,
             null,
             null,
             null,
@@ -136,6 +138,7 @@ class RegistrarPagamentoServiceTest {
             "TXID-123",
             base.descricaoAvulsa(),
             base.codigoVerificacao(),
+            base.tipoTributacao(),
             StatusPix.ATIVA,
             "qr-payload",
             null,

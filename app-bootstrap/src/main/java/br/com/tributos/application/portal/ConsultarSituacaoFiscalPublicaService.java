@@ -39,7 +39,7 @@ public class ConsultarSituacaoFiscalPublicaService {
 
         UUID tenantId = TenantContext.getObrigatorio();
         var guiasPendentes = guiaArrecadacaoRepository.listar(
-            null, SituacaoGuia.PENDENTE, pessoa.getId(), null, null,
+            null, SituacaoGuia.PENDENTE, pessoa.getId(), null, null, null,
             org.springframework.data.domain.PageRequest.of(0, 100)
         );
 

@@ -25,6 +25,7 @@ import br.com.tributos.financeiro.domain.PixConciliacaoLog;
 import br.com.tributos.financeiro.domain.PixConciliacaoLogRepository;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
 import br.com.tributos.financeiro.domain.StatusPix;
+import br.com.tributos.financeiro.domain.TipoTributacao;
 import br.com.tributos.financeiro.domain.TipoTributo;
 import br.com.tributos.kernel.tenancy.TenantContext;
 
@@ -162,6 +163,7 @@ class ProcessarWebhookPixServiceTest {
             txid,
             null,
             null,
+            TipoTributacao.TRIBUTAVEL,
             StatusPix.ATIVA,
             "qr",
             "link",

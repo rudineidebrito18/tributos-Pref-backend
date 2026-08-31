@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.tributos.financeiro.domain.GuiaArrecadacao;
 import br.com.tributos.financeiro.domain.OrigemGuia;
+import br.com.tributos.financeiro.domain.TipoTributacao;
 import br.com.tributos.financeiro.domain.TipoTributo;
 import br.com.tributos.kernel.exception.ValidationException;
 
@@ -22,13 +23,20 @@ public class EmitirDamAvulsoService {
     }
 
     @Transactional
-    public GuiaArrecadacao executar(UUID contribuintePessoaId, BigDecimal valor, LocalDate vencimento, String descricao) {
+    public GuiaArrecadacao executar(
+        UUID contribuintePessoaId,
+        BigDecimal valor,
+        LocalDate vencimento,
+        String descricao,
+        TipoTributo tipoTributo,
+        TipoTributacao tipoTributacao
+    ) {
         if (descricao == null || descricao.isBlank()) {
             throw new ValidationException("Informe a descrição do DAM avulso.");
         }
 
         return gerarGuiaArrecadacaoService.executar(new GerarGuiaArrecadacaoService.GerarGuiaComando(
-            TipoTributo.OUTROS,
+            tipoTributo != null ? tipoTributo : TipoTributo.OUTROS,
             OrigemGuia.AVULSO,
             null,
             contribuintePessoaId,
@@ -37,7 +45,8 @@ public class EmitirDamAvulsoService {
             null,
             vencimento,
             valor,
-            descricao.trim()
+            descricao.trim(),
+            tipoTributacao != null ? tipoTributacao : TipoTributacao.TRIBUTAVEL
         ));
     }
 }

@@ -31,6 +31,7 @@ public interface GuiaArrecadacaoJpaRepository extends JpaRepository<GuiaArrecada
           AND (:contribuinteId IS NULL OR g.contribuinteId = :contribuinteId)
           AND (:statusPix IS NULL OR g.statusPix = :statusPix)
           AND (:formaPagamentoId IS NULL OR g.formaPagamentoId = :formaPagamentoId)
+          AND (:origemTipo IS NULL OR g.origemTipo = :origemTipo)
         ORDER BY g.dataEmissao DESC
         """)
     Page<GuiaArrecadacaoJpaEntity> buscarComFiltro(
@@ -39,6 +40,7 @@ public interface GuiaArrecadacaoJpaRepository extends JpaRepository<GuiaArrecada
         @Param("contribuinteId") UUID contribuinteId,
         @Param("statusPix") StatusPix statusPix,
         @Param("formaPagamentoId") UUID formaPagamentoId,
+        @Param("origemTipo") OrigemGuia origemTipo,
         Pageable pageable
     );
 

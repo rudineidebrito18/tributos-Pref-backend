@@ -189,6 +189,7 @@ public class GerarPixGuiaService {
             pixTxid,
             guia.descricaoAvulsa(),
             guia.codigoVerificacao(),
+            guia.tipoTributacao(),
             statusPix,
             pixQrcodePayload,
             pixLink,

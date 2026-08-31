@@ -14,6 +14,7 @@ import br.com.tributos.financeiro.domain.GuiaArrecadacaoRepository;
 import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
 import br.com.tributos.financeiro.domain.StatusPix;
+import br.com.tributos.financeiro.domain.TipoTributacao;
 import br.com.tributos.financeiro.domain.TipoTributo;
 import br.com.tributos.kernel.tenancy.TenantContext;
 
@@ -52,16 +53,17 @@ public class GuiaArrecadacaoRepositoryAdapter implements GuiaArrecadacaoReposito
     }
 
     @Override
-    public Page<GuiaArrecadacao> listar(
+    public     Page<GuiaArrecadacao> listar(
         TipoTributo tipoTributo,
         SituacaoGuia situacao,
         UUID contribuinteId,
         StatusPix statusPix,
         UUID formaPagamentoId,
+        OrigemGuia origemTipo,
         Pageable pageable
     ) {
         return jpaRepository.buscarComFiltro(
-            tipoTributo, situacao, contribuinteId, statusPix, formaPagamentoId, pageable
+            tipoTributo, situacao, contribuinteId, statusPix, formaPagamentoId, origemTipo, pageable
         ).map(this::paraDominio);
     }
 
@@ -104,6 +106,7 @@ public class GuiaArrecadacaoRepositoryAdapter implements GuiaArrecadacaoReposito
             e.getPixTxid(),
             e.getDescricaoAvulsa(),
             e.getCodigoVerificacao(),
+            e.getTipoTributacao(),
             e.getStatusPix(),
             e.getPixQrcodePayload(),
             e.getPixLink(),
@@ -134,6 +137,7 @@ public class GuiaArrecadacaoRepositoryAdapter implements GuiaArrecadacaoReposito
         e.setPixTxid(g.pixTxid());
         e.setDescricaoAvulsa(g.descricaoAvulsa());
         e.setCodigoVerificacao(g.codigoVerificacao());
+        e.setTipoTributacao(g.tipoTributacao() != null ? g.tipoTributacao() : TipoTributacao.TRIBUTAVEL);
         e.setStatusPix(g.statusPix());
         e.setPixQrcodePayload(g.pixQrcodePayload());
         e.setPixLink(g.pixLink());

@@ -16,6 +16,7 @@ import br.com.tributos.financeiro.domain.GuiaArrecadacaoRepository;
 import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
 import br.com.tributos.financeiro.domain.StatusPix;
+import br.com.tributos.financeiro.domain.TipoTributacao;
 import br.com.tributos.financeiro.domain.TipoTributo;
 import br.com.tributos.kernel.tenancy.ListarTenantsAtivosPort;
 
@@ -64,7 +65,7 @@ class ConciliacaoPixLoteServiceTest {
             id, tenantId, 1L, TipoTributo.ISS, OrigemGuia.AVULSO, UUID.randomUUID(), UUID.randomUUID(),
             1, 2024, Instant.now(), java.time.LocalDate.now().plusDays(5), new BigDecimal("50.00"),
             SituacaoGuia.PENDENTE, null, null, null, null, "TXID-ATIVA", null, null,
-            StatusPix.ATIVA, "qr", "link", null, Instant.now()
+            TipoTributacao.TRIBUTAVEL, StatusPix.ATIVA, "qr", "link", null, Instant.now()
         );
     }
 }

@@ -182,6 +182,7 @@ public class RegistrarPagamentoService {
             pixTxid,
             guia.descricaoAvulsa(),
             guia.codigoVerificacao(),
+            guia.tipoTributacao(),
             statusPix,
             pixQrcodePayload,
             pixLink,

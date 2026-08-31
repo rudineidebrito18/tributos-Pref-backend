@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.tributos.financeiro.domain.OrigemGuia;
+import br.com.tributos.financeiro.domain.TipoTributacao;
 import br.com.tributos.financeiro.domain.TipoTributo;
 import br.com.tributos.kernel.events.GuiaItbiSolicitadaEvent;
 import br.com.tributos.kernel.events.LancamentoIptuParcelaGeradaEvent;
@@ -32,7 +33,8 @@ public class GerarGuiaEventListener {
             evento.dataEmissao(),
             evento.competencia().plusMonths(1).withDayOfMonth(10),
             evento.valorIss(),
-            null
+            null,
+            TipoTributacao.TRIBUTAVEL
         ));
     }
 
@@ -49,7 +51,8 @@ public class GerarGuiaEventListener {
             null,
             evento.vencimento(),
             evento.valor(),
-            "IPTU " + evento.exercicio() + " — parcela " + evento.numeroParcela()
+            "IPTU " + evento.exercicio() + " — parcela " + evento.numeroParcela(),
+            TipoTributacao.TRIBUTAVEL
         ));
     }
 
@@ -66,7 +69,8 @@ public class GerarGuiaEventListener {
             evento.dataSolicitacao(),
             java.time.LocalDate.ofInstant(evento.dataSolicitacao(), java.time.ZoneId.of("America/Sao_Paulo")).plusDays(30),
             evento.valorItbi(),
-            "ITBI — guia " + evento.guiaItbiId()
+            "ITBI — guia " + evento.guiaItbiId(),
+            TipoTributacao.TRIBUTAVEL
         ));
     }
 }

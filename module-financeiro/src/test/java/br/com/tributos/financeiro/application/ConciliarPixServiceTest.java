@@ -25,6 +25,7 @@ import br.com.tributos.financeiro.domain.PixConciliacaoLog;
 import br.com.tributos.financeiro.domain.PixConciliacaoLogRepository;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
 import br.com.tributos.financeiro.domain.StatusPix;
+import br.com.tributos.financeiro.domain.TipoTributacao;
 import br.com.tributos.financeiro.domain.TipoTributo;
 import br.com.tributos.kernel.pixbb.ConfiguracaoPixBbPort;
 import br.com.tributos.kernel.pixbb.ConfiguracaoPixOperacional;
@@ -116,7 +117,7 @@ class ConciliarPixServiceTest {
             UUID.randomUUID(), TENANT_ID, 1L, TipoTributo.ISS, OrigemGuia.NOTA_FISCAL, UUID.randomUUID(),
             UUID.randomUUID(), 6, 2024, Instant.now(), java.time.LocalDate.now().plusDays(10),
             new BigDecimal("100.00"), SituacaoGuia.PENDENTE, null, null, null, null, "TXID-1",
-            null, null, StatusPix.ATIVA, "qr", "link", null, Instant.now()
+            null, null, TipoTributacao.TRIBUTAVEL, StatusPix.ATIVA, "qr", "link", null, Instant.now()
         );
     }
 
@@ -126,7 +127,8 @@ class ConciliarPixServiceTest {
             g.id(), g.tenantId(), g.numero(), g.tipoTributo(), g.origemTipo(), g.origemId(),
             g.contribuinteId(), g.competenciaMes(), g.competenciaAno(), g.dataEmissao(), g.dataVencimento(),
             g.valor(), SituacaoGuia.PAGA, g.formaPagamentoId(), Instant.now(), g.valor(),
-            g.codigoBarras(), g.pixTxid(), g.descricaoAvulsa(), g.codigoVerificacao(), StatusPix.CONCLUIDA,
+            g.codigoBarras(), g.pixTxid(), g.descricaoAvulsa(), g.codigoVerificacao(), g.tipoTributacao(),
+            StatusPix.CONCLUIDA,
             g.pixQrcodePayload(), g.pixLink(), "E2E-1", g.pixSolicitadoEm()
         );
     }

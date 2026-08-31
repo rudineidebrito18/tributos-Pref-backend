@@ -9,6 +9,7 @@ import br.com.tributos.financeiro.domain.GuiaArrecadacao;
 import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
 import br.com.tributos.financeiro.domain.StatusPix;
+import br.com.tributos.financeiro.domain.TipoTributacao;
 import br.com.tributos.financeiro.domain.TipoTributo;
 
 public record GuiaArrecadacaoResponse(
@@ -30,6 +31,9 @@ public record GuiaArrecadacaoResponse(
     String codigoBarras,
     String pixTxid,
     String descricaoAvulsa,
+    String codigoVerificacao,
+    TipoTributacao tipoTributacao,
+    String tipoTributacaoDescricao,
     StatusPix statusPix,
     String statusPixDescricao,
     String formaPagamentoCodigo
@@ -54,6 +58,9 @@ public record GuiaArrecadacaoResponse(
             g.codigoBarras(),
             g.pixTxid(),
             g.descricaoAvulsa(),
+            g.codigoVerificacao(),
+            g.tipoTributacao(),
+            g.tipoTributacao() != null ? g.tipoTributacao().descricaoLegado() : null,
             g.statusPix(),
             g.statusPix() != null ? g.statusPix().descricaoLegado() : null,
             formaPagamentoCodigo
