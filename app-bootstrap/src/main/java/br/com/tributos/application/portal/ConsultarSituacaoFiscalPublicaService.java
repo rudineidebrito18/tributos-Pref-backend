@@ -38,8 +38,10 @@ public class ConsultarSituacaoFiscalPublicaService {
             .orElseThrow(() -> new NotFoundException("Contribuinte não encontrado para o documento informado."));
 
         UUID tenantId = TenantContext.getObrigatorio();
-        var guiasPendentes = guiaArrecadacaoRepository.listar(null, SituacaoGuia.PENDENTE, pessoa.getId(),
-            org.springframework.data.domain.PageRequest.of(0, 100));
+        var guiasPendentes = guiaArrecadacaoRepository.listar(
+            null, SituacaoGuia.PENDENTE, pessoa.getId(), null, null,
+            org.springframework.data.domain.PageRequest.of(0, 100)
+        );
 
         boolean possuiPendencia = pendenciaFinanceiraPort.possuiPendencia(tenantId, pessoa.getId());
 

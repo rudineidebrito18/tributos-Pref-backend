@@ -16,7 +16,14 @@ public interface GuiaArrecadacaoRepository {
 
     Optional<GuiaArrecadacao> buscarPorNumero(long numero);
 
-    Page<GuiaArrecadacao> listar(TipoTributo tipoTributo, SituacaoGuia situacao, UUID contribuinteId, Pageable pageable);
+    Page<GuiaArrecadacao> listar(
+        TipoTributo tipoTributo,
+        SituacaoGuia situacao,
+        UUID contribuinteId,
+        StatusPix statusPix,
+        UUID formaPagamentoId,
+        Pageable pageable
+    );
 
     long proximoNumero();
 

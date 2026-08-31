@@ -94,11 +94,28 @@ class GuiaArrecadacaoControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.pixTxid").exists());
 
+        mockMvc.perform(get("/api/financeiro/guias-arrecadacao/" + guiaId)
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.statusPix").value("ATIVA"))
+            .andExpect(jsonPath("$.statusPixDescricao").value("ATIVA"));
+
         mockMvc.perform(post("/api/financeiro/guias-arrecadacao/" + guiaId + "/confirmar-pix")
                 .header("Authorization", "Bearer " + token))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.situacao").value("PAGA"))
-            .andExpect(jsonPath("$.valorPago").exists());
+            .andExpect(jsonPath("$.valorPago").exists())
+            .andExpect(jsonPath("$.statusPix").value("CONCLUIDA"))
+            .andExpect(jsonPath("$.formaPagamentoCodigo").value("PIX"));
+
+        mockMvc.perform(get("/api/financeiro/guias-arrecadacao")
+                .header("Authorization", "Bearer " + token)
+                .param("statusPix", "CONCLUIDA")
+                .param("formaPagamentoCodigo", "PIX")
+                .param("contribuinteId", pessoaContribuinteId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content", hasSize(1)))
+            .andExpect(jsonPath("$.content[0].statusPix").value("CONCLUIDA"));
     }
 
     private String login() throws Exception {

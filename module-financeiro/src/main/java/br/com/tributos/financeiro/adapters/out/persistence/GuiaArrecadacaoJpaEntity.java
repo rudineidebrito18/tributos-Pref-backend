@@ -17,6 +17,7 @@ import org.hibernate.type.SqlTypes;
 
 import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
+import br.com.tributos.financeiro.domain.StatusPix;
 import br.com.tributos.financeiro.domain.TipoTributo;
 
 @Entity
@@ -84,6 +85,22 @@ public class GuiaArrecadacaoJpaEntity {
 
     @Column(name = "descricao_avulsa")
     private String descricaoAvulsa;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_pix", length = 40)
+    private StatusPix statusPix;
+
+    @Column(name = "pix_qrcode_payload")
+    private String pixQrcodePayload;
+
+    @Column(name = "pix_link")
+    private String pixLink;
+
+    @Column(name = "pix_end_to_end_id", length = 40)
+    private String pixEndToEndId;
+
+    @Column(name = "pix_solicitado_em")
+    private Instant pixSolicitadoEm;
 
     public UUID getId() {
         return id;
@@ -235,5 +252,45 @@ public class GuiaArrecadacaoJpaEntity {
 
     public void setDescricaoAvulsa(String descricaoAvulsa) {
         this.descricaoAvulsa = descricaoAvulsa;
+    }
+
+    public StatusPix getStatusPix() {
+        return statusPix;
+    }
+
+    public void setStatusPix(StatusPix statusPix) {
+        this.statusPix = statusPix;
+    }
+
+    public String getPixQrcodePayload() {
+        return pixQrcodePayload;
+    }
+
+    public void setPixQrcodePayload(String pixQrcodePayload) {
+        this.pixQrcodePayload = pixQrcodePayload;
+    }
+
+    public String getPixLink() {
+        return pixLink;
+    }
+
+    public void setPixLink(String pixLink) {
+        this.pixLink = pixLink;
+    }
+
+    public String getPixEndToEndId() {
+        return pixEndToEndId;
+    }
+
+    public void setPixEndToEndId(String pixEndToEndId) {
+        this.pixEndToEndId = pixEndToEndId;
+    }
+
+    public Instant getPixSolicitadoEm() {
+        return pixSolicitadoEm;
+    }
+
+    public void setPixSolicitadoEm(Instant pixSolicitadoEm) {
+        this.pixSolicitadoEm = pixSolicitadoEm;
     }
 }

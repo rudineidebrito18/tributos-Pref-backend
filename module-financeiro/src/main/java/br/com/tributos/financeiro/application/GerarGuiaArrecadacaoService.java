@@ -69,7 +69,12 @@ public class GerarGuiaArrecadacaoService {
             null,
             null,
             null,
-            comando.descricaoAvulsa()
+            comando.descricaoAvulsa(),
+            null,
+            null,
+            null,
+            null,
+            null
         );
 
         return guiaArrecadacaoRepository.salvar(guia);

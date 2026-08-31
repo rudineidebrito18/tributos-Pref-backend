@@ -11,6 +11,7 @@ import br.com.tributos.financeiro.domain.GuiaArrecadacao;
 import br.com.tributos.financeiro.domain.GuiaArrecadacaoRepository;
 import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
+import br.com.tributos.financeiro.domain.StatusPix;
 import br.com.tributos.financeiro.domain.TipoTributo;
 import br.com.tributos.kernel.tenancy.TenantContext;
 
@@ -48,9 +49,13 @@ public class GuiaArrecadacaoRepositoryAdapter implements GuiaArrecadacaoReposito
         TipoTributo tipoTributo,
         SituacaoGuia situacao,
         UUID contribuinteId,
+        StatusPix statusPix,
+        UUID formaPagamentoId,
         Pageable pageable
     ) {
-        return jpaRepository.buscarComFiltro(tipoTributo, situacao, contribuinteId, pageable).map(this::paraDominio);
+        return jpaRepository.buscarComFiltro(
+            tipoTributo, situacao, contribuinteId, statusPix, formaPagamentoId, pageable
+        ).map(this::paraDominio);
     }
 
     @Override
@@ -83,7 +88,12 @@ public class GuiaArrecadacaoRepositoryAdapter implements GuiaArrecadacaoReposito
             e.getValorPago(),
             e.getCodigoBarras(),
             e.getPixTxid(),
-            e.getDescricaoAvulsa()
+            e.getDescricaoAvulsa(),
+            e.getStatusPix(),
+            e.getPixQrcodePayload(),
+            e.getPixLink(),
+            e.getPixEndToEndId(),
+            e.getPixSolicitadoEm()
         );
     }
 
@@ -108,6 +118,11 @@ public class GuiaArrecadacaoRepositoryAdapter implements GuiaArrecadacaoReposito
         e.setCodigoBarras(g.codigoBarras());
         e.setPixTxid(g.pixTxid());
         e.setDescricaoAvulsa(g.descricaoAvulsa());
+        e.setStatusPix(g.statusPix());
+        e.setPixQrcodePayload(g.pixQrcodePayload());
+        e.setPixLink(g.pixLink());
+        e.setPixEndToEndId(g.pixEndToEndId());
+        e.setPixSolicitadoEm(g.pixSolicitadoEm());
         return e;
     }
 }

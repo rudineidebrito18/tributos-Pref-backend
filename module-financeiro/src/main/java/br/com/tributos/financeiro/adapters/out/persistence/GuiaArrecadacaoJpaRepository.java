@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 
 import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
+import br.com.tributos.financeiro.domain.StatusPix;
 import br.com.tributos.financeiro.domain.TipoTributo;
 
 public interface GuiaArrecadacaoJpaRepository extends JpaRepository<GuiaArrecadacaoJpaEntity, UUID> {
@@ -26,12 +27,16 @@ public interface GuiaArrecadacaoJpaRepository extends JpaRepository<GuiaArrecada
         WHERE (:tipoTributo IS NULL OR g.tipoTributo = :tipoTributo)
           AND (:situacao IS NULL OR g.situacao = :situacao)
           AND (:contribuinteId IS NULL OR g.contribuinteId = :contribuinteId)
+          AND (:statusPix IS NULL OR g.statusPix = :statusPix)
+          AND (:formaPagamentoId IS NULL OR g.formaPagamentoId = :formaPagamentoId)
         ORDER BY g.dataEmissao DESC
         """)
     Page<GuiaArrecadacaoJpaEntity> buscarComFiltro(
         @Param("tipoTributo") TipoTributo tipoTributo,
         @Param("situacao") SituacaoGuia situacao,
         @Param("contribuinteId") UUID contribuinteId,
+        @Param("statusPix") StatusPix statusPix,
+        @Param("formaPagamentoId") UUID formaPagamentoId,
         Pageable pageable
     );
 

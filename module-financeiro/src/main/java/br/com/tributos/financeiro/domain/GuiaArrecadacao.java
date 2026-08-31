@@ -24,6 +24,11 @@ public record GuiaArrecadacao(
     BigDecimal valorPago,
     String codigoBarras,
     String pixTxid,
-    String descricaoAvulsa
+    String descricaoAvulsa,
+    StatusPix statusPix,
+    String pixQrcodePayload,
+    String pixLink,
+    String pixEndToEndId,
+    Instant pixSolicitadoEm
 ) {
 }

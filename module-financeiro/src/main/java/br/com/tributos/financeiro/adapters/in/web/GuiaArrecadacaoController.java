@@ -24,6 +24,7 @@ import br.com.tributos.financeiro.application.EmitirDamAvulsoService;
 import br.com.tributos.financeiro.application.ListarGuiasService;
 import br.com.tributos.financeiro.application.RegistrarPagamentoService;
 import br.com.tributos.financeiro.domain.SituacaoGuia;
+import br.com.tributos.financeiro.domain.StatusPix;
 import br.com.tributos.financeiro.domain.TipoTributo;
 
 import jakarta.validation.Valid;
@@ -36,17 +37,20 @@ public class GuiaArrecadacaoController {
     private final BuscarGuiaService buscarGuiaService;
     private final EmitirDamAvulsoService emitirDamAvulsoService;
     private final RegistrarPagamentoService registrarPagamentoService;
+    private final GuiaArrecadacaoResponseMapper guiaArrecadacaoResponseMapper;
 
     public GuiaArrecadacaoController(
         ListarGuiasService listarGuiasService,
         BuscarGuiaService buscarGuiaService,
         EmitirDamAvulsoService emitirDamAvulsoService,
-        RegistrarPagamentoService registrarPagamentoService
+        RegistrarPagamentoService registrarPagamentoService,
+        GuiaArrecadacaoResponseMapper guiaArrecadacaoResponseMapper
     ) {
         this.listarGuiasService = listarGuiasService;
         this.buscarGuiaService = buscarGuiaService;
         this.emitirDamAvulsoService = emitirDamAvulsoService;
         this.registrarPagamentoService = registrarPagamentoService;
+        this.guiaArrecadacaoResponseMapper = guiaArrecadacaoResponseMapper;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
@@ -55,23 +59,26 @@ public class GuiaArrecadacaoController {
         @RequestParam(required = false) TipoTributo tipoTributo,
         @RequestParam(required = false) SituacaoGuia situacao,
         @RequestParam(required = false) UUID contribuinteId,
+        @RequestParam(required = false) StatusPix statusPix,
+        @RequestParam(required = false) String formaPagamentoCodigo,
         Pageable pageable
     ) {
-        return listarGuiasService.executar(tipoTributo, situacao, contribuinteId, pageable)
-            .map(GuiaArrecadacaoResponse::de);
+        return listarGuiasService.executar(
+            tipoTributo, situacao, contribuinteId, statusPix, formaPagamentoCodigo, pageable
+        ).map(guiaArrecadacaoResponseMapper::paraResponse);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
     @GetMapping("/{id}")
     public GuiaArrecadacaoResponse buscar(@PathVariable UUID id) {
-        return GuiaArrecadacaoResponse.de(buscarGuiaService.executar(id));
+        return guiaArrecadacaoResponseMapper.paraResponse(buscarGuiaService.executar(id));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL')")
     @PostMapping("/avulso")
     @ResponseStatus(HttpStatus.CREATED)
     public GuiaArrecadacaoResponse emitirAvulso(@Valid @RequestBody EmitirDamAvulsoRequest request) {
-        return GuiaArrecadacaoResponse.de(emitirDamAvulsoService.executar(
+        return guiaArrecadacaoResponseMapper.paraResponse(emitirDamAvulsoService.executar(
             request.contribuinteId(),
             request.valor(),
             request.dataVencimento(),
@@ -89,14 +96,14 @@ public class GuiaArrecadacaoController {
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
     @PostMapping("/{id}/confirmar-pix")
     public GuiaArrecadacaoResponse confirmarPix(@PathVariable UUID id) {
-        return GuiaArrecadacaoResponse.de(registrarPagamentoService.confirmarPix(id));
+        return guiaArrecadacaoResponseMapper.paraResponse(registrarPagamentoService.confirmarPix(id));
     }
 
     @PreAuthorize("hasRole('ADMIN_TENANT')")
     @PostMapping("/{id}/baixa-manual")
     public GuiaArrecadacaoResponse baixaManual(@PathVariable UUID id, @Valid @RequestBody BaixaManualRequest request) {
-        return GuiaArrecadacaoResponse.de(registrarPagamentoService.baixaManual(
-            id, request.valorPago(), request.formaPagamentoCodigo()
+        return guiaArrecadacaoResponseMapper.paraResponse(registrarPagamentoService.baixaManual(
+            id, request.valorPago()
         ));
     }
 }
