@@ -30,7 +30,8 @@ public class ArmazenamentoArquivoLocal implements ArmazenamentoArquivo {
 
     @Override
     public String salvar(UUID tenantId, UUID pessoaId, UUID documentoId, String nomeArquivo, InputStream conteudo) {
-        String chave = tenantId + "/" + pessoaId + "/" + documentoId + "/" + sanitizarNome(nomeArquivo);
+        String segmentoPessoa = pessoaId != null ? pessoaId.toString() : "institucional";
+        String chave = tenantId + "/" + segmentoPessoa + "/" + documentoId + "/" + sanitizarNome(nomeArquivo);
         Path destino = diretorioBase.resolve(chave).normalize();
         if (!destino.startsWith(diretorioBase)) {
             throw new ValidationException("Nome de arquivo inválido.");
