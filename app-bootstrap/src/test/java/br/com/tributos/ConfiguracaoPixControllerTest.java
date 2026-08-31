@@ -6,7 +6,9 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
+import br.com.tributos.financeiro.adapters.out.pixbb.BbOAuthProperties;
 import br.com.tributos.support.AbstractIntegrationTest;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -15,6 +17,9 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import org.slf4j.LoggerFactory;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,6 +42,9 @@ class ConfiguracaoPixControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private BbOAuthProperties bbOAuthProperties;
 
     @Test
     void adminDeveSalvarSemExporSegredoEFiscalDeveReceber403() throws Exception {
@@ -162,6 +170,36 @@ class ConfiguracaoPixControllerTest extends AbstractIntegrationTest {
         } finally {
             root.detachAppender(appender);
         }
+    }
+
+    @Test
+    void deveTestarConexaoRetornandoErroDoBbSemVazarSegredo() throws Exception {
+        assertThat(bbOAuthProperties.homologacaoBaseUrl())
+            .isEqualTo("http://localhost:" + WIRE_MOCK_OAUTH.port());
+
+        WIRE_MOCK_OAUTH.resetAll();
+        WIRE_MOCK_OAUTH.stubFor(WireMock.post(urlEqualTo("/oauth/token"))
+            .willReturn(aResponse()
+                .withStatus(400)
+                .withHeader("Content-Type", "application/json")
+                .withBody("""
+                    {"error":"invalid_request","error_description":"Software cliente não identificado."}
+                    """)));
+
+        String tokenAdmin = login(TENANT_DEMO, "admin", "Demo@123");
+        mockMvc.perform(put("/api/plataforma/configuracao-pix/SANDBOX")
+                .header("Authorization", "Bearer " + tokenAdmin)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(corpoConfig(true, "client-invalido", SEGREDO)))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/plataforma/configuracao-pix/SANDBOX/testar-conexao")
+                .header("Authorization", "Bearer " + tokenAdmin))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.ok").value(false))
+            .andExpect(jsonPath("$.erro").value("Software cliente não identificado."));
+
+        WIRE_MOCK_OAUTH.verify(1, postRequestedFor(urlEqualTo("/oauth/token")));
     }
 
     private JsonNode criarTenantViaPlataforma() throws Exception {

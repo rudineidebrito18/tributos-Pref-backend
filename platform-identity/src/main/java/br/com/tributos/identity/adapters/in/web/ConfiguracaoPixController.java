@@ -2,8 +2,6 @@ package br.com.tributos.identity.adapters.in.web;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +18,8 @@ import br.com.tributos.identity.adapters.in.web.dto.SalvarConfiguracaoPixRequest
 import br.com.tributos.identity.application.BuscarConfiguracaoPixService;
 import br.com.tributos.identity.application.SalvarConfiguracaoPixComando;
 import br.com.tributos.identity.application.SalvarConfiguracaoPixService;
+import br.com.tributos.identity.application.TestarConexaoPixBbService;
+import br.com.tributos.identity.adapters.in.web.dto.TestarConexaoPixResponse;
 import br.com.tributos.identity.domain.AmbientePixBb;
 import br.com.tributos.kernel.exception.ValidationException;
 
@@ -29,13 +29,16 @@ public class ConfiguracaoPixController {
 
     private final BuscarConfiguracaoPixService buscarConfiguracaoPixService;
     private final SalvarConfiguracaoPixService salvarConfiguracaoPixService;
+    private final TestarConexaoPixBbService testarConexaoPixBbService;
 
     public ConfiguracaoPixController(
         BuscarConfiguracaoPixService buscarConfiguracaoPixService,
-        SalvarConfiguracaoPixService salvarConfiguracaoPixService
+        SalvarConfiguracaoPixService salvarConfiguracaoPixService,
+        TestarConexaoPixBbService testarConexaoPixBbService
     ) {
         this.buscarConfiguracaoPixService = buscarConfiguracaoPixService;
         this.salvarConfiguracaoPixService = salvarConfiguracaoPixService;
+        this.testarConexaoPixBbService = testarConexaoPixBbService;
     }
 
     @GetMapping
@@ -72,9 +75,10 @@ public class ConfiguracaoPixController {
 
     @PostMapping("/{ambiente}/testar-conexao")
     @PreAuthorize("hasRole('ADMIN_TENANT')")
-    public ResponseEntity<Void> testarConexao(@PathVariable String ambiente) {
-        ambienteDe(ambiente);
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    public TestarConexaoPixResponse testarConexao(@PathVariable String ambiente) {
+        return TestarConexaoPixResponse.de(
+            testarConexaoPixBbService.executar(ambienteDe(ambiente))
+        );
     }
 
     private static AmbientePixBb ambienteDe(String valor) {

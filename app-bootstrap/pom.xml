@@ -120,6 +120,12 @@
       <artifactId>testcontainers-junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock-standalone</artifactId>
+      <version>3.9.1</version>
+      <scope>test</scope>
+    </dependency>
     <!-- SEM declaração própria de commons-codec: já chega em escopo `compile` via
          platform-identity (que o usa em produção, em TotpVerificadorMfa) e essa é a
          transitiva que o AuthControllerTest também aproveita para simular um código TOTP.
