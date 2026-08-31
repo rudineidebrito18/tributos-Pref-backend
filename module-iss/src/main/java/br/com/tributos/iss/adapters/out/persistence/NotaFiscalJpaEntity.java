@@ -57,6 +57,24 @@ public class NotaFiscalJpaEntity {
     @Column(name = "valor_iss", nullable = false, precision = 14, scale = 2)
     private BigDecimal valorIss;
 
+    @Column(name = "valor_ir", nullable = false, precision = 14, scale = 2)
+    private BigDecimal valorIr;
+
+    @Column(name = "valor_pis", nullable = false, precision = 14, scale = 2)
+    private BigDecimal valorPis;
+
+    @Column(name = "valor_cofins", nullable = false, precision = 14, scale = 2)
+    private BigDecimal valorCofins;
+
+    @Column(name = "valor_csll", nullable = false, precision = 14, scale = 2)
+    private BigDecimal valorCsll;
+
+    @Column(name = "valor_inss", nullable = false, precision = 14, scale = 2)
+    private BigDecimal valorInss;
+
+    @Column(name = "iss_retido_fonte", nullable = false)
+    private boolean issRetidoFonte;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private StatusNotaFiscal status;
@@ -175,6 +193,54 @@ public class NotaFiscalJpaEntity {
 
     public void setValorIss(BigDecimal valorIss) {
         this.valorIss = valorIss;
+    }
+
+    public BigDecimal getValorIr() {
+        return valorIr;
+    }
+
+    public void setValorIr(BigDecimal valorIr) {
+        this.valorIr = valorIr;
+    }
+
+    public BigDecimal getValorPis() {
+        return valorPis;
+    }
+
+    public void setValorPis(BigDecimal valorPis) {
+        this.valorPis = valorPis;
+    }
+
+    public BigDecimal getValorCofins() {
+        return valorCofins;
+    }
+
+    public void setValorCofins(BigDecimal valorCofins) {
+        this.valorCofins = valorCofins;
+    }
+
+    public BigDecimal getValorCsll() {
+        return valorCsll;
+    }
+
+    public void setValorCsll(BigDecimal valorCsll) {
+        this.valorCsll = valorCsll;
+    }
+
+    public BigDecimal getValorInss() {
+        return valorInss;
+    }
+
+    public void setValorInss(BigDecimal valorInss) {
+        this.valorInss = valorInss;
+    }
+
+    public boolean isIssRetidoFonte() {
+        return issRetidoFonte;
+    }
+
+    public void setIssRetidoFonte(boolean issRetidoFonte) {
+        this.issRetidoFonte = issRetidoFonte;
     }
 
     public StatusNotaFiscal getStatus() {

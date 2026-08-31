@@ -34,7 +34,17 @@ public class CancelarNotaFiscalService {
             throw new ValidationException("Informe o motivo do cancelamento.");
         }
 
-        NotaFiscal cancelada = new NotaFiscal(
+        NotaFiscal cancelada = copiarComStatus(nota, StatusNotaFiscal.CANCELADA, motivoCancelamento, nota.notaSubstitutaId());
+        return notaFiscalRepository.salvar(cancelada);
+    }
+
+    static NotaFiscal copiarComStatus(
+        NotaFiscal nota,
+        StatusNotaFiscal status,
+        String motivoCancelamento,
+        UUID notaSubstitutaId
+    ) {
+        return new NotaFiscal(
             nota.id(),
             nota.tenantId(),
             nota.numero(),
@@ -48,12 +58,16 @@ public class CancelarNotaFiscalService {
             nota.baseCalculo(),
             nota.aliquotaAplicada(),
             nota.valorIss(),
-            StatusNotaFiscal.CANCELADA,
-            nota.notaSubstitutaId(),
+            nota.valorIr(),
+            nota.valorPis(),
+            nota.valorCofins(),
+            nota.valorCsll(),
+            nota.valorInss(),
+            nota.issRetidoFonte(),
+            status,
+            notaSubstitutaId,
             motivoCancelamento,
             nota.dataEmissao()
         );
-
-        return notaFiscalRepository.salvar(cancelada);
     }
 }

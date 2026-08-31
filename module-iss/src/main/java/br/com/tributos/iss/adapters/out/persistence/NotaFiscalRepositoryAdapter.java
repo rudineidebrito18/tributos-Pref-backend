@@ -1,6 +1,5 @@
 package br.com.tributos.iss.adapters.out.persistence;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +47,12 @@ public class NotaFiscalRepositoryAdapter implements NotaFiscalRepository {
         entidade.setBaseCalculo(notaFiscal.baseCalculo());
         entidade.setAliquotaAplicada(notaFiscal.aliquotaAplicada());
         entidade.setValorIss(notaFiscal.valorIss());
+        entidade.setValorIr(notaFiscal.valorIr());
+        entidade.setValorPis(notaFiscal.valorPis());
+        entidade.setValorCofins(notaFiscal.valorCofins());
+        entidade.setValorCsll(notaFiscal.valorCsll());
+        entidade.setValorInss(notaFiscal.valorInss());
+        entidade.setIssRetidoFonte(notaFiscal.issRetidoFonte());
         entidade.setStatus(notaFiscal.status());
         entidade.setNotaSubstitutaId(notaFiscal.notaSubstitutaId());
         entidade.setMotivoCancelamento(notaFiscal.motivoCancelamento());
@@ -62,7 +67,7 @@ public class NotaFiscalRepositoryAdapter implements NotaFiscalRepository {
     }
 
     @Override
-    public Page<NotaFiscal> listar(UUID contribuinteId, UUID tomadorId, LocalDate competencia, Pageable pageable) {
+    public Page<NotaFiscal> listar(UUID contribuinteId, UUID tomadorId, java.time.LocalDate competencia, Pageable pageable) {
         Specification<NotaFiscalJpaEntity> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (contribuinteId != null) {
@@ -100,6 +105,12 @@ public class NotaFiscalRepositoryAdapter implements NotaFiscalRepository {
             entidade.getBaseCalculo(),
             entidade.getAliquotaAplicada(),
             entidade.getValorIss(),
+            entidade.getValorIr(),
+            entidade.getValorPis(),
+            entidade.getValorCofins(),
+            entidade.getValorCsll(),
+            entidade.getValorInss(),
+            entidade.isIssRetidoFonte(),
             entidade.getStatus(),
             entidade.getNotaSubstitutaId(),
             entidade.getMotivoCancelamento(),
