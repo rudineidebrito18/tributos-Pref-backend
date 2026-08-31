@@ -18,7 +18,7 @@ public class DocumentoJpaEntity {
     @Column(name = "tenant_id", nullable = false)
     private UUID tenantId;
 
-    @Column(name = "pessoa_id", nullable = false)
+    @Column(name = "pessoa_id")
     private UUID pessoaId;
 
     @Column(nullable = false, length = 100)
