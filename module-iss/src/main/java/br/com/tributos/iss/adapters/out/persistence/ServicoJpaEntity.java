@@ -34,6 +34,21 @@ public class ServicoJpaEntity {
     @Column(nullable = false)
     private boolean ativo;
 
+    @Column(name = "grupo_servico_id")
+    private UUID grupoServicoId;
+
+    @Column(name = "codigo_nbs", length = 20)
+    private String codigoNbs;
+
+    @Column(name = "codigo_tributacao_nacional", length = 20)
+    private String codigoTributacaoNacional;
+
+    @Column(length = 10)
+    private String indop;
+
+    @Column(name = "c_class_trib", length = 10)
+    private String cClassTrib;
+
     @Column(name = "criado_em", nullable = false, updatable = false, insertable = false)
     private Instant criadoEm;
 
@@ -94,5 +109,45 @@ public class ServicoJpaEntity {
 
     public void setAtivo(boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public UUID getGrupoServicoId() {
+        return grupoServicoId;
+    }
+
+    public void setGrupoServicoId(UUID grupoServicoId) {
+        this.grupoServicoId = grupoServicoId;
+    }
+
+    public String getCodigoNbs() {
+        return codigoNbs;
+    }
+
+    public void setCodigoNbs(String codigoNbs) {
+        this.codigoNbs = codigoNbs;
+    }
+
+    public String getCodigoTributacaoNacional() {
+        return codigoTributacaoNacional;
+    }
+
+    public void setCodigoTributacaoNacional(String codigoTributacaoNacional) {
+        this.codigoTributacaoNacional = codigoTributacaoNacional;
+    }
+
+    public String getIndop() {
+        return indop;
+    }
+
+    public void setIndop(String indop) {
+        this.indop = indop;
+    }
+
+    public String getCClassTrib() {
+        return cClassTrib;
+    }
+
+    public void setCClassTrib(String cClassTrib) {
+        this.cClassTrib = cClassTrib;
     }
 }

@@ -45,6 +45,11 @@ public class ServicoRepositoryAdapter implements ServicoRepository {
         entidade.setAliquotaMinima(servico.aliquotaMinima());
         entidade.setAliquotaMaxima(servico.aliquotaMaxima());
         entidade.setAtivo(servico.ativo());
+        entidade.setGrupoServicoId(servico.grupoServicoId());
+        entidade.setCodigoNbs(servico.codigoNbs());
+        entidade.setCodigoTributacaoNacional(servico.codigoTributacaoNacional());
+        entidade.setIndop(servico.indop());
+        entidade.setCClassTrib(servico.cClassTrib());
 
         return paraDominio(jpaRepository.save(entidade));
     }
@@ -70,7 +75,12 @@ public class ServicoRepositoryAdapter implements ServicoRepository {
             entidade.getDescricao(),
             entidade.getAliquotaMinima(),
             entidade.getAliquotaMaxima(),
-            entidade.isAtivo()
+            entidade.isAtivo(),
+            entidade.getGrupoServicoId(),
+            entidade.getCodigoNbs(),
+            entidade.getCodigoTributacaoNacional(),
+            entidade.getIndop(),
+            entidade.getCClassTrib()
         );
     }
 }

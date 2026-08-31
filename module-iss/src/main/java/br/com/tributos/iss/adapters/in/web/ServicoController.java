@@ -20,6 +20,7 @@ import jakarta.validation.Valid;
 import br.com.tributos.iss.adapters.in.web.dto.SalvarServicoRequest;
 import br.com.tributos.iss.adapters.in.web.dto.ServicoResponse;
 import br.com.tributos.iss.application.GerenciarServicoService;
+import br.com.tributos.iss.application.GerenciarServicoService.SalvarServicoComando;
 
 @RestController
 @RequestMapping("/api/iss/servicos")
@@ -43,34 +44,17 @@ public class ServicoController {
         return ServicoResponse.de(gerenciarServicoService.buscar(id));
     }
 
-    @PreAuthorize("hasRole('ADMIN_TENANT')")
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL')")
     @PostMapping
     public ResponseEntity<ServicoResponse> criar(@Valid @RequestBody SalvarServicoRequest request) {
-        ServicoResponse resposta = ServicoResponse.de(
-            gerenciarServicoService.criar(
-                request.codigoLc116(),
-                request.descricao(),
-                request.aliquotaMinima(),
-                request.aliquotaMaxima(),
-                request.ativo()
-            )
-        );
+        ServicoResponse resposta = ServicoResponse.de(gerenciarServicoService.criar(paraComando(request)));
         return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
     }
 
-    @PreAuthorize("hasRole('ADMIN_TENANT')")
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL')")
     @PutMapping("/{id}")
     public ServicoResponse atualizar(@PathVariable UUID id, @Valid @RequestBody SalvarServicoRequest request) {
-        return ServicoResponse.de(
-            gerenciarServicoService.atualizar(
-                id,
-                request.codigoLc116(),
-                request.descricao(),
-                request.aliquotaMinima(),
-                request.aliquotaMaxima(),
-                request.ativo()
-            )
-        );
+        return ServicoResponse.de(gerenciarServicoService.atualizar(id, paraComando(request)));
     }
 
     @PreAuthorize("hasRole('ADMIN_TENANT')")
@@ -78,5 +62,20 @@ public class ServicoController {
     public ResponseEntity<Void> excluir(@PathVariable UUID id) {
         gerenciarServicoService.excluir(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private static SalvarServicoComando paraComando(SalvarServicoRequest request) {
+        return new SalvarServicoComando(
+            request.codigoLc116(),
+            request.descricao(),
+            request.aliquotaMinima(),
+            request.aliquotaMaxima(),
+            request.ativo(),
+            request.grupoServicoId(),
+            request.codigoNbs(),
+            request.codigoTributacaoNacional(),
+            request.indop(),
+            request.cClassTrib()
+        );
     }
 }

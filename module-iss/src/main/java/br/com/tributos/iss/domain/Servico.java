@@ -10,6 +10,11 @@ public record Servico(
     String descricao,
     BigDecimal aliquotaMinima,
     BigDecimal aliquotaMaxima,
-    boolean ativo
+    boolean ativo,
+    UUID grupoServicoId,
+    String codigoNbs,
+    String codigoTributacaoNacional,
+    String indop,
+    String cClassTrib
 ) {
 }

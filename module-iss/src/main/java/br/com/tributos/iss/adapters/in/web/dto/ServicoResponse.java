@@ -11,7 +11,12 @@ public record ServicoResponse(
     String descricao,
     BigDecimal aliquotaMinima,
     BigDecimal aliquotaMaxima,
-    boolean ativo
+    boolean ativo,
+    UUID grupoServicoId,
+    String codigoNbs,
+    String codigoTributacaoNacional,
+    String indop,
+    String cClassTrib
 ) {
 
     public static ServicoResponse de(Servico servico) {
@@ -21,7 +26,12 @@ public record ServicoResponse(
             servico.descricao(),
             servico.aliquotaMinima(),
             servico.aliquotaMaxima(),
-            servico.ativo()
+            servico.ativo(),
+            servico.grupoServicoId(),
+            servico.codigoNbs(),
+            servico.codigoTributacaoNacional(),
+            servico.indop(),
+            servico.cClassTrib()
         );
     }
 }
