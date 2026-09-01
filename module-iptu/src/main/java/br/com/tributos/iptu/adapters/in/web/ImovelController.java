@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,12 +20,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
+import br.com.tributos.iptu.adapters.in.web.dto.AdicionarImovelProprietarioRequest;
+import br.com.tributos.iptu.adapters.in.web.dto.CriarImovelObservacaoRequest;
 import br.com.tributos.iptu.adapters.in.web.dto.ImportarImovelLegadoRequest;
+import br.com.tributos.iptu.adapters.in.web.dto.ImovelObservacaoResponse;
+import br.com.tributos.iptu.adapters.in.web.dto.ImovelProprietarioResponse;
 import br.com.tributos.iptu.adapters.in.web.dto.ImovelResponse;
+import br.com.tributos.iptu.adapters.in.web.dto.ImovelTitularidadeResponse;
 import br.com.tributos.iptu.adapters.in.web.dto.SalvarImovelRequest;
+import br.com.tributos.iptu.application.AdicionarImovelProprietarioComando;
 import br.com.tributos.iptu.application.BuscarImovelService;
+import br.com.tributos.iptu.application.GerenciarImovelObservacaoService;
+import br.com.tributos.iptu.application.GerenciarImovelProprietarioService;
 import br.com.tributos.iptu.application.ImportarImovelLegadoService;
 import br.com.tributos.iptu.application.ListarImoveisService;
+import br.com.tributos.iptu.application.ListarImovelTitularidadeService;
 import br.com.tributos.iptu.application.SalvarImovelComando;
 import br.com.tributos.iptu.application.SalvarImovelService;
 
@@ -36,17 +46,26 @@ public class ImovelController {
     private final BuscarImovelService buscarImovelService;
     private final SalvarImovelService salvarImovelService;
     private final ImportarImovelLegadoService importarImovelLegadoService;
+    private final GerenciarImovelProprietarioService gerenciarImovelProprietarioService;
+    private final GerenciarImovelObservacaoService gerenciarImovelObservacaoService;
+    private final ListarImovelTitularidadeService listarImovelTitularidadeService;
 
     public ImovelController(
         ListarImoveisService listarImoveisService,
         BuscarImovelService buscarImovelService,
         SalvarImovelService salvarImovelService,
-        ImportarImovelLegadoService importarImovelLegadoService
+        ImportarImovelLegadoService importarImovelLegadoService,
+        GerenciarImovelProprietarioService gerenciarImovelProprietarioService,
+        GerenciarImovelObservacaoService gerenciarImovelObservacaoService,
+        ListarImovelTitularidadeService listarImovelTitularidadeService
     ) {
         this.listarImoveisService = listarImoveisService;
         this.buscarImovelService = buscarImovelService;
         this.salvarImovelService = salvarImovelService;
         this.importarImovelLegadoService = importarImovelLegadoService;
+        this.gerenciarImovelProprietarioService = gerenciarImovelProprietarioService;
+        this.gerenciarImovelObservacaoService = gerenciarImovelObservacaoService;
+        this.listarImovelTitularidadeService = listarImovelTitularidadeService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
@@ -88,6 +107,68 @@ public class ImovelController {
         ).stream().map(ImovelResponse::de).toList();
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
+    @GetMapping("/{id}/proprietarios")
+    public List<ImovelProprietarioResponse> listarProprietarios(@PathVariable UUID id) {
+        return gerenciarImovelProprietarioService.listar(id).stream()
+            .map(ImovelProprietarioResponse::de)
+            .toList();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL')")
+    @PostMapping("/{id}/proprietarios")
+    public ResponseEntity<ImovelProprietarioResponse> adicionarProprietario(
+        @PathVariable UUID id,
+        @Valid @RequestBody AdicionarImovelProprietarioRequest request
+    ) {
+        ImovelProprietarioResponse resposta = ImovelProprietarioResponse.de(
+            gerenciarImovelProprietarioService.adicionar(id, new AdicionarImovelProprietarioComando(
+                request.contribuinteId(),
+                request.porcentagem(),
+                request.proprietarioPrincipal()
+            ))
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL')")
+    @DeleteMapping("/{id}/proprietarios/{proprietarioId}")
+    public ResponseEntity<Void> removerProprietario(
+        @PathVariable UUID id,
+        @PathVariable UUID proprietarioId
+    ) {
+        gerenciarImovelProprietarioService.remover(id, proprietarioId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
+    @GetMapping("/{id}/observacoes")
+    public List<ImovelObservacaoResponse> listarObservacoes(@PathVariable UUID id) {
+        return gerenciarImovelObservacaoService.listar(id).stream()
+            .map(ImovelObservacaoResponse::de)
+            .toList();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
+    @PostMapping("/{id}/observacoes")
+    public ResponseEntity<ImovelObservacaoResponse> criarObservacao(
+        @PathVariable UUID id,
+        @Valid @RequestBody CriarImovelObservacaoRequest request
+    ) {
+        ImovelObservacaoResponse resposta = ImovelObservacaoResponse.de(
+            gerenciarImovelObservacaoService.criar(id, request.texto())
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
+    @GetMapping("/{id}/titularidade")
+    public List<ImovelTitularidadeResponse> listarTitularidade(@PathVariable UUID id) {
+        return listarImovelTitularidadeService.executar(id).stream()
+            .map(ImovelTitularidadeResponse::de)
+            .toList();
+    }
+
     private static SalvarImovelComando paraComando(SalvarImovelRequest request) {
         return new SalvarImovelComando(
             request.codigoLegado(),
@@ -102,7 +183,27 @@ public class ImovelController {
             request.zonaFiscalId(),
             request.valorVenalTerreno(),
             request.valorVenalConstrucao(),
-            request.situacao()
+            request.situacao(),
+            request.anoExercicio(),
+            request.dataInclusao(),
+            request.areaTotal(),
+            request.frente(),
+            request.fundos(),
+            request.ladoEsquerdo(),
+            request.ladoDireito(),
+            request.quadra(),
+            request.lote(),
+            request.loteamento(),
+            request.edificio(),
+            request.bloco(),
+            request.sala(),
+            request.apartamento(),
+            request.bairroIptuId(),
+            request.logradouroIptuId(),
+            request.valorVenalUnidade(),
+            request.valorAvaliacao(),
+            request.enderecoCorrespondenciaId(),
+            request.observacao()
         );
     }
 }

@@ -6,11 +6,13 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.tributos.iptu.domain.BairroReferenciaRepository;
 import br.com.tributos.iptu.domain.CatalogoIptu;
 import br.com.tributos.iptu.domain.CatalogoIptuRepository;
 import br.com.tributos.iptu.domain.EnderecoReferenciaRepository;
 import br.com.tributos.iptu.domain.Imovel;
 import br.com.tributos.iptu.domain.ImovelRepository;
+import br.com.tributos.iptu.domain.LogradouroReferenciaRepository;
 import br.com.tributos.iptu.domain.PessoaReferenciaRepository;
 import br.com.tributos.iptu.domain.SituacaoImovel;
 import br.com.tributos.iptu.domain.TipoCatalogoIptu;
@@ -28,19 +30,25 @@ public class SalvarImovelService {
     private final EnderecoReferenciaRepository enderecoReferenciaRepository;
     private final CatalogoIptuRepository catalogoIptuRepository;
     private final ZonaFiscalRepository zonaFiscalRepository;
+    private final BairroReferenciaRepository bairroReferenciaRepository;
+    private final LogradouroReferenciaRepository logradouroReferenciaRepository;
 
     public SalvarImovelService(
         ImovelRepository imovelRepository,
         PessoaReferenciaRepository pessoaReferenciaRepository,
         EnderecoReferenciaRepository enderecoReferenciaRepository,
         CatalogoIptuRepository catalogoIptuRepository,
-        ZonaFiscalRepository zonaFiscalRepository
+        ZonaFiscalRepository zonaFiscalRepository,
+        BairroReferenciaRepository bairroReferenciaRepository,
+        LogradouroReferenciaRepository logradouroReferenciaRepository
     ) {
         this.imovelRepository = imovelRepository;
         this.pessoaReferenciaRepository = pessoaReferenciaRepository;
         this.enderecoReferenciaRepository = enderecoReferenciaRepository;
         this.catalogoIptuRepository = catalogoIptuRepository;
         this.zonaFiscalRepository = zonaFiscalRepository;
+        this.bairroReferenciaRepository = bairroReferenciaRepository;
+        this.logradouroReferenciaRepository = logradouroReferenciaRepository;
     }
 
     @Transactional
@@ -51,6 +59,19 @@ public class SalvarImovelService {
 
         if (comando.enderecoId() != null && !enderecoReferenciaRepository.existe(comando.enderecoId())) {
             throw new ValidationException("Endereço não encontrado.");
+        }
+
+        if (comando.enderecoCorrespondenciaId() != null
+            && !enderecoReferenciaRepository.existe(comando.enderecoCorrespondenciaId())) {
+            throw new ValidationException("Endereço de correspondência não encontrado.");
+        }
+
+        if (comando.bairroIptuId() != null && !bairroReferenciaRepository.existe(comando.bairroIptuId())) {
+            throw new ValidationException("Bairro IPTU não encontrado.");
+        }
+
+        if (comando.logradouroIptuId() != null && !logradouroReferenciaRepository.existe(comando.logradouroIptuId())) {
+            throw new ValidationException("Logradouro IPTU não encontrado.");
         }
 
         CatalogoIptu tipo = catalogoIptuRepository.buscarPorId(TipoCatalogoIptu.TIPO_IMOVEL, comando.tipoId())
@@ -91,6 +112,8 @@ public class SalvarImovelService {
 
         BigDecimal valorVenalTerreno = comando.valorVenalTerreno() != null ? comando.valorVenalTerreno() : BigDecimal.ZERO;
         BigDecimal valorVenalConstrucao = comando.valorVenalConstrucao() != null ? comando.valorVenalConstrucao() : BigDecimal.ZERO;
+        BigDecimal valorVenalUnidade = comando.valorVenalUnidade() != null ? comando.valorVenalUnidade() : BigDecimal.ZERO;
+        BigDecimal valorAvaliacao = comando.valorAvaliacao() != null ? comando.valorAvaliacao() : BigDecimal.ZERO;
 
         Imovel imovel = new Imovel(
             id,
@@ -108,7 +131,27 @@ public class SalvarImovelService {
             comando.zonaFiscalId(),
             valorVenalTerreno,
             valorVenalConstrucao,
-            situacao
+            situacao,
+            comando.anoExercicio(),
+            comando.dataInclusao(),
+            comando.areaTotal(),
+            comando.frente(),
+            comando.fundos(),
+            comando.ladoEsquerdo(),
+            comando.ladoDireito(),
+            comando.quadra(),
+            comando.lote(),
+            comando.loteamento(),
+            comando.edificio(),
+            comando.bloco(),
+            comando.sala(),
+            comando.apartamento(),
+            comando.bairroIptuId(),
+            comando.logradouroIptuId(),
+            valorVenalUnidade,
+            valorAvaliacao,
+            comando.enderecoCorrespondenciaId(),
+            comando.observacao()
         );
 
         return imovelRepository.salvar(imovel);

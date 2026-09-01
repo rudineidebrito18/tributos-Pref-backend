@@ -1,6 +1,7 @@
 package br.com.tributos.iptu.adapters.in.web.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import br.com.tributos.iptu.domain.Imovel;
@@ -21,7 +22,27 @@ public record ImovelResponse(
     UUID zonaFiscalId,
     BigDecimal valorVenalTerreno,
     BigDecimal valorVenalConstrucao,
-    SituacaoImovel situacao
+    SituacaoImovel situacao,
+    Short anoExercicio,
+    LocalDate dataInclusao,
+    BigDecimal areaTotal,
+    BigDecimal frente,
+    BigDecimal fundos,
+    BigDecimal ladoEsquerdo,
+    BigDecimal ladoDireito,
+    String quadra,
+    String lote,
+    String loteamento,
+    String edificio,
+    String bloco,
+    String sala,
+    String apartamento,
+    UUID bairroIptuId,
+    UUID logradouroIptuId,
+    BigDecimal valorVenalUnidade,
+    BigDecimal valorAvaliacao,
+    UUID enderecoCorrespondenciaId,
+    String observacao
 ) {
 
     public static ImovelResponse de(Imovel imovel) {
@@ -40,7 +61,27 @@ public record ImovelResponse(
             imovel.zonaFiscalId(),
             imovel.valorVenalTerreno(),
             imovel.valorVenalConstrucao(),
-            imovel.situacao()
+            imovel.situacao(),
+            imovel.anoExercicio(),
+            imovel.dataInclusao(),
+            imovel.areaTotal(),
+            imovel.frente(),
+            imovel.fundos(),
+            imovel.ladoEsquerdo(),
+            imovel.ladoDireito(),
+            imovel.quadra(),
+            imovel.lote(),
+            imovel.loteamento(),
+            imovel.edificio(),
+            imovel.bloco(),
+            imovel.sala(),
+            imovel.apartamento(),
+            imovel.bairroIptuId(),
+            imovel.logradouroIptuId(),
+            imovel.valorVenalUnidade(),
+            imovel.valorAvaliacao(),
+            imovel.enderecoCorrespondenciaId(),
+            imovel.observacao()
         );
     }
 }

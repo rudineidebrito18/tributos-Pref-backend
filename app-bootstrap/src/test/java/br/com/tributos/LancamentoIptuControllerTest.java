@@ -84,7 +84,7 @@ class LancamentoIptuControllerTest extends AbstractIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"numeroParcelas\": 10}"))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$", hasSize(1)));
+            .andExpect(jsonPath("$[?(@.imovelId == '%s')]".formatted(imovelId), hasSize(1)));
 
         String corpoLista = mockMvc.perform(get("/api/iptu/lancamentos")
                 .header("Authorization", "Bearer " + token)

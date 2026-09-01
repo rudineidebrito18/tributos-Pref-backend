@@ -19,6 +19,7 @@ class PortalContribuinteControllerTest extends AbstractIntegrationTest {
     private static final String TENANT_SLUG = "demo";
     private static final String TIPO_PREDIAL_ID = "80000001-0000-4000-8000-000000000001";
     private static final String TIPO_EDIFICACAO_ID = "80000002-0000-4000-8000-000000000001";
+    private static final String ZONA_CENTRO_ID = "80000006-0000-4000-8000-000000000001";
     private static final String TIPO_ITBI_ID = "a1000001-0000-4000-8000-000000000001";
     private static final String NATUREZA_ID = "a1000002-0000-4000-8000-000000000001";
 
@@ -121,13 +122,14 @@ class PortalContribuinteControllerTest extends AbstractIntegrationTest {
                       "proprietarioId": "%s",
                       "tipoId": "%s",
                       "tipoEdificacaoId": "%s",
+                      "zonaFiscalId": "%s",
                       "areaTerreno": 200,
                       "areaConstruida": 80,
                       "valorVenalTerreno": 80000,
                       "valorVenalConstrucao": 120000,
                       "situacao": "ATIVO"
                     }
-                    """.formatted(proprietarioId, TIPO_PREDIAL_ID, TIPO_EDIFICACAO_ID)))
+                    """.formatted(proprietarioId, TIPO_PREDIAL_ID, TIPO_EDIFICACAO_ID, ZONA_CENTRO_ID)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(corpo).get("id").asText();

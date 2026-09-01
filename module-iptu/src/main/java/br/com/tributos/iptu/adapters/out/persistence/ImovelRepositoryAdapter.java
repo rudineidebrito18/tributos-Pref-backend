@@ -47,6 +47,26 @@ public class ImovelRepositoryAdapter implements ImovelRepository {
         entidade.setValorVenalTerreno(imovel.valorVenalTerreno());
         entidade.setValorVenalConstrucao(imovel.valorVenalConstrucao());
         entidade.setSituacao(imovel.situacao());
+        entidade.setAnoExercicio(imovel.anoExercicio());
+        entidade.setDataInclusao(imovel.dataInclusao());
+        entidade.setAreaTotal(imovel.areaTotal());
+        entidade.setFrente(imovel.frente());
+        entidade.setFundos(imovel.fundos());
+        entidade.setLadoEsquerdo(imovel.ladoEsquerdo());
+        entidade.setLadoDireito(imovel.ladoDireito());
+        entidade.setQuadra(imovel.quadra());
+        entidade.setLote(imovel.lote());
+        entidade.setLoteamento(imovel.loteamento());
+        entidade.setEdificio(imovel.edificio());
+        entidade.setBloco(imovel.bloco());
+        entidade.setSala(imovel.sala());
+        entidade.setApartamento(imovel.apartamento());
+        entidade.setBairroIptuId(imovel.bairroIptuId());
+        entidade.setLogradouroIptuId(imovel.logradouroIptuId());
+        entidade.setValorVenalUnidade(imovel.valorVenalUnidade());
+        entidade.setValorAvaliacao(imovel.valorAvaliacao());
+        entidade.setEnderecoCorrespondenciaId(imovel.enderecoCorrespondenciaId());
+        entidade.setObservacao(imovel.observacao());
 
         return paraDominio(jpaRepository.save(entidade));
     }
@@ -106,7 +126,27 @@ public class ImovelRepositoryAdapter implements ImovelRepository {
             entidade.getZonaFiscalId(),
             entidade.getValorVenalTerreno(),
             entidade.getValorVenalConstrucao(),
-            entidade.getSituacao()
+            entidade.getSituacao(),
+            entidade.getAnoExercicio(),
+            entidade.getDataInclusao(),
+            entidade.getAreaTotal(),
+            entidade.getFrente(),
+            entidade.getFundos(),
+            entidade.getLadoEsquerdo(),
+            entidade.getLadoDireito(),
+            entidade.getQuadra(),
+            entidade.getLote(),
+            entidade.getLoteamento(),
+            entidade.getEdificio(),
+            entidade.getBloco(),
+            entidade.getSala(),
+            entidade.getApartamento(),
+            entidade.getBairroIptuId(),
+            entidade.getLogradouroIptuId(),
+            entidade.getValorVenalUnidade(),
+            entidade.getValorAvaliacao(),
+            entidade.getEnderecoCorrespondenciaId(),
+            entidade.getObservacao()
         );
     }
 }

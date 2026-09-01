@@ -1,6 +1,7 @@
 package br.com.tributos.iptu.domain;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record Imovel(
@@ -19,6 +20,26 @@ public record Imovel(
     UUID zonaFiscalId,
     BigDecimal valorVenalTerreno,
     BigDecimal valorVenalConstrucao,
-    SituacaoImovel situacao
+    SituacaoImovel situacao,
+    Short anoExercicio,
+    LocalDate dataInclusao,
+    BigDecimal areaTotal,
+    BigDecimal frente,
+    BigDecimal fundos,
+    BigDecimal ladoEsquerdo,
+    BigDecimal ladoDireito,
+    String quadra,
+    String lote,
+    String loteamento,
+    String edificio,
+    String bloco,
+    String sala,
+    String apartamento,
+    UUID bairroIptuId,
+    UUID logradouroIptuId,
+    BigDecimal valorVenalUnidade,
+    BigDecimal valorAvaliacao,
+    UUID enderecoCorrespondenciaId,
+    String observacao
 ) {
 }

@@ -7,9 +7,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-@Entity(name = "IptuPessoaReferencia")
-@Table(name = "pessoa")
-public class PessoaReferenciaJpaEntity {
+@Entity(name = "IptuUsuarioReferencia")
+@Table(name = "usuario")
+public class UsuarioReferenciaJpaEntity {
 
     @Id
     private UUID id;
@@ -18,12 +18,16 @@ public class PessoaReferenciaJpaEntity {
     private UUID tenantId;
 
     @Column(nullable = false, insertable = false, updatable = false)
-    private String nome;
+    private String login;
 
-    protected PessoaReferenciaJpaEntity() {
+    protected UsuarioReferenciaJpaEntity() {
     }
 
-    public String getNome() {
-        return nome;
+    public UUID getId() {
+        return id;
+    }
+
+    public String getLogin() {
+        return login;
     }
 }
