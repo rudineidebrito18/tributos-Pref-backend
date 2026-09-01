@@ -13,14 +13,16 @@ import br.com.tributos.itbi.domain.GuiaItbiRepository;
 import br.com.tributos.itbi.domain.NaturezaTransmissaoRepository;
 import br.com.tributos.itbi.domain.SituacaoGuiaItbi;
 import br.com.tributos.itbi.domain.TipoGuiaItbiRepository;
+import br.com.tributos.itbi.domain.TipoTributacaoItbi;
 import br.com.tributos.kernel.events.GuiaItbiSolicitadaEvent;
-import br.com.tributos.kernel.exception.NotFoundException;
 import br.com.tributos.kernel.exception.ValidationException;
 import br.com.tributos.kernel.iptu.ImovelItbiPort;
 import br.com.tributos.kernel.tenancy.TenantContext;
 
 @Service
 public class SolicitarGuiaItbiService {
+
+    private static final BigDecimal PERCENTUAL_PADRAO = new BigDecimal("100");
 
     private final GuiaItbiRepository guiaItbiRepository;
     private final TipoGuiaItbiRepository tipoGuiaItbiRepository;
@@ -63,12 +65,17 @@ public class SolicitarGuiaItbiService {
             throw new ValidationException("O imóvel precisa estar ativo para solicitar ITBI.");
         }
 
-        if (comando.adquirenteId().equals(imovel.proprietarioId())) {
+        if (comando.adquirenteId() != null && comando.adquirenteId().equals(imovel.proprietarioId())) {
             throw new ValidationException("O adquirente deve ser diferente do proprietário atual.");
         }
 
-        BigDecimal base = CalculadorItbi.calcularBase(comando.valorTransacao(), imovel.valorVenalReferencia());
-        BigDecimal valorItbi = CalculadorItbi.calcularValorItbi(base, tipoGuia.aliquota());
+        BigDecimal percentualTransmitido = PERCENTUAL_PADRAO;
+        BigDecimal desconto = BigDecimal.ZERO;
+        TipoTributacaoItbi tipoTributacao = TipoTributacaoItbi.TRIBUTAVEL;
+        BigDecimal base = CalculadorItbi.calcularBase(
+            comando.valorTransacao(), imovel.valorVenalReferencia(), percentualTransmitido
+        );
+        BigDecimal valorItbi = CalculadorItbi.calcularValorItbi(base, tipoGuia.aliquota(), desconto, tipoTributacao);
 
         UUID tenantId = TenantContext.getObrigatorio();
         Instant agora = Instant.now();
@@ -88,7 +95,16 @@ public class SolicitarGuiaItbiService {
             tipoGuia.aliquota(),
             valorItbi,
             SituacaoGuiaItbi.AGUARDANDO_PAGAMENTO,
-            false
+            false,
+            null,
+            percentualTransmitido,
+            BigDecimal.ZERO,
+            BigDecimal.ZERO,
+            desconto,
+            tipoTributacao,
+            null,
+            null,
+            null
         );
 
         GuiaItbi salva = guiaItbiRepository.salvar(guia);

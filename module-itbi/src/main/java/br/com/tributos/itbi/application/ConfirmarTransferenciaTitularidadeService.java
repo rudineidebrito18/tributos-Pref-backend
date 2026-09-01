@@ -1,5 +1,6 @@
 package br.com.tributos.itbi.application;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -7,6 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.tributos.itbi.domain.GuiaItbi;
 import br.com.tributos.itbi.domain.GuiaItbiRepository;
+import br.com.tributos.itbi.domain.PapelParteTransmissao;
+import br.com.tributos.itbi.domain.ParteTransmissao;
+import br.com.tributos.itbi.domain.ParteTransmissaoRepository;
 import br.com.tributos.itbi.domain.SituacaoGuiaItbi;
 import br.com.tributos.kernel.exception.NotFoundException;
 import br.com.tributos.kernel.exception.ValidationException;
@@ -20,15 +24,18 @@ public class ConfirmarTransferenciaTitularidadeService {
     private static final String ORIGEM_ITBI = "ITBI_GUIA";
 
     private final GuiaItbiRepository guiaItbiRepository;
+    private final ParteTransmissaoRepository parteTransmissaoRepository;
     private final ImovelItbiPort imovelItbiPort;
     private final GuiaFinanceiraConsultaPort guiaFinanceiraConsultaPort;
 
     public ConfirmarTransferenciaTitularidadeService(
         GuiaItbiRepository guiaItbiRepository,
+        ParteTransmissaoRepository parteTransmissaoRepository,
         ImovelItbiPort imovelItbiPort,
         GuiaFinanceiraConsultaPort guiaFinanceiraConsultaPort
     ) {
         this.guiaItbiRepository = guiaItbiRepository;
+        this.parteTransmissaoRepository = parteTransmissaoRepository;
         this.imovelItbiPort = imovelItbiPort;
         this.guiaFinanceiraConsultaPort = guiaFinanceiraConsultaPort;
     }
@@ -51,15 +58,36 @@ public class ConfirmarTransferenciaTitularidadeService {
             throw new ValidationException("A guia de arrecadação do ITBI ainda não foi paga.");
         }
 
-        imovelItbiPort.transferirTitularidade(guia.imovelId(), guia.adquirenteId());
+        List<ParteTransmissao> transmitentes = parteTransmissaoRepository.listarPorGuiaEPapel(
+            guia.id(), PapelParteTransmissao.TRANSMITENTE
+        );
+        List<ParteTransmissao> adquirentes = parteTransmissaoRepository.listarPorGuiaEPapel(
+            guia.id(), PapelParteTransmissao.ADQUIRENTE
+        );
+        ParteTransmissao.validarGuiaCompleta(transmitentes, adquirentes);
+
+        imovelItbiPort.transferirTitularidadePorPartes(
+            guia.imovelId(),
+            paraPartesPort(transmitentes),
+            paraPartesPort(adquirentes)
+        );
 
         GuiaItbi atualizada = new GuiaItbi(
             guia.id(), guia.tenantId(), guia.numero(), guia.imovelId(), guia.adquirenteId(),
             guia.tipoGuiaId(), guia.naturezaTransmissaoId(), guia.dataSolicitacao(),
             guia.valorTransacao(), guia.valorVenalReferencia(), guia.baseCalculo(), guia.aliquota(),
-            guia.valorItbi(), SituacaoGuiaItbi.TRANSFERENCIA_REALIZADA, true
+            guia.valorItbi(), SituacaoGuiaItbi.TRANSFERENCIA_REALIZADA, true,
+            guia.dataTransacao(), guia.percentualTransmitido(), guia.valorNaoFinanciado(),
+            guia.valorFinanciado(), guia.desconto(), guia.tipoTributacao(), guia.observacao(),
+            guia.motivoCancelamento(), guia.codigoVerificacao()
         );
 
         return guiaItbiRepository.salvar(atualizada);
+    }
+
+    private static List<ImovelItbiPort.ParteTransferencia> paraPartesPort(List<ParteTransmissao> partes) {
+        return partes.stream()
+            .map(p -> new ImovelItbiPort.ParteTransferencia(p.contribuinteId(), p.porcentagem(), p.principal()))
+            .toList();
     }
 }

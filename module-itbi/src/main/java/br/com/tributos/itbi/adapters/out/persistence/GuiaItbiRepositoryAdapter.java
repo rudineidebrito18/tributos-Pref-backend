@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import br.com.tributos.itbi.domain.GuiaItbi;
 import br.com.tributos.itbi.domain.GuiaItbiRepository;
-import br.com.tributos.itbi.domain.SituacaoGuiaItbi;
 
 @Component
 public class GuiaItbiRepositoryAdapter implements GuiaItbiRepository {
@@ -45,7 +44,10 @@ public class GuiaItbiRepositoryAdapter implements GuiaItbiRepository {
             e.getId(), e.getTenantId(), e.getNumero(), e.getImovelId(), e.getAdquirenteId(),
             e.getTipoGuiaId(), e.getNaturezaTransmissaoId(), e.getDataSolicitacao(),
             e.getValorTransacao(), e.getValorVenalReferencia(), e.getBaseCalculo(), e.getAliquota(),
-            e.getValorItbi(), e.getSituacao(), e.isTransferenciaTitularidadeRealizada()
+            e.getValorItbi(), e.getSituacao(), e.isTransferenciaTitularidadeRealizada(),
+            e.getDataTransacao(), e.getPercentualTransmitido(), e.getValorNaoFinanciado(),
+            e.getValorFinanciado(), e.getDesconto(), e.getTipoTributacao(), e.getObservacao(),
+            e.getMotivoCancelamento(), e.getCodigoVerificacao()
         );
     }
 
@@ -66,6 +68,15 @@ public class GuiaItbiRepositoryAdapter implements GuiaItbiRepository {
         e.setValorItbi(g.valorItbi());
         e.setSituacao(g.situacao());
         e.setTransferenciaTitularidadeRealizada(g.transferenciaTitularidadeRealizada());
+        e.setDataTransacao(g.dataTransacao());
+        e.setPercentualTransmitido(g.percentualTransmitido());
+        e.setValorNaoFinanciado(g.valorNaoFinanciado());
+        e.setValorFinanciado(g.valorFinanciado());
+        e.setDesconto(g.desconto());
+        e.setTipoTributacao(g.tipoTributacao());
+        e.setObservacao(g.observacao());
+        e.setMotivoCancelamento(g.motivoCancelamento());
+        e.setCodigoVerificacao(g.codigoVerificacao());
         return e;
     }
 }

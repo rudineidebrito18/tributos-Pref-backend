@@ -2,6 +2,7 @@ package br.com.tributos.itbi.domain;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record GuiaItbi(
@@ -19,6 +20,15 @@ public record GuiaItbi(
     BigDecimal aliquota,
     BigDecimal valorItbi,
     SituacaoGuiaItbi situacao,
-    boolean transferenciaTitularidadeRealizada
+    boolean transferenciaTitularidadeRealizada,
+    LocalDate dataTransacao,
+    BigDecimal percentualTransmitido,
+    BigDecimal valorNaoFinanciado,
+    BigDecimal valorFinanciado,
+    BigDecimal desconto,
+    TipoTributacaoItbi tipoTributacao,
+    String observacao,
+    String motivoCancelamento,
+    String codigoVerificacao
 ) {
 }
