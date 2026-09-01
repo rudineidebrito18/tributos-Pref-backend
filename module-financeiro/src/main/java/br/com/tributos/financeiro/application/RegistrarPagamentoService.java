@@ -2,6 +2,8 @@ package br.com.tributos.financeiro.application;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -34,17 +36,47 @@ public class RegistrarPagamentoService {
 
     @Transactional
     public GuiaArrecadacao baixaManual(UUID guiaId, BigDecimal valorPago) {
+        return baixaManual(guiaId, valorPago, CODIGO_FORMA_BAIXA_MANUAL, Instant.now());
+    }
+
+    @Transactional
+    public GuiaArrecadacao baixaManual(UUID guiaId, BigDecimal valorPago, String formaPagamentoCodigo, Instant dataEfetivacao) {
         GuiaArrecadacao guia = buscarPendente(guiaId);
-        var forma = formaPagamentoRepository.buscarPorCodigo(CODIGO_FORMA_BAIXA_MANUAL)
-            .orElseThrow(() -> new IllegalStateException("Forma de pagamento BAIXA_MANUAL não configurada."));
+        var forma = formaPagamentoRepository.buscarPorCodigo(formaPagamentoCodigo)
+            .orElseThrow(() -> new ValidationException("Forma de pagamento não encontrada: " + formaPagamentoCodigo));
         return efetivarPagamento(
             guia,
             valorPago,
             forma.id(),
             null,
             null,
-            StatusPix.ATUALIZACAO_MANUAL
+            StatusPix.ATUALIZACAO_MANUAL,
+            dataEfetivacao != null ? dataEfetivacao : Instant.now()
         );
+    }
+
+    @Transactional
+    public List<GuiaArrecadacao> baixaManualLote(List<UUID> guiaIds, String formaPagamentoCodigo, Instant dataEfetivacao) {
+        if (guiaIds == null || guiaIds.isEmpty()) {
+            throw new ValidationException("Informe ao menos uma guia para baixa.");
+        }
+        var forma = formaPagamentoRepository.buscarPorCodigo(formaPagamentoCodigo)
+            .orElseThrow(() -> new ValidationException("Forma de pagamento não encontrada: " + formaPagamentoCodigo));
+        Instant efetivacao = dataEfetivacao != null ? dataEfetivacao : Instant.now();
+        List<GuiaArrecadacao> resultados = new ArrayList<>();
+        for (UUID guiaId : guiaIds) {
+            GuiaArrecadacao guia = buscarPendente(guiaId);
+            resultados.add(efetivarPagamento(
+                guia,
+                guia.valor(),
+                forma.id(),
+                null,
+                null,
+                StatusPix.ATUALIZACAO_MANUAL,
+                efetivacao
+            ));
+        }
+        return resultados;
     }
 
     @Transactional
@@ -65,7 +97,8 @@ public class RegistrarPagamentoService {
             formaPix.id(),
             guia.pixTxid(),
             guia.codigoBarras(),
-            StatusPix.CONCLUIDA
+            StatusPix.CONCLUIDA,
+            Instant.now()
         );
     }
 
@@ -125,7 +158,8 @@ public class RegistrarPagamentoService {
         UUID formaPagamentoId,
         String pixTxid,
         String codigoBarras,
-        StatusPix statusPix
+        StatusPix statusPix,
+        Instant dataEfetivacao
     ) {
         if (valorPago == null || valorPago.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("Valor pago inválido.");
@@ -134,7 +168,7 @@ public class RegistrarPagamentoService {
             guia,
             SituacaoGuia.PAGA,
             formaPagamentoId,
-            Instant.now(),
+            dataEfetivacao,
             valorPago,
             codigoBarras != null ? codigoBarras : guia.codigoBarras(),
             pixTxid != null ? pixTxid : guia.pixTxid(),
@@ -145,6 +179,17 @@ public class RegistrarPagamentoService {
             guia.pixSolicitadoEm()
         );
         return guiaArrecadacaoRepository.salvar(paga);
+    }
+
+    private GuiaArrecadacao efetivarPagamento(
+        GuiaArrecadacao guia,
+        BigDecimal valorPago,
+        UUID formaPagamentoId,
+        String pixTxid,
+        String codigoBarras,
+        StatusPix statusPix
+    ) {
+        return efetivarPagamento(guia, valorPago, formaPagamentoId, pixTxid, codigoBarras, statusPix, Instant.now());
     }
 
     private GuiaArrecadacao copiarGuia(

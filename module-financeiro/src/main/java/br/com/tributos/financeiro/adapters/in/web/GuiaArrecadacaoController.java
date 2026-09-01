@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.tributos.financeiro.adapters.in.web.dto.BaixaManualLoteRequest;
 import br.com.tributos.financeiro.adapters.in.web.dto.BaixaManualRequest;
 import br.com.tributos.financeiro.adapters.in.web.dto.EmitirDamAvulsoRequest;
 import br.com.tributos.financeiro.adapters.in.web.dto.GerarPixResponse;
@@ -142,6 +143,16 @@ public class GuiaArrecadacaoController {
     @GetMapping("/{id}/conciliacao-log")
     public List<PixConciliacaoLogResponse> conciliacaoLog(@PathVariable UUID id) {
         return listarConciliacaoPixLogService.executar(id);
+    }
+
+    @PreAuthorize("hasRole('ADMIN_TENANT')")
+    @PostMapping("/baixa-manual-lote")
+    public List<GuiaArrecadacaoResponse> baixaManualLote(@Valid @RequestBody BaixaManualLoteRequest request) {
+        return registrarPagamentoService.baixaManualLote(
+            request.guiaIds(),
+            request.formaPagamentoCodigo(),
+            request.dataEfetivacao()
+        ).stream().map(guiaArrecadacaoResponseMapper::paraResponse).toList();
     }
 
     @PreAuthorize("hasRole('ADMIN_TENANT')")
