@@ -79,4 +79,6 @@ public interface GuiaArrecadacaoJpaRepository extends JpaRepository<GuiaArrecada
         @Param("desde") Instant desde,
         Pageable pageable
     );
+
+    Optional<GuiaArrecadacaoJpaEntity> findByCodigoVerificacao(String codigoVerificacao);
 }

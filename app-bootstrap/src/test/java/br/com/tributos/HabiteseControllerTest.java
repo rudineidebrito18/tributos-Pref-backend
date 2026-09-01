@@ -96,6 +96,13 @@ class HabiteseControllerTest extends AbstractIntegrationTest {
             .andReturn().getResponse().getContentAsString();
 
         String habiteseId = objectMapper.readTree(corpoHabitese).get("id").asText();
+        String codigoVerificacaoHabitese = objectMapper.readTree(corpoHabitese).get("codigoVerificacao").asText();
+
+        mockMvc.perform(get("/api/public/tenants/%s/documentos/validar/%s".formatted(TENANT_SLUG, codigoVerificacaoHabitese)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.tipoDocumento").value("HABITE_SE"))
+            .andExpect(jsonPath("$.codigoVerificacao").value(codigoVerificacaoHabitese))
+            .andExpect(jsonPath("$.vigente").value(true));
 
         mockMvc.perform(get("/api/iptu/imoveis/%s/habiteses".formatted(imovelId))
                 .header("Authorization", "Bearer " + token)

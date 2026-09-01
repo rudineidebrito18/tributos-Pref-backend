@@ -15,4 +15,6 @@ public interface HabiteseImovelJpaRepository extends JpaRepository<HabiteseImove
     Page<HabiteseImovelJpaEntity> findByImovelIdOrderByNumeroDesc(UUID imovelId, Pageable pageable);
 
     boolean existsByCodigoVerificacao(String codigoVerificacao);
+
+    java.util.Optional<HabiteseImovelJpaEntity> findByCodigoVerificacao(String codigoVerificacao);
 }

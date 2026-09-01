@@ -18,4 +18,6 @@ public interface HabiteseImovelRepository {
     long proximoNumero();
 
     boolean existeCodigoVerificacao(String codigoVerificacao);
+
+    Optional<HabiteseImovel> buscarPorCodigoVerificacao(String codigoVerificacao);
 }

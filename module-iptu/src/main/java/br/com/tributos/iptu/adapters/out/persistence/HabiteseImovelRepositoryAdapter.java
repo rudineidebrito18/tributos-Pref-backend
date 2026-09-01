@@ -90,6 +90,11 @@ public class HabiteseImovelRepositoryAdapter implements HabiteseImovelRepository
         return jpaRepository.existsByCodigoVerificacao(codigoVerificacao);
     }
 
+    @Override
+    public Optional<HabiteseImovel> buscarPorCodigoVerificacao(String codigoVerificacao) {
+        return jpaRepository.findByCodigoVerificacao(codigoVerificacao).map(this::paraDominio);
+    }
+
     private void salvarResponsaveis(UUID tenantId, UUID habiteseId, List<HabiteseResponsavel> responsaveis) {
         responsavelJpaRepository.deleteByHabiteseId(habiteseId);
         if (responsaveis == null || responsaveis.isEmpty()) {

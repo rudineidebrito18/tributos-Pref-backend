@@ -57,6 +57,7 @@ class PortalContribuinteControllerTest extends AbstractIntegrationTest {
             .andReturn().getResponse().getContentAsString();
 
         long numeroGuiaFinanceiro = objectMapper.readTree(corpoFinanceiro).get("content").get(0).get("numero").asLong();
+        String codigoVerificacaoDam = objectMapper.readTree(corpoFinanceiro).get("content").get(0).get("codigoVerificacao").asText();
 
         mockMvc.perform(get("/api/public/tenants/%s/contribuinte/situacao-fiscal".formatted(TENANT_SLUG))
                 .param("cpfCnpj", "39053344705"))
@@ -69,6 +70,11 @@ class PortalContribuinteControllerTest extends AbstractIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.numero").value(numeroGuiaFinanceiro))
             .andExpect(jsonPath("$.tipoTributo").value("ITBI"));
+
+        mockMvc.perform(get("/api/public/tenants/%s/documentos/validar/%s".formatted(TENANT_SLUG, codigoVerificacaoDam)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.tipoDocumento").value("DAM"))
+            .andExpect(jsonPath("$.codigoVerificacao").value(codigoVerificacaoDam));
     }
 
     private String login() throws Exception {

@@ -121,7 +121,7 @@ class AlvaraCertidaoControllerTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/public/tenants/%s/iss/validar/%s".formatted(TENANT_SLUG, codigoVerificacaoCertidao)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.tipoDocumento").value("CERTIDAO"))
-            .andExpect(jsonPath("$.tipoCertidao").value("NADA_CONSTA"))
+            .andExpect(jsonPath("$.detalheTipo").value("NADA_CONSTA"))
             .andExpect(jsonPath("$.codigoVerificacao").value(codigoVerificacaoCertidao))
             .andExpect(jsonPath("$.vigente").value(true));
     }

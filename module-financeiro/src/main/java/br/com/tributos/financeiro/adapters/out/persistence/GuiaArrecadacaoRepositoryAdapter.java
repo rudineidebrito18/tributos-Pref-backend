@@ -91,6 +91,11 @@ public class GuiaArrecadacaoRepositoryAdapter implements GuiaArrecadacaoReposito
             .toList();
     }
 
+    @Override
+    public Optional<GuiaArrecadacao> buscarPorCodigoVerificacao(String codigoVerificacao) {
+        return jpaRepository.findByCodigoVerificacao(codigoVerificacao).map(this::paraDominio);
+    }
+
     private GuiaArrecadacao paraDominio(GuiaArrecadacaoJpaEntity e) {
         return new GuiaArrecadacao(
             e.getId(),

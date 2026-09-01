@@ -6,3 +6,5 @@ target/
 *.iml
 .vscode/
 data/documentos/
+app-bootstrap/data/
+output-contribuinte/

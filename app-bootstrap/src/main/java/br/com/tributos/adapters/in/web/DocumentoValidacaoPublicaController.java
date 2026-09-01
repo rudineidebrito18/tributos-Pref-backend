@@ -10,17 +10,14 @@ import br.com.tributos.application.portal.ValidarDocumentoPublicoService;
 import br.com.tributos.identity.application.BuscarTenantPorSlugService;
 import br.com.tributos.kernel.tenancy.TenantContext;
 
-/**
- * Mantido por compatibilidade — delega ao serviço unificado de validação pública.
- */
 @RestController
 @RequestMapping("/api/public/tenants")
-public class IssValidacaoPublicaController {
+public class DocumentoValidacaoPublicaController {
 
     private final BuscarTenantPorSlugService buscarTenantPorSlugService;
     private final ValidarDocumentoPublicoService validarDocumentoPublicoService;
 
-    public IssValidacaoPublicaController(
+    public DocumentoValidacaoPublicaController(
         BuscarTenantPorSlugService buscarTenantPorSlugService,
         ValidarDocumentoPublicoService validarDocumentoPublicoService
     ) {
@@ -28,7 +25,7 @@ public class IssValidacaoPublicaController {
         this.validarDocumentoPublicoService = validarDocumentoPublicoService;
     }
 
-    @GetMapping("/{slug}/iss/validar/{codigo}")
+    @GetMapping("/{slug}/documentos/validar/{codigo}")
     public ValidacaoDocumentoPublicoResponse validar(@PathVariable String slug, @PathVariable String codigo) {
         try {
             TenantContext.set(buscarTenantPorSlugService.executar(slug).getId());
