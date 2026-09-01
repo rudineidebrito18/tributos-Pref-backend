@@ -13,7 +13,9 @@ public record CertidaoNegativaImovelResponse(
     LocalDate dataEmissao,
     LocalDate validade,
     String codigoVerificacao,
-    Instant dataEmissaoTs
+    Instant dataEmissaoTs,
+    UUID situacaoCndId,
+    String observacao
 ) {
 
     public static CertidaoNegativaImovelResponse de(CertidaoNegativaImovel certidao) {
@@ -24,7 +26,9 @@ public record CertidaoNegativaImovelResponse(
             certidao.dataEmissao(),
             certidao.validade(),
             certidao.codigoVerificacao(),
-            certidao.dataEmissaoTs()
+            certidao.dataEmissaoTs(),
+            certidao.situacaoCndId(),
+            certidao.observacao()
         );
     }
 }

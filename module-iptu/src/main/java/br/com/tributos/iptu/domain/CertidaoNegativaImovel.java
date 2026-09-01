@@ -12,7 +12,9 @@ public record CertidaoNegativaImovel(
     LocalDate dataEmissao,
     LocalDate validade,
     String codigoVerificacao,
-    Instant dataEmissaoTs
+    Instant dataEmissaoTs,
+    UUID situacaoCndId,
+    String observacao
 ) {
 
     public boolean vigente(LocalDate referencia) {

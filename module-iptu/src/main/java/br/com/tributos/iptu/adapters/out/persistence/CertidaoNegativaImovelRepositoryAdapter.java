@@ -36,6 +36,8 @@ public class CertidaoNegativaImovelRepositoryAdapter implements CertidaoNegativa
         entidade.setDataEmissao(certidao.dataEmissao());
         entidade.setValidade(certidao.validade());
         entidade.setCodigoVerificacao(certidao.codigoVerificacao());
+        entidade.setSituacaoCndId(certidao.situacaoCndId());
+        entidade.setObservacao(certidao.observacao());
 
         CertidaoNegativaImovelJpaEntity salva = jpaRepository.save(entidade);
         return paraDominio(salva, certidao.dataEmissaoTs());
@@ -67,7 +69,9 @@ public class CertidaoNegativaImovelRepositoryAdapter implements CertidaoNegativa
             entidade.getDataEmissao(),
             entidade.getValidade(),
             entidade.getCodigoVerificacao(),
-            ts
+            ts,
+            entidade.getSituacaoCndId(),
+            entidade.getObservacao()
         );
     }
 

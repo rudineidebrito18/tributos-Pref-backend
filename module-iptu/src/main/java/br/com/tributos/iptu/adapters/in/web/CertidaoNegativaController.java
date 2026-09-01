@@ -20,6 +20,7 @@ import br.com.tributos.iptu.adapters.in.web.dto.CertidaoNegativaImovelResponse;
 import br.com.tributos.iptu.adapters.in.web.dto.EmitirCertidaoNegativaRequest;
 import br.com.tributos.iptu.application.EmitirCertidaoNegativaImovelService;
 import br.com.tributos.iptu.application.ListarCertidoesNegativasImovelService;
+import br.com.tributos.iptu.domain.EmitirCertidaoNegativaComando;
 
 @RestController
 @RequestMapping("/api/iptu/imoveis/{imovelId}/certidoes-negativas")
@@ -50,12 +51,16 @@ public class CertidaoNegativaController {
     @PostMapping
     public ResponseEntity<CertidaoNegativaImovelResponse> emitir(
         @PathVariable UUID imovelId,
-        @Valid @RequestBody(required = false) EmitirCertidaoNegativaRequest request
+        @Valid @RequestBody EmitirCertidaoNegativaRequest request
     ) {
         CertidaoNegativaImovelResponse resposta = CertidaoNegativaImovelResponse.de(
             emitirCertidaoNegativaImovelService.executar(
                 imovelId,
-                request != null ? request.validade() : null
+                new EmitirCertidaoNegativaComando(
+                    request.validade(),
+                    request.situacaoCndId(),
+                    request.observacao()
+                )
             )
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(resposta);

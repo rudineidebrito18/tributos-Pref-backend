@@ -37,6 +37,7 @@ public class PendenciaFinanceiraAdapter implements PendenciaFinanceiraPort {
             case "IPTU" -> TipoTributo.IPTU;
             case "ITBI" -> TipoTributo.ITBI;
             case "ALVARA" -> TipoTributo.ALVARA;
+            case "HABITE_SE" -> TipoTributo.HABITE_SE;
             default -> null;
         };
     }

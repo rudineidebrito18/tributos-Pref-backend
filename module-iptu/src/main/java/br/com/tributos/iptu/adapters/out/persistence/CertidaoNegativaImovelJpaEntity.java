@@ -37,6 +37,11 @@ public class CertidaoNegativaImovelJpaEntity {
     @Column(name = "data_emissao_ts", nullable = false, insertable = false, updatable = false)
     private Instant dataEmissaoTs;
 
+    @Column(name = "situacao_cnd_id")
+    private UUID situacaoCndId;
+
+    private String observacao;
+
     protected CertidaoNegativaImovelJpaEntity() {
     }
 
@@ -98,5 +103,21 @@ public class CertidaoNegativaImovelJpaEntity {
 
     public Instant getDataEmissaoTs() {
         return dataEmissaoTs;
+    }
+
+    public UUID getSituacaoCndId() {
+        return situacaoCndId;
+    }
+
+    public void setSituacaoCndId(UUID situacaoCndId) {
+        this.situacaoCndId = situacaoCndId;
+    }
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
     }
 }
