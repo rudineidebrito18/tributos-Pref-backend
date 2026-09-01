@@ -8,6 +8,7 @@ import br.com.tributos.financeiro.domain.OrigemGuia;
 import br.com.tributos.financeiro.domain.TipoTributacao;
 import br.com.tributos.financeiro.domain.TipoTributo;
 import br.com.tributos.kernel.events.GuiaItbiSolicitadaEvent;
+import br.com.tributos.kernel.events.HabiteseEmitidoEvent;
 import br.com.tributos.kernel.events.LancamentoIptuParcelaGeradaEvent;
 import br.com.tributos.kernel.events.NotaFiscalEmitidaEvent;
 
@@ -70,6 +71,24 @@ public class GerarGuiaEventListener {
             java.time.LocalDate.ofInstant(evento.dataSolicitacao(), java.time.ZoneId.of("America/Sao_Paulo")).plusDays(30),
             evento.valorItbi(),
             "ITBI — guia " + evento.guiaItbiId(),
+            TipoTributacao.TRIBUTAVEL
+        ));
+    }
+
+    @EventListener
+    @Transactional
+    public void onHabiteseEmitido(HabiteseEmitidoEvent evento) {
+        gerarGuiaArrecadacaoService.executar(new GerarGuiaArrecadacaoService.GerarGuiaComando(
+            TipoTributo.HABITE_SE,
+            OrigemGuia.HABITE_SE,
+            evento.habiteseId(),
+            evento.contribuintePessoaId(),
+            null,
+            null,
+            evento.dataEmissao(),
+            java.time.LocalDate.ofInstant(evento.dataEmissao(), java.time.ZoneId.of("America/Sao_Paulo")).plusDays(30),
+            evento.valor(),
+            "Habite-se — " + evento.habiteseId(),
             TipoTributacao.TRIBUTAVEL
         ));
     }

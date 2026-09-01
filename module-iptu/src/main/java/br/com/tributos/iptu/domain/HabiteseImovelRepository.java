@@ -16,4 +16,6 @@ public interface HabiteseImovelRepository {
     Page<HabiteseImovel> listarPorImovel(UUID imovelId, Pageable pageable);
 
     long proximoNumero();
+
+    boolean existeCodigoVerificacao(String codigoVerificacao);
 }

@@ -13,4 +13,6 @@ public interface HabiteseImovelJpaRepository extends JpaRepository<HabiteseImove
     long findMaxNumero();
 
     Page<HabiteseImovelJpaEntity> findByImovelIdOrderByNumeroDesc(UUID imovelId, Pageable pageable);
+
+    boolean existsByCodigoVerificacao(String codigoVerificacao);
 }

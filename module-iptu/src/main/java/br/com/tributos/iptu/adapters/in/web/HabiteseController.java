@@ -1,5 +1,6 @@
 package br.com.tributos.iptu.adapters.in.web;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import br.com.tributos.iptu.adapters.in.web.dto.EmitirHabiteseRequest;
 import br.com.tributos.iptu.adapters.in.web.dto.HabiteseImovelResponse;
 import br.com.tributos.iptu.application.EmitirHabiteseService;
 import br.com.tributos.iptu.application.ListarHabitesesImovelService;
+import br.com.tributos.iptu.domain.EmitirHabiteseComando;
 
 @RestController
 @RequestMapping("/api/iptu/imoveis/{imovelId}/habiteses")
@@ -52,8 +54,41 @@ public class HabiteseController {
         @Valid @RequestBody EmitirHabiteseRequest request
     ) {
         HabiteseImovelResponse resposta = HabiteseImovelResponse.de(
-            emitirHabiteseService.executar(imovelId, request.tipoId(), request.dataEmissao())
+            emitirHabiteseService.executar(imovelId, paraComando(request))
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
+    }
+
+    private static EmitirHabiteseComando paraComando(EmitirHabiteseRequest request) {
+        List<EmitirHabiteseComando.ResponsavelComando> responsaveis = request.responsaveis() == null
+            ? List.of()
+            : request.responsaveis().stream()
+                .map(item -> new EmitirHabiteseComando.ResponsavelComando(
+                    item.nome(),
+                    item.profissao(),
+                    item.documento()
+                ))
+                .toList();
+
+        return new EmitirHabiteseComando(
+            request.tipoId(),
+            request.dataEmissao(),
+            request.ano(),
+            request.validade(),
+            request.contribuinteId(),
+            request.areaImovel(),
+            request.dataConclusao(),
+            request.numeroAlvara(),
+            request.dataAlvara(),
+            request.validadeAlvara(),
+            request.valorBaseCalculo(),
+            request.desconto(),
+            request.frente(),
+            request.fundos(),
+            request.ladoEsquerdo(),
+            request.ladoDireito(),
+            request.observacao(),
+            responsaveis
+        );
     }
 }

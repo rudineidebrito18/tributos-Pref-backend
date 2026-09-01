@@ -1,19 +1,13 @@
 package br.com.tributos.iptu.domain;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-public record HabiteseImovel(
-    UUID id,
-    UUID tenantId,
-    UUID imovelId,
+public record EmitirHabiteseComando(
     UUID tipoId,
-    long numero,
     LocalDate dataEmissao,
-    Instant dataEmissaoTs,
     Short ano,
     LocalDate validade,
     UUID contribuinteId,
@@ -23,16 +17,19 @@ public record HabiteseImovel(
     LocalDate dataAlvara,
     LocalDate validadeAlvara,
     BigDecimal valorBaseCalculo,
-    BigDecimal baseCalculo,
     BigDecimal desconto,
-    BigDecimal valor,
     BigDecimal frente,
     BigDecimal fundos,
     BigDecimal ladoEsquerdo,
     BigDecimal ladoDireito,
     String observacao,
-    String codigoVerificacao,
-    SituacaoFiscalHabitese situacaoFiscal,
-    List<HabiteseResponsavel> responsaveis
+    List<ResponsavelComando> responsaveis
 ) {
+
+    public record ResponsavelComando(
+        String nome,
+        String profissao,
+        String documento
+    ) {
+    }
 }
