@@ -36,7 +36,7 @@ ALTER TABLE iss_alvara ADD COLUMN motivo_cancelamento TEXT;
 ALTER TABLE iss_alvara ADD COLUMN observacao TEXT;
 
 ALTER TABLE iss_alvara DROP CONSTRAINT IF EXISTS iss_alvara_situacao_fiscal_check;
-ALTER TABLE iss_alvara ADD CONSTRAINT iss_alvara_situacao_fiscal_check
-    CHECK (situacao_fiscal IN ('PENDENTE','PAGA','ISENTA','CANCELADA'));
 UPDATE iss_alvara SET situacao_fiscal = 'PENDENTE' WHERE situacao_fiscal = 'IRREGULAR';
 UPDATE iss_alvara SET situacao_fiscal = 'PAGA'     WHERE situacao_fiscal = 'REGULAR';
+ALTER TABLE iss_alvara ADD CONSTRAINT iss_alvara_situacao_fiscal_check
+    CHECK (situacao_fiscal IN ('PENDENTE','PAGA','ISENTA','CANCELADA'));
