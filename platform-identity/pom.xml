@@ -54,6 +54,11 @@
     <!-- Só para codificação Base32 do segredo TOTP (RFC 4648) — evita reimplementar um
          codec e é dependência mínima, sem trazer nada de HTTP/JPA. -->
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-mail</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
     </dependency>

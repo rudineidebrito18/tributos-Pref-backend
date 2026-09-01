@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 import br.com.tributos.identity.adapters.in.web.dto.ConfirmarMfaRequest;
+import br.com.tributos.identity.adapters.in.web.dto.HabilitarMfaRequest;
 import br.com.tributos.identity.adapters.in.web.dto.LoginRequest;
 import br.com.tributos.identity.adapters.in.web.dto.LoginResponse;
 import br.com.tributos.identity.adapters.in.web.dto.RefreshRequest;
@@ -28,6 +29,7 @@ import br.com.tributos.identity.application.RenovarTokenService;
 import br.com.tributos.identity.application.RevogarSessaoService;
 import br.com.tributos.identity.domain.Tenant;
 import br.com.tributos.identity.domain.TenantRepository;
+import br.com.tributos.identity.domain.TipoMfa;
 import br.com.tributos.kernel.exception.AutenticacaoException;
 
 /**
@@ -99,8 +101,12 @@ public class AuthController {
 
     /** Autenticado — {@code jwt.getSubject()} é o id do usuário (claim {@code sub}, ver JwtGeradorToken). */
     @PostMapping("/mfa/habilitar")
-    public SegredoMfaResponse habilitarMfa(@AuthenticationPrincipal Jwt jwt) {
-        return SegredoMfaResponse.de(habilitarMfaService.executar(UUID.fromString(jwt.getSubject())));
+    public SegredoMfaResponse habilitarMfa(
+        @AuthenticationPrincipal Jwt jwt,
+        @RequestBody(required = false) HabilitarMfaRequest request
+    ) {
+        TipoMfa tipo = request != null ? request.tipoOuPadrao() : TipoMfa.TOTP;
+        return SegredoMfaResponse.de(habilitarMfaService.executar(UUID.fromString(jwt.getSubject()), tipo));
     }
 
     @PostMapping("/mfa/confirmar")

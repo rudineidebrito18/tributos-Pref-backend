@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import java.time.Instant;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -52,6 +54,9 @@ public class UsuarioJpaEntity {
     @Column(name = "mfa_secret")
     private String mfaSecret;
 
+    @Column(name = "mfa_codigo_expira_em")
+    private Instant mfaCodigoExpiraEm;
+
     @Column(nullable = false)
     private boolean ativo;
 
@@ -68,7 +73,8 @@ public class UsuarioJpaEntity {
 
     public UsuarioJpaEntity(
         UUID id, UUID tenantId, String nome, String login, String email, UUID fotoDocumentoId,
-        String senhaHash, boolean mfaHabilitado, TipoMfa mfaTipo, String mfaSecret, boolean ativo
+        String senhaHash, boolean mfaHabilitado, TipoMfa mfaTipo, String mfaSecret,
+        Instant mfaCodigoExpiraEm, boolean ativo
     ) {
         this.id = id;
         this.tenantId = tenantId;
@@ -80,6 +86,7 @@ public class UsuarioJpaEntity {
         this.mfaHabilitado = mfaHabilitado;
         this.mfaTipo = mfaTipo;
         this.mfaSecret = mfaSecret;
+        this.mfaCodigoExpiraEm = mfaCodigoExpiraEm;
         this.ativo = ativo;
     }
 
@@ -153,6 +160,14 @@ public class UsuarioJpaEntity {
 
     public void setMfaSecret(String mfaSecret) {
         this.mfaSecret = mfaSecret;
+    }
+
+    public Instant getMfaCodigoExpiraEm() {
+        return mfaCodigoExpiraEm;
+    }
+
+    public void setMfaCodigoExpiraEm(Instant mfaCodigoExpiraEm) {
+        this.mfaCodigoExpiraEm = mfaCodigoExpiraEm;
     }
 
     public boolean isAtivo() {

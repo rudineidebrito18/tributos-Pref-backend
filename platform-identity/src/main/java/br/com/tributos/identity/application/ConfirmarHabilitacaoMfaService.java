@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import br.com.tributos.identity.application.ports.VerificadorMfa;
 import br.com.tributos.identity.domain.Usuario;
 import br.com.tributos.identity.domain.UsuarioRepository;
 import br.com.tributos.kernel.exception.AutenticacaoException;
@@ -14,18 +13,21 @@ import br.com.tributos.kernel.exception.NotFoundException;
 public class ConfirmarHabilitacaoMfaService {
 
     private final UsuarioRepository usuarioRepository;
-    private final VerificadorMfa verificadorMfa;
+    private final ValidadorMfaPorTipo validadorMfaPorTipo;
 
-    public ConfirmarHabilitacaoMfaService(UsuarioRepository usuarioRepository, VerificadorMfa verificadorMfa) {
+    public ConfirmarHabilitacaoMfaService(
+        UsuarioRepository usuarioRepository,
+        ValidadorMfaPorTipo validadorMfaPorTipo
+    ) {
         this.usuarioRepository = usuarioRepository;
-        this.verificadorMfa = verificadorMfa;
+        this.validadorMfaPorTipo = validadorMfaPorTipo;
     }
 
     public void executar(UUID usuarioId, String codigo) {
         Usuario usuario = usuarioRepository.buscarPorId(usuarioId)
             .orElseThrow(() -> NotFoundException.de("Usuário", usuarioId));
 
-        if (usuario.getMfaSecret() == null || !verificadorMfa.validarCodigo(usuario.getMfaSecret(), codigo)) {
+        if (!validadorMfaPorTipo.validar(usuario, codigo)) {
             throw new AutenticacaoException("Código de verificação inválido.");
         }
 

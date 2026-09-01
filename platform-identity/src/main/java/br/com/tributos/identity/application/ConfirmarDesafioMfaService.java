@@ -5,29 +5,29 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import br.com.tributos.identity.application.ports.GeradorToken;
-import br.com.tributos.identity.application.ports.VerificadorMfa;
+import br.com.tributos.identity.domain.TipoMfa;
 import br.com.tributos.identity.domain.Usuario;
 import br.com.tributos.identity.domain.UsuarioRepository;
 import br.com.tributos.kernel.exception.AutenticacaoException;
 
-/** Segunda etapa do login: troca o token de desafio + código TOTP pelos tokens finais. */
+/** Segunda etapa do login: troca o token de desafio + código MFA pelos tokens finais. */
 @Service
 public class ConfirmarDesafioMfaService {
 
     private final UsuarioRepository usuarioRepository;
     private final GeradorToken geradorToken;
-    private final VerificadorMfa verificadorMfa;
+    private final ValidadorMfaPorTipo validadorMfaPorTipo;
     private final EmissorDeTokens emissorDeTokens;
 
     public ConfirmarDesafioMfaService(
         UsuarioRepository usuarioRepository,
         GeradorToken geradorToken,
-        VerificadorMfa verificadorMfa,
+        ValidadorMfaPorTipo validadorMfaPorTipo,
         EmissorDeTokens emissorDeTokens
     ) {
         this.usuarioRepository = usuarioRepository;
         this.geradorToken = geradorToken;
-        this.verificadorMfa = verificadorMfa;
+        this.validadorMfaPorTipo = validadorMfaPorTipo;
         this.emissorDeTokens = emissorDeTokens;
     }
 
@@ -38,8 +38,13 @@ public class ConfirmarDesafioMfaService {
             .filter(Usuario::isAtivo)
             .orElseThrow(() -> new AutenticacaoException("Sessão de verificação inválida — faça login novamente."));
 
-        if (!usuario.isMfaHabilitado() || !verificadorMfa.validarCodigo(usuario.getMfaSecret(), codigo)) {
+        if (!usuario.isMfaHabilitado() || !validadorMfaPorTipo.validar(usuario, codigo)) {
             throw new AutenticacaoException("Código de verificação inválido.");
+        }
+
+        if (usuario.getMfaTipo() == TipoMfa.EMAIL) {
+            usuario.limparDesafioEmailPendente();
+            usuarioRepository.salvar(usuario);
         }
 
         return emissorDeTokens.emitirPara(usuario);

@@ -44,7 +44,7 @@ public class UsuarioRepositoryAdapter implements UsuarioRepository {
             .orElseGet(() -> new UsuarioJpaEntity(
                 usuario.getId(), usuario.getTenantId(), usuario.getNome(), usuario.getLogin(), usuario.getEmail(),
                 usuario.getFotoDocumentoId(), usuario.getSenhaHash(), usuario.isMfaHabilitado(),
-                usuario.getMfaTipo(), usuario.getMfaSecret(), usuario.isAtivo()
+                usuario.getMfaTipo(), usuario.getMfaSecret(), usuario.getMfaCodigoExpiraEm(), usuario.isAtivo()
             ));
 
         entidade.setNome(usuario.getNome());
@@ -55,6 +55,7 @@ public class UsuarioRepositoryAdapter implements UsuarioRepository {
         entidade.setMfaHabilitado(usuario.isMfaHabilitado());
         entidade.setMfaTipo(usuario.getMfaTipo());
         entidade.setMfaSecret(usuario.getMfaSecret());
+        entidade.setMfaCodigoExpiraEm(usuario.getMfaCodigoExpiraEm());
 
         jpaRepository.save(entidade);
     }
@@ -94,7 +95,7 @@ public class UsuarioRepositoryAdapter implements UsuarioRepository {
         return new Usuario(
             entidade.getId(), entidade.getTenantId(), entidade.getNome(), entidade.getLogin(), entidade.getEmail(),
             entidade.getFotoDocumentoId(), entidade.getSenhaHash(), entidade.isMfaHabilitado(),
-            tipoMfa, entidade.getMfaSecret(), entidade.isAtivo()
+            tipoMfa, entidade.getMfaSecret(), entidade.getMfaCodigoExpiraEm(), entidade.isAtivo()
         );
     }
 }

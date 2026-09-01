@@ -73,7 +73,7 @@ class CriarTenantTransacional {
         usuarioRepository.salvar(new Usuario(
             usuarioAdminId, novoTenantId, comando.loginAdminInicial(), comando.loginAdminInicial(),
             comando.emailAdminInicial(), null, passwordEncoder.encode(senhaTemporaria),
-            false, TipoMfa.NENHUM, null, true
+            false, TipoMfa.NENHUM, null, null, true
         ));
         usuarioRepository.atribuirPapel(usuarioAdminId, PAPEL_ADMIN_TENANT);
 

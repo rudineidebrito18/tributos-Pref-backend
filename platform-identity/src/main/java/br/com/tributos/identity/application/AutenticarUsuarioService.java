@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.tributos.identity.application.ports.GeradorToken;
+import br.com.tributos.identity.domain.TipoMfa;
 import br.com.tributos.identity.domain.Usuario;
 import br.com.tributos.identity.domain.UsuarioRepository;
 import br.com.tributos.kernel.exception.AutenticacaoException;
@@ -24,17 +25,20 @@ public class AutenticarUsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final GeradorToken geradorToken;
     private final EmissorDeTokens emissorDeTokens;
+    private final GeradorCodigoMfaEmail geradorCodigoMfaEmail;
 
     public AutenticarUsuarioService(
         UsuarioRepository usuarioRepository,
         PasswordEncoder passwordEncoder,
         GeradorToken geradorToken,
-        EmissorDeTokens emissorDeTokens
+        EmissorDeTokens emissorDeTokens,
+        GeradorCodigoMfaEmail geradorCodigoMfaEmail
     ) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.geradorToken = geradorToken;
         this.emissorDeTokens = emissorDeTokens;
+        this.geradorCodigoMfaEmail = geradorCodigoMfaEmail;
     }
 
     public ResultadoLogin executar(UUID tenantId, String login, String senha) {
@@ -49,6 +53,11 @@ public class AutenticarUsuarioService {
         }
 
         if (usuario.isMfaHabilitado()) {
+            if (usuario.getMfaTipo() == TipoMfa.EMAIL) {
+                String codigo = geradorCodigoMfaEmail.gerarCodigo();
+                geradorCodigoMfaEmail.registrarDesafio(usuario, codigo);
+                usuarioRepository.salvar(usuario);
+            }
             return new ResultadoLogin.DesafioMfaNecessario(geradorToken.gerarTokenMfaPendente(usuario.getId()));
         }
 

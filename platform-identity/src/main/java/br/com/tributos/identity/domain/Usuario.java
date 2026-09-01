@@ -1,5 +1,6 @@
 package br.com.tributos.identity.domain;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import br.com.tributos.kernel.exception.ValidationException;
@@ -24,6 +25,7 @@ public final class Usuario {
     private boolean mfaHabilitado;
     private TipoMfa mfaTipo;
     private String mfaSecret;
+    private Instant mfaCodigoExpiraEm;
     private boolean ativo;
 
     public Usuario(
@@ -37,6 +39,7 @@ public final class Usuario {
         boolean mfaHabilitado,
         TipoMfa mfaTipo,
         String mfaSecret,
+        Instant mfaCodigoExpiraEm,
         boolean ativo
     ) {
         this.id = id;
@@ -49,30 +52,67 @@ public final class Usuario {
         this.mfaHabilitado = mfaHabilitado;
         this.mfaTipo = mfaTipo;
         this.mfaSecret = mfaSecret;
+        this.mfaCodigoExpiraEm = mfaCodigoExpiraEm;
         this.ativo = ativo;
     }
 
     /** Guarda o segredo gerado para o usuário escanear o QR code — MFA ainda não está ativo. */
-    public void iniciarHabilitacaoMfa(String segredoTotp) {
+    public void iniciarHabilitacaoMfaTotp(String segredoTotp) {
         if (mfaHabilitado) {
             throw new ValidationException("MFA já está habilitado para este usuário — desabilite antes de reconfigurar.");
         }
         this.mfaTipo = TipoMfa.TOTP;
         this.mfaSecret = segredoTotp;
+        this.mfaCodigoExpiraEm = null;
+    }
+
+    public void iniciarHabilitacaoMfaEmail(String hashCodigo, Instant expiraEm) {
+        if (mfaHabilitado) {
+            throw new ValidationException("MFA já está habilitado para este usuário — desabilite antes de reconfigurar.");
+        }
+        this.mfaTipo = TipoMfa.EMAIL;
+        this.mfaSecret = hashCodigo;
+        this.mfaCodigoExpiraEm = expiraEm;
+    }
+
+    public void registrarDesafioEmail(String hashCodigo, Instant expiraEm) {
+        this.mfaSecret = hashCodigo;
+        this.mfaCodigoExpiraEm = expiraEm;
+    }
+
+    public void limparDesafioEmailPendente() {
+        if (mfaTipo == TipoMfa.EMAIL) {
+            this.mfaSecret = null;
+            this.mfaCodigoExpiraEm = null;
+        }
+    }
+
+    public boolean codigoEmailExpirado(Instant referencia) {
+        return mfaCodigoExpiraEm == null || mfaCodigoExpiraEm.isBefore(referencia);
+    }
+
+    /** @deprecated use {@link #iniciarHabilitacaoMfaTotp(String)} */
+    public void iniciarHabilitacaoMfa(String segredoTotp) {
+        iniciarHabilitacaoMfaTotp(segredoTotp);
     }
 
     /** Chamado só depois que o usuário prova, com um código válido, que configurou o app corretamente. */
     public void confirmarHabilitacaoMfa() {
-        if (mfaSecret == null) {
+        if (mfaSecret == null && mfaTipo != TipoMfa.EMAIL) {
+            throw new ValidationException("Nenhuma habilitação de MFA em andamento para confirmar.");
+        }
+        if (mfaTipo == TipoMfa.EMAIL && mfaCodigoExpiraEm == null) {
             throw new ValidationException("Nenhuma habilitação de MFA em andamento para confirmar.");
         }
         this.mfaHabilitado = true;
+        limparDesafioEmailPendente();
     }
 
     public void desabilitarMfa() {
         this.mfaHabilitado = false;
         this.mfaTipo = TipoMfa.NENHUM;
         this.mfaSecret = null;
+        this.mfaCodigoExpiraEm = null;
     }
 
     public void atualizarPerfil(String nome, String login, String email) {
@@ -127,6 +167,10 @@ public final class Usuario {
 
     public String getMfaSecret() {
         return mfaSecret;
+    }
+
+    public Instant getMfaCodigoExpiraEm() {
+        return mfaCodigoExpiraEm;
     }
 
     public boolean isAtivo() {

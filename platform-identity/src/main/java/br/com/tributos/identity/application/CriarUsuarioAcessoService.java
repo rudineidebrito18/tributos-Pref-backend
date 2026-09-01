@@ -45,6 +45,7 @@ public class CriarUsuarioAcessoService implements UsuarioAcessoPort {
             false,
             TipoMfa.NENHUM,
             null,
+            null,
             true
         ));
 
