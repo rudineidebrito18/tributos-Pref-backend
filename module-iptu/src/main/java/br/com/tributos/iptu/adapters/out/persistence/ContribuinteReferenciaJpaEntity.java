@@ -23,6 +23,10 @@ public class ContribuinteReferenciaJpaEntity {
     protected ContribuinteReferenciaJpaEntity() {
     }
 
+    public UUID getId() {
+        return id;
+    }
+
     public UUID getPessoaId() {
         return pessoaId;
     }

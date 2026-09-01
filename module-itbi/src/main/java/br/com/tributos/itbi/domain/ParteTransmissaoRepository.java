@@ -15,4 +15,6 @@ public interface ParteTransmissaoRepository {
     boolean existePorGuiaContribuinteEPapel(UUID guiaId, UUID contribuinteId, PapelParteTransmissao papel, UUID idExcluir);
 
     void remover(UUID id);
+
+    Optional<ParteTransmissao> buscarPrincipalPorGuiaEPapel(UUID guiaId, PapelParteTransmissao papel);
 }

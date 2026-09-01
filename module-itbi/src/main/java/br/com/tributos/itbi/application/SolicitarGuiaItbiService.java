@@ -65,7 +65,7 @@ public class SolicitarGuiaItbiService {
             throw new ValidationException("O imóvel precisa estar ativo para solicitar ITBI.");
         }
 
-        if (comando.adquirenteId() != null && comando.adquirenteId().equals(imovel.proprietarioId())) {
+        if (comando.adquirentePessoaId() != null && comando.adquirentePessoaId().equals(imovel.proprietarioId())) {
             throw new ValidationException("O adquirente deve ser diferente do proprietário atual.");
         }
 
@@ -85,7 +85,6 @@ public class SolicitarGuiaItbiService {
             tenantId,
             guiaItbiRepository.proximoNumero(),
             comando.imovelId(),
-            comando.adquirenteId(),
             comando.tipoGuiaId(),
             comando.naturezaTransmissaoId(),
             agora,
@@ -112,7 +111,7 @@ public class SolicitarGuiaItbiService {
         eventPublisher.publishEvent(new GuiaItbiSolicitadaEvent(
             salva.id(),
             salva.tenantId(),
-            salva.adquirenteId(),
+            comando.adquirentePessoaId(),
             salva.valorItbi(),
             salva.dataSolicitacao()
         ));
@@ -122,7 +121,7 @@ public class SolicitarGuiaItbiService {
 
     public record SolicitarGuiaItbiComando(
         UUID imovelId,
-        UUID adquirenteId,
+        UUID adquirentePessoaId,
         UUID tipoGuiaId,
         UUID naturezaTransmissaoId,
         BigDecimal valorTransacao

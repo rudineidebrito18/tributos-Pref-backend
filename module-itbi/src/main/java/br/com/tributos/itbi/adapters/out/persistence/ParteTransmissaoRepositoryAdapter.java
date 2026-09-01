@@ -54,6 +54,12 @@ public class ParteTransmissaoRepositoryAdapter implements ParteTransmissaoReposi
         jpaRepository.deleteById(id);
     }
 
+    @Override
+    public Optional<ParteTransmissao> buscarPrincipalPorGuiaEPapel(UUID guiaId, PapelParteTransmissao papel) {
+        return jpaRepository.findFirstByGuiaIdAndPapelAndPrincipalTrueOrderByPorcentagemDesc(guiaId, papel)
+            .map(this::paraDominio);
+    }
+
     private ParteTransmissao paraDominio(ParteTransmissaoJpaEntity entidade) {
         return new ParteTransmissao(
             entidade.getId(),

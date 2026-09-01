@@ -14,6 +14,17 @@ public class ContribuinteReferenciaJpaEntity {
     @Id
     private UUID id;
 
+    @Column(name = "pessoa_id", nullable = false, insertable = false, updatable = false)
+    private UUID pessoaId;
+
     protected ContribuinteReferenciaJpaEntity() {
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public UUID getPessoaId() {
+        return pessoaId;
     }
 }

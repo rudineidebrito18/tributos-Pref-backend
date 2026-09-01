@@ -28,15 +28,18 @@ public class EmitirCertidaoNegativaImovelService {
     private final CertidaoNegativaImovelRepository certidaoNegativaImovelRepository;
     private final ImovelRepository imovelRepository;
     private final PendenciaFinanceiraPort pendenciaFinanceiraPort;
+    private final ProprietarioPrincipalImovelService proprietarioPrincipalImovelService;
 
     public EmitirCertidaoNegativaImovelService(
         CertidaoNegativaImovelRepository certidaoNegativaImovelRepository,
         ImovelRepository imovelRepository,
-        PendenciaFinanceiraPort pendenciaFinanceiraPort
+        PendenciaFinanceiraPort pendenciaFinanceiraPort,
+        ProprietarioPrincipalImovelService proprietarioPrincipalImovelService
     ) {
         this.certidaoNegativaImovelRepository = certidaoNegativaImovelRepository;
         this.imovelRepository = imovelRepository;
         this.pendenciaFinanceiraPort = pendenciaFinanceiraPort;
+        this.proprietarioPrincipalImovelService = proprietarioPrincipalImovelService;
     }
 
     @Transactional
@@ -49,7 +52,9 @@ public class EmitirCertidaoNegativaImovelService {
         }
 
         UUID tenantId = TenantContext.getObrigatorio();
-        validarPendencias(tenantId, imovel.proprietarioId());
+        UUID pessoaProprietaria = proprietarioPrincipalImovelService.buscarPessoaIdPrincipal(imovelId)
+            .orElseThrow(() -> new ValidationException("Imóvel sem proprietário principal cadastrado."));
+        validarPendencias(tenantId, pessoaProprietaria);
 
         LocalDate dataEmissao = LocalDate.now();
         LocalDate validade = comando.validade() != null

@@ -30,6 +30,9 @@ class LancamentoIptuControllerTest extends AbstractIntegrationTest {
     private static final String DESTINACAO_RESIDENCIAL_ID = "80000003-0000-4000-8000-000000000001";
     private static final String ZONA_CENTRO_ID = "80000006-0000-4000-8000-000000000001";
     private static final int EXERCICIO = 2025;
+    private static final String TIPO_CONTRIBUINTE_ID = "b0000001-0000-4000-8000-000000000001";
+    private static final String SITUACAO_ATIVA_ID = "c0000001-0000-4000-8000-000000000001";
+    private static final String REGIME_SIMPLES_ID = "d0000001-0000-4000-8000-000000000001";
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,6 +45,7 @@ class LancamentoIptuControllerTest extends AbstractIntegrationTest {
     void deveGerarLancamentoAnualComParcelas() throws Exception {
         String token = login();
         String pessoaId = cadastrarPessoaFisica(token, "100.000.005-23", "Maria Proprietária IPTU Lancamento");
+        cadastrarContribuinte(token, pessoaId, "IMLANC" + (System.nanoTime() % 100000000));
 
         String corpoImovel = mockMvc.perform(post("/api/iptu/imoveis")
                 .header("Authorization", "Bearer " + token)
@@ -177,5 +181,23 @@ class LancamentoIptuControllerTest extends AbstractIntegrationTest {
             .andExpect(status().isOk())
             .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(corpo).get("tokens").get("accessToken").asText();
+    }
+
+    private String cadastrarContribuinte(String token, String pessoaId, String inscricaoMunicipal) throws Exception {
+        String corpo = mockMvc.perform(post("/api/iss/contribuintes")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "pessoaId": "%s",
+                      "inscricaoMunicipal": "%s",
+                      "tipoContribuinteId": "%s",
+                      "situacaoCadastralId": "%s",
+                      "regimeTributarioId": "%s"
+                    }
+                    """.formatted(pessoaId, inscricaoMunicipal, TIPO_CONTRIBUINTE_ID, SITUACAO_ATIVA_ID, REGIME_SIMPLES_ID)))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString();
+        return objectMapper.readTree(corpo).get("id").asText();
     }
 }

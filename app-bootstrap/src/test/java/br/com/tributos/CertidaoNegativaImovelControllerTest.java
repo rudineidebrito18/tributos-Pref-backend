@@ -21,6 +21,9 @@ class CertidaoNegativaImovelControllerTest extends AbstractIntegrationTest {
     private static final String TIPO_EDIFICACAO_ID = "80000002-0000-4000-8000-000000000001";
     private static final String DESTINACAO_RESIDENCIAL_ID = "80000003-0000-4000-8000-000000000001";
     private static final String ZONA_CENTRO_ID = "80000006-0000-4000-8000-000000000001";
+    private static final String TIPO_CONTRIBUINTE_ID = "b0000001-0000-4000-8000-000000000001";
+    private static final String SITUACAO_ATIVA_ID = "c0000001-0000-4000-8000-000000000001";
+    private static final String REGIME_SIMPLES_ID = "d0000001-0000-4000-8000-000000000001";
 
     @Autowired
     private MockMvc mockMvc;
@@ -105,6 +108,7 @@ class CertidaoNegativaImovelControllerTest extends AbstractIntegrationTest {
     }
 
     private String cadastrarImovel(String token, String pessoaId) throws Exception {
+        cadastrarContribuinte(token, pessoaId, "IMCND" + (System.nanoTime() % 100000000));
         String corpo = mockMvc.perform(post("/api/iptu/imoveis")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -159,6 +163,24 @@ class CertidaoNegativaImovelControllerTest extends AbstractIntegrationTest {
                       }]
                     }
                     """.formatted(cpfCnpj, nome, cidadeId)))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString();
+        return objectMapper.readTree(corpo).get("id").asText();
+    }
+
+    private String cadastrarContribuinte(String token, String pessoaId, String inscricaoMunicipal) throws Exception {
+        String corpo = mockMvc.perform(post("/api/iss/contribuintes")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "pessoaId": "%s",
+                      "inscricaoMunicipal": "%s",
+                      "tipoContribuinteId": "%s",
+                      "situacaoCadastralId": "%s",
+                      "regimeTributarioId": "%s"
+                    }
+                    """.formatted(pessoaId, inscricaoMunicipal, TIPO_CONTRIBUINTE_ID, SITUACAO_ATIVA_ID, REGIME_SIMPLES_ID)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(corpo).get("id").asText();

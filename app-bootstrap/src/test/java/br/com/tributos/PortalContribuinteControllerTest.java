@@ -22,6 +22,9 @@ class PortalContribuinteControllerTest extends AbstractIntegrationTest {
     private static final String ZONA_CENTRO_ID = "80000006-0000-4000-8000-000000000001";
     private static final String TIPO_ITBI_ID = "a1000001-0000-4000-8000-000000000001";
     private static final String NATUREZA_ID = "a1000002-0000-4000-8000-000000000001";
+    private static final String TIPO_CONTRIBUINTE_ID = "b0000001-0000-4000-8000-000000000001";
+    private static final String SITUACAO_ATIVA_ID = "c0000001-0000-4000-8000-000000000001";
+    private static final String REGIME_SIMPLES_ID = "d0000001-0000-4000-8000-000000000001";
 
     @Autowired
     private MockMvc mockMvc;
@@ -34,6 +37,8 @@ class PortalContribuinteControllerTest extends AbstractIntegrationTest {
         String token = login();
         String vendedor = cadastrarPessoa(token, "100.000.007-95", "Portal Vendedor");
         String comprador = cadastrarPessoa(token, "390.533.447-05", "Portal Comprador");
+        cadastrarContribuinte(token, vendedor, "IMPORT" + (System.nanoTime() % 100000000));
+        cadastrarContribuinte(token, comprador, "IMPORT2" + (System.nanoTime() % 100000000));
         String imovelId = cadastrarImovel(token, vendedor);
 
         mockMvc.perform(post("/api/itbi/guias")
@@ -136,6 +141,24 @@ class PortalContribuinteControllerTest extends AbstractIntegrationTest {
                       "situacao": "ATIVO"
                     }
                     """.formatted(proprietarioId, TIPO_PREDIAL_ID, TIPO_EDIFICACAO_ID, ZONA_CENTRO_ID)))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString();
+        return objectMapper.readTree(corpo).get("id").asText();
+    }
+
+    private String cadastrarContribuinte(String token, String pessoaId, String inscricaoMunicipal) throws Exception {
+        String corpo = mockMvc.perform(post("/api/iss/contribuintes")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "pessoaId": "%s",
+                      "inscricaoMunicipal": "%s",
+                      "tipoContribuinteId": "%s",
+                      "situacaoCadastralId": "%s",
+                      "regimeTributarioId": "%s"
+                    }
+                    """.formatted(pessoaId, inscricaoMunicipal, TIPO_CONTRIBUINTE_ID, SITUACAO_ATIVA_ID, REGIME_SIMPLES_ID)))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString();
         return objectMapper.readTree(corpo).get("id").asText();

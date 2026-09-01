@@ -32,6 +32,7 @@ public class SalvarImovelService {
     private final ZonaFiscalRepository zonaFiscalRepository;
     private final BairroReferenciaRepository bairroReferenciaRepository;
     private final LogradouroReferenciaRepository logradouroReferenciaRepository;
+    private final ProprietarioPrincipalImovelService proprietarioPrincipalImovelService;
 
     public SalvarImovelService(
         ImovelRepository imovelRepository,
@@ -40,7 +41,8 @@ public class SalvarImovelService {
         CatalogoIptuRepository catalogoIptuRepository,
         ZonaFiscalRepository zonaFiscalRepository,
         BairroReferenciaRepository bairroReferenciaRepository,
-        LogradouroReferenciaRepository logradouroReferenciaRepository
+        LogradouroReferenciaRepository logradouroReferenciaRepository,
+        ProprietarioPrincipalImovelService proprietarioPrincipalImovelService
     ) {
         this.imovelRepository = imovelRepository;
         this.pessoaReferenciaRepository = pessoaReferenciaRepository;
@@ -49,11 +51,12 @@ public class SalvarImovelService {
         this.zonaFiscalRepository = zonaFiscalRepository;
         this.bairroReferenciaRepository = bairroReferenciaRepository;
         this.logradouroReferenciaRepository = logradouroReferenciaRepository;
+        this.proprietarioPrincipalImovelService = proprietarioPrincipalImovelService;
     }
 
     @Transactional
     public Imovel executar(SalvarImovelComando comando, UUID idExistente) {
-        if (!pessoaReferenciaRepository.existe(comando.proprietarioId())) {
+        if (comando.proprietarioId() != null && !pessoaReferenciaRepository.existe(comando.proprietarioId())) {
             throw new ValidationException("Pessoa proprietária não encontrada.");
         }
 
@@ -120,7 +123,6 @@ public class SalvarImovelService {
             tenantId,
             numeroCadastro,
             codigoLegado,
-            comando.proprietarioId(),
             comando.tipoId(),
             comando.enderecoId(),
             comando.areaTerreno(),
@@ -154,7 +156,11 @@ public class SalvarImovelService {
             comando.observacao()
         );
 
-        return imovelRepository.salvar(imovel);
+        Imovel salvo = imovelRepository.salvar(imovel);
+        if (comando.proprietarioId() != null) {
+            proprietarioPrincipalImovelService.sincronizarProprietarioInicial(salvo.id(), comando.proprietarioId());
+        }
+        return salvo;
     }
 
     private void validarCatalogoOpcional(TipoCatalogoIptu tipo, UUID id, String rotulo) {

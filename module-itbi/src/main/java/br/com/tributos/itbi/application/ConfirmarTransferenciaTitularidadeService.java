@@ -73,7 +73,7 @@ public class ConfirmarTransferenciaTitularidadeService {
         );
 
         GuiaItbi atualizada = new GuiaItbi(
-            guia.id(), guia.tenantId(), guia.numero(), guia.imovelId(), guia.adquirenteId(),
+            guia.id(), guia.tenantId(), guia.numero(), guia.imovelId(),
             guia.tipoGuiaId(), guia.naturezaTransmissaoId(), guia.dataSolicitacao(),
             guia.valorTransacao(), guia.valorVenalReferencia(), guia.baseCalculo(), guia.aliquota(),
             guia.valorItbi(), SituacaoGuiaItbi.TRANSFERENCIA_REALIZADA, true,

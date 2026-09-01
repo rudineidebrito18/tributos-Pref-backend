@@ -37,6 +37,7 @@ public class GerarLancamentoAnualService {
     private final LancamentoIptuRepository lancamentoIptuRepository;
     private final LancamentoParcelaRepository lancamentoParcelaRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final ProprietarioPrincipalImovelService proprietarioPrincipalImovelService;
 
     public GerarLancamentoAnualService(
         VerificarParametrizacaoExercicioService verificarParametrizacaoExercicioService,
@@ -44,7 +45,8 @@ public class GerarLancamentoAnualService {
         AliquotaIptuRepository aliquotaIptuRepository,
         LancamentoIptuRepository lancamentoIptuRepository,
         LancamentoParcelaRepository lancamentoParcelaRepository,
-        ApplicationEventPublisher eventPublisher
+        ApplicationEventPublisher eventPublisher,
+        ProprietarioPrincipalImovelService proprietarioPrincipalImovelService
     ) {
         this.verificarParametrizacaoExercicioService = verificarParametrizacaoExercicioService;
         this.imovelRepository = imovelRepository;
@@ -52,6 +54,7 @@ public class GerarLancamentoAnualService {
         this.lancamentoIptuRepository = lancamentoIptuRepository;
         this.lancamentoParcelaRepository = lancamentoParcelaRepository;
         this.eventPublisher = eventPublisher;
+        this.proprietarioPrincipalImovelService = proprietarioPrincipalImovelService;
     }
 
     @Transactional
@@ -97,11 +100,15 @@ public class GerarLancamentoAnualService {
             LancamentoIptu salvo = lancamentoIptuRepository.salvar(lancamento);
             List<LancamentoParcela> parcelasGeradas = criarParcelas(lancamentoId, tenantId, exercicio, valorTotal, numParcelas);
             lancamentoParcelaRepository.salvarTodos(parcelasGeradas);
+            UUID proprietarioPessoaId = proprietarioPrincipalImovelService.buscarPessoaIdPrincipal(imovel.id())
+                .orElseThrow(() -> new ValidationException(
+                    "Imóvel " + imovel.numeroCadastro() + " sem proprietário principal para lançamento de IPTU."
+                ));
             for (LancamentoParcela parcela : parcelasGeradas) {
                 eventPublisher.publishEvent(new LancamentoIptuParcelaGeradaEvent(
                     parcela.id(),
                     tenantId,
-                    imovel.proprietarioId(),
+                    proprietarioPessoaId,
                     lancamentoId,
                     imovel.id(),
                     exercicio,

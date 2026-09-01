@@ -9,7 +9,6 @@ public record Imovel(
     UUID tenantId,
     long numeroCadastro,
     String codigoLegado,
-    UUID proprietarioId,
     UUID tipoId,
     UUID enderecoId,
     BigDecimal areaTerreno,

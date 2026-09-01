@@ -41,7 +41,7 @@ public class GuiaItbiRepositoryAdapter implements GuiaItbiRepository {
 
     private GuiaItbi paraDominio(GuiaItbiJpaEntity e) {
         return new GuiaItbi(
-            e.getId(), e.getTenantId(), e.getNumero(), e.getImovelId(), e.getAdquirenteId(),
+            e.getId(), e.getTenantId(), e.getNumero(), e.getImovelId(),
             e.getTipoGuiaId(), e.getNaturezaTransmissaoId(), e.getDataSolicitacao(),
             e.getValorTransacao(), e.getValorVenalReferencia(), e.getBaseCalculo(), e.getAliquota(),
             e.getValorItbi(), e.getSituacao(), e.isTransferenciaTitularidadeRealizada(),
@@ -57,7 +57,6 @@ public class GuiaItbiRepositoryAdapter implements GuiaItbiRepository {
         e.setTenantId(g.tenantId());
         e.setNumero(g.numero());
         e.setImovelId(g.imovelId());
-        e.setAdquirenteId(g.adquirenteId());
         e.setTipoGuiaId(g.tipoGuiaId());
         e.setNaturezaTransmissaoId(g.naturezaTransmissaoId());
         e.setDataSolicitacao(g.dataSolicitacao());

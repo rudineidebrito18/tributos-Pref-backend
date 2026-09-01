@@ -45,12 +45,12 @@ public record ImovelResponse(
     String observacao
 ) {
 
-    public static ImovelResponse de(Imovel imovel) {
+    public static ImovelResponse de(Imovel imovel, UUID proprietarioPessoaId) {
         return new ImovelResponse(
             imovel.id(),
             imovel.numeroCadastro(),
             imovel.codigoLegado(),
-            imovel.proprietarioId(),
+            proprietarioPessoaId,
             imovel.tipoId(),
             imovel.enderecoId(),
             imovel.areaTerreno(),

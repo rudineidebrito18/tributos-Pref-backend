@@ -49,6 +49,7 @@ class ImovelControllerTest extends AbstractIntegrationTest {
         String pessoaPfId = cadastrarPessoaFisica(token, "100.000.004-42", "Maria Proprietária IPTU");
         String pessoaPjId = cadastrarPessoaJuridica(token, "77.888.999/0001-81", "Empresa Proprietária IPTU");
         String contribuintePfId = cadastrarContribuinte(token, pessoaPfId, "IM0004");
+        cadastrarContribuinte(token, pessoaPjId, "IM0005");
         String situacaoCndId = cadastrarSituacaoCnd(token);
 
         String corpoPredial = mockMvc.perform(post("/api/iptu/imoveis")
@@ -182,7 +183,6 @@ class ImovelControllerTest extends AbstractIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
-                      "proprietarioId": "%s",
                       "tipoId": "%s",
                       "areaConstruida": 150,
                       "areaTerreno": 220,
@@ -211,7 +211,6 @@ class ImovelControllerTest extends AbstractIntegrationTest {
                       "observacao": "Imóvel teste E6.1"
                     }
                     """.formatted(
-                    pessoaPfId,
                     TIPO_PREDIAL_ID,
                     TIPO_EDIFICACAO_ID,
                     DESTINACAO_RESIDENCIAL_ID,

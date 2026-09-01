@@ -35,6 +35,7 @@ import br.com.tributos.iptu.application.GerenciarImovelProprietarioService;
 import br.com.tributos.iptu.application.ImportarImovelLegadoService;
 import br.com.tributos.iptu.application.ListarImoveisService;
 import br.com.tributos.iptu.application.ListarImovelTitularidadeService;
+import br.com.tributos.iptu.application.MontarImovelResponseService;
 import br.com.tributos.iptu.application.SalvarImovelComando;
 import br.com.tributos.iptu.application.SalvarImovelService;
 
@@ -49,6 +50,7 @@ public class ImovelController {
     private final GerenciarImovelProprietarioService gerenciarImovelProprietarioService;
     private final GerenciarImovelObservacaoService gerenciarImovelObservacaoService;
     private final ListarImovelTitularidadeService listarImovelTitularidadeService;
+    private final MontarImovelResponseService montarImovelResponseService;
 
     public ImovelController(
         ListarImoveisService listarImoveisService,
@@ -57,7 +59,8 @@ public class ImovelController {
         ImportarImovelLegadoService importarImovelLegadoService,
         GerenciarImovelProprietarioService gerenciarImovelProprietarioService,
         GerenciarImovelObservacaoService gerenciarImovelObservacaoService,
-        ListarImovelTitularidadeService listarImovelTitularidadeService
+        ListarImovelTitularidadeService listarImovelTitularidadeService,
+        MontarImovelResponseService montarImovelResponseService
     ) {
         this.listarImoveisService = listarImoveisService;
         this.buscarImovelService = buscarImovelService;
@@ -66,6 +69,7 @@ public class ImovelController {
         this.gerenciarImovelProprietarioService = gerenciarImovelProprietarioService;
         this.gerenciarImovelObservacaoService = gerenciarImovelObservacaoService;
         this.listarImovelTitularidadeService = listarImovelTitularidadeService;
+        this.montarImovelResponseService = montarImovelResponseService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
@@ -74,19 +78,22 @@ public class ImovelController {
         @RequestParam(required = false) String busca,
         Pageable pageable
     ) {
-        return listarImoveisService.executar(busca, pageable).map(ImovelResponse::de);
+        return listarImoveisService.executar(busca, pageable)
+            .map(montarImovelResponseService::montar);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
     @GetMapping("/{id}")
     public ImovelResponse buscar(@PathVariable UUID id) {
-        return ImovelResponse.de(buscarImovelService.executar(id));
+        return montarImovelResponseService.montar(buscarImovelService.executar(id));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'ATENDENTE')")
     @PostMapping
     public ResponseEntity<ImovelResponse> criar(@Valid @RequestBody SalvarImovelRequest request) {
-        ImovelResponse resposta = ImovelResponse.de(salvarImovelService.executar(paraComando(request), null));
+        ImovelResponse resposta = montarImovelResponseService.montar(
+            salvarImovelService.executar(paraComando(request), null)
+        );
         return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
     }
 
@@ -96,7 +103,7 @@ public class ImovelController {
         @PathVariable UUID id,
         @Valid @RequestBody SalvarImovelRequest request
     ) {
-        return ImovelResponse.de(salvarImovelService.executar(paraComando(request), id));
+        return montarImovelResponseService.montar(salvarImovelService.executar(paraComando(request), id));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'ATENDENTE')")
@@ -104,7 +111,7 @@ public class ImovelController {
     public List<ImovelResponse> importarLegado(@Valid @RequestBody ImportarImovelLegadoRequest request) {
         return importarImovelLegadoService.executar(
             request.itens().stream().map(ImovelController::paraComando).toList()
-        ).stream().map(ImovelResponse::de).toList();
+        ).stream().map(montarImovelResponseService::montar).toList();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")

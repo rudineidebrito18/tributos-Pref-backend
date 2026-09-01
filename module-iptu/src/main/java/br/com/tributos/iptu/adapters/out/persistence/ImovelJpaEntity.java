@@ -30,9 +30,6 @@ public class ImovelJpaEntity {
     @Column(name = "codigo_legado", length = 50)
     private String codigoLegado;
 
-    @Column(name = "proprietario_id")
-    private UUID proprietarioId;
-
     @Column(name = "tipo_id", nullable = false)
     private UUID tipoId;
 
@@ -166,14 +163,6 @@ public class ImovelJpaEntity {
 
     public void setCodigoLegado(String codigoLegado) {
         this.codigoLegado = codigoLegado;
-    }
-
-    public UUID getProprietarioId() {
-        return proprietarioId;
-    }
-
-    public void setProprietarioId(UUID proprietarioId) {
-        this.proprietarioId = proprietarioId;
     }
 
     public UUID getTipoId() {

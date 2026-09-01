@@ -17,4 +17,6 @@ public interface ImovelProprietarioRepository {
     void removerPorImovel(UUID imovelId);
 
     boolean existePorImovelEContribuinte(UUID imovelId, UUID contribuinteId, UUID idExcluir);
+
+    Optional<ImovelProprietario> buscarPrincipalPorImovel(UUID imovelId);
 }

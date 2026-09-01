@@ -8,4 +8,6 @@ public interface ContribuinteReferenciaRepository {
     boolean existe(UUID contribuinteId);
 
     Optional<UUID> buscarPessoaId(UUID contribuinteId);
+
+    Optional<UUID> buscarContribuinteIdPorPessoaId(UUID pessoaId);
 }

@@ -31,9 +31,6 @@ public class GuiaItbiJpaEntity {
     @Column(name = "imovel_id", nullable = false)
     private UUID imovelId;
 
-    @Column(name = "adquirente_id")
-    private UUID adquirenteId;
-
     @Column(name = "tipo_guia_id", nullable = false)
     private UUID tipoGuiaId;
 
@@ -100,8 +97,6 @@ public class GuiaItbiJpaEntity {
     public void setNumero(long numero) { this.numero = numero; }
     public UUID getImovelId() { return imovelId; }
     public void setImovelId(UUID imovelId) { this.imovelId = imovelId; }
-    public UUID getAdquirenteId() { return adquirenteId; }
-    public void setAdquirenteId(UUID adquirenteId) { this.adquirenteId = adquirenteId; }
     public UUID getTipoGuiaId() { return tipoGuiaId; }
     public void setTipoGuiaId(UUID tipoGuiaId) { this.tipoGuiaId = tipoGuiaId; }
     public UUID getNaturezaTransmissaoId() { return naturezaTransmissaoId; }

@@ -35,7 +35,6 @@ public class ImovelRepositoryAdapter implements ImovelRepository {
 
         entidade.setNumeroCadastro(imovel.numeroCadastro());
         entidade.setCodigoLegado(imovel.codigoLegado());
-        entidade.setProprietarioId(imovel.proprietarioId());
         entidade.setTipoId(imovel.tipoId());
         entidade.setEnderecoId(imovel.enderecoId());
         entidade.setAreaTerreno(imovel.areaTerreno());
@@ -115,7 +114,6 @@ public class ImovelRepositoryAdapter implements ImovelRepository {
             entidade.getTenantId(),
             entidade.getNumeroCadastro(),
             entidade.getCodigoLegado(),
-            entidade.getProprietarioId(),
             entidade.getTipoId(),
             entidade.getEnderecoId(),
             entidade.getAreaTerreno(),

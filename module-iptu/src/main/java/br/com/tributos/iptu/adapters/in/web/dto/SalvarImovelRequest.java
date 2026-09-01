@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record SalvarImovelRequest(
     String codigoLegado,
-    @NotNull(message = "Informe o proprietário.")
     UUID proprietarioId,
     @NotNull(message = "Informe o tipo do imóvel.")
     UUID tipoId,

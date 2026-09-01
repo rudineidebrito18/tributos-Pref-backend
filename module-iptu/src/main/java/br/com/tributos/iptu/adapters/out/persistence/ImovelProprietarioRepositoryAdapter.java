@@ -67,6 +67,12 @@ public class ImovelProprietarioRepositoryAdapter implements ImovelProprietarioRe
         return jpaRepository.existsByImovelIdAndContribuinteIdAndIdNot(imovelId, contribuinteId, excluir);
     }
 
+    @Override
+    public Optional<ImovelProprietario> buscarPrincipalPorImovel(UUID imovelId) {
+        return jpaRepository.findFirstByImovelIdAndProprietarioPrincipalTrueOrderByCriadoEmAsc(imovelId)
+            .map(ImovelProprietarioRepositoryAdapter::paraDominio);
+    }
+
     private static ImovelProprietario paraDominio(ImovelProprietarioJpaEntity entidade) {
         return new ImovelProprietario(
             entidade.getId(),

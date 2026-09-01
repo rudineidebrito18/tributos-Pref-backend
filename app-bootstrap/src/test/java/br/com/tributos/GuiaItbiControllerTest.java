@@ -44,6 +44,7 @@ class GuiaItbiControllerTest extends AbstractIntegrationTest {
         String sufixo = String.valueOf(System.currentTimeMillis() % 100000);
         String vendedorPessoaId = cadastrarPessoa(token, gerarCpf(sufixo + "audit1"), "Vendedor ITBI Audit");
         String compradorPessoaId = cadastrarPessoa(token, gerarCpf(sufixo + "audit2"), "Comprador ITBI Audit");
+        cadastrarContribuinte(token, vendedorPessoaId, "IMAUDV" + sufixo);
         cadastrarContribuinte(token, compradorPessoaId, "IMAUD" + sufixo);
 
         String imovelId = cadastrarImovel(token, vendedorPessoaId, 50000, 50000);

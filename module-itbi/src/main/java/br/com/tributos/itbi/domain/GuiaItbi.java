@@ -10,7 +10,6 @@ public record GuiaItbi(
     UUID tenantId,
     long numero,
     UUID imovelId,
-    UUID adquirenteId,
     UUID tipoGuiaId,
     UUID naturezaTransmissaoId,
     Instant dataSolicitacao,

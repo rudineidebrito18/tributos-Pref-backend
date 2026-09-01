@@ -28,6 +28,7 @@ import br.com.tributos.itbi.application.BuscarGuiaItbiService;
 import br.com.tributos.itbi.application.ConfirmarTransferenciaTitularidadeService;
 import br.com.tributos.itbi.application.GerenciarParteTransmissaoService;
 import br.com.tributos.itbi.application.ListarGuiasItbiService;
+import br.com.tributos.itbi.application.MontarGuiaItbiResponseService;
 import br.com.tributos.itbi.application.SolicitarGuiaItbiService;
 import br.com.tributos.itbi.domain.NaturezaTransmissaoRepository;
 import br.com.tributos.itbi.domain.PapelParteTransmissao;
@@ -46,6 +47,7 @@ public class GuiaItbiController {
     private final GerenciarParteTransmissaoService gerenciarParteTransmissaoService;
     private final TipoGuiaItbiRepository tipoGuiaItbiRepository;
     private final NaturezaTransmissaoRepository naturezaTransmissaoRepository;
+    private final MontarGuiaItbiResponseService montarGuiaItbiResponseService;
 
     public GuiaItbiController(
         ListarGuiasItbiService listarGuiasItbiService,
@@ -54,7 +56,8 @@ public class GuiaItbiController {
         ConfirmarTransferenciaTitularidadeService confirmarTransferenciaTitularidadeService,
         GerenciarParteTransmissaoService gerenciarParteTransmissaoService,
         TipoGuiaItbiRepository tipoGuiaItbiRepository,
-        NaturezaTransmissaoRepository naturezaTransmissaoRepository
+        NaturezaTransmissaoRepository naturezaTransmissaoRepository,
+        MontarGuiaItbiResponseService montarGuiaItbiResponseService
     ) {
         this.listarGuiasItbiService = listarGuiasItbiService;
         this.buscarGuiaItbiService = buscarGuiaItbiService;
@@ -63,6 +66,7 @@ public class GuiaItbiController {
         this.gerenciarParteTransmissaoService = gerenciarParteTransmissaoService;
         this.tipoGuiaItbiRepository = tipoGuiaItbiRepository;
         this.naturezaTransmissaoRepository = naturezaTransmissaoRepository;
+        this.montarGuiaItbiResponseService = montarGuiaItbiResponseService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
@@ -80,20 +84,20 @@ public class GuiaItbiController {
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
     @GetMapping("/guias")
     public Page<GuiaItbiResponse> listar(@RequestParam(required = false) UUID imovelId, Pageable pageable) {
-        return listarGuiasItbiService.executar(imovelId, pageable).map(GuiaItbiResponse::de);
+        return listarGuiasItbiService.executar(imovelId, pageable).map(montarGuiaItbiResponseService::montar);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
     @GetMapping("/guias/{id}")
     public GuiaItbiResponse buscar(@PathVariable UUID id) {
-        return GuiaItbiResponse.de(buscarGuiaItbiService.executar(id));
+        return montarGuiaItbiResponseService.montar(buscarGuiaItbiService.executar(id));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN_TENANT', 'FISCAL', 'ATENDENTE')")
     @PostMapping("/guias")
     @ResponseStatus(HttpStatus.CREATED)
     public GuiaItbiResponse solicitar(@Valid @RequestBody SolicitarGuiaItbiRequest request) {
-        return GuiaItbiResponse.de(solicitarGuiaItbiService.executar(
+        return montarGuiaItbiResponseService.montar(solicitarGuiaItbiService.executar(
             new SolicitarGuiaItbiService.SolicitarGuiaItbiComando(
                 request.imovelId(),
                 request.adquirenteId(),
@@ -146,6 +150,6 @@ public class GuiaItbiController {
     @PreAuthorize("hasRole('ADMIN_TENANT')")
     @PostMapping("/guias/{id}/confirmar-transferencia")
     public GuiaItbiResponse confirmarTransferencia(@PathVariable UUID id) {
-        return GuiaItbiResponse.de(confirmarTransferenciaTitularidadeService.executar(id));
+        return montarGuiaItbiResponseService.montar(confirmarTransferenciaTitularidadeService.executar(id));
     }
 }

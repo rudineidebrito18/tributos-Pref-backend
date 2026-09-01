@@ -34,9 +34,9 @@ public record GuiaItbiResponse(
     String motivoCancelamento,
     String codigoVerificacao
 ) {
-    public static GuiaItbiResponse de(GuiaItbi g) {
+    public static GuiaItbiResponse de(GuiaItbi g, UUID adquirentePessoaId) {
         return new GuiaItbiResponse(
-            g.id(), g.numero(), g.imovelId(), g.adquirenteId(), g.tipoGuiaId(), g.naturezaTransmissaoId(),
+            g.id(), g.numero(), g.imovelId(), adquirentePessoaId, g.tipoGuiaId(), g.naturezaTransmissaoId(),
             g.dataSolicitacao(), g.valorTransacao(), g.valorVenalReferencia(), g.baseCalculo(), g.aliquota(),
             g.valorItbi(), g.situacao(), g.transferenciaTitularidadeRealizada(),
             g.dataTransacao(), g.percentualTransmitido(), g.valorNaoFinanciado(), g.valorFinanciado(),

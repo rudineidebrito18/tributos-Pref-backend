@@ -1,5 +1,6 @@
 package br.com.tributos.iptu.adapters.out.persistence;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
@@ -21,7 +22,12 @@ public class ContribuinteReferenciaRepositoryAdapter implements ContribuinteRefe
     }
 
     @Override
-    public java.util.Optional<UUID> buscarPessoaId(UUID contribuinteId) {
+    public Optional<UUID> buscarPessoaId(UUID contribuinteId) {
         return jpaRepository.findById(contribuinteId).map(ContribuinteReferenciaJpaEntity::getPessoaId);
+    }
+
+    @Override
+    public Optional<UUID> buscarContribuinteIdPorPessoaId(UUID pessoaId) {
+        return jpaRepository.findFirstByPessoaId(pessoaId).map(ContribuinteReferenciaJpaEntity::getId);
     }
 }
